@@ -1,0 +1,565 @@
+
+import React, { useState, useEffect, useRef } from 'react';
+import { IconArrowRight, IconSearch, IconFileDown, IconMapPin, IconActivity, IconZap, IconShield, IconGlobe } from './Icons';
+import { motion, AnimatePresence } from 'framer-motion';
+import { searchLeads, exportToCSV } from '../lib/api';
+import { Lead } from '../lib/types';
+import { Session } from '@supabase/supabase-js';
+import Background3D from './Background3D';
+
+interface HeroProps {
+  session: Session | null;
+  onLoginClick: () => void;
+}
+
+const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
+  const [keyword, setKeyword] = useState('');
+  const [city, setCity] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [focusedField, setFocusedField] = useState<'keyword' | 'city' | null>(null);
+  
+  const inputRefKeyword = useRef<HTMLInputElement>(null);
+  const inputRefCity = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const categories = [
+    { name: "Plumbers", icon: <IconZap className="w-4 h-4" /> },
+    { name: "Dentists", icon: <IconActivity className="w-4 h-4" /> },
+    { name: "Real Estate", icon: <IconMapPin className="w-4 h-4" /> },
+    { name: "Restaurants", icon: <IconSearch className="w-4 h-4" /> },
+    { name: "Contractors", icon: <IconFileDown className="w-4 h-4" /> },
+    { name: "Gyms", icon: <IconShield className="w-4 h-4" /> },
+  ];
+  
+  const citySuggestions = ["Austin, TX", "New York, NY", "Los Angeles, CA", "Miami, FL", "Chicago, IL"];
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (formRef.current && !formRef.current.contains(event.target as Node)) {
+        setFocusedField(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const [tickerIndex, setTickerIndex] = useState(0);
+  const tickers = [
+    "⚡ Live: Found 3 Roofers in Austin without a site",
+    "⚡ Live: Found 5 Dentists in Miami without a site",
+    "⚡ Live: Found 2 Gyms in Denver without a site",
+    "⚡ Live: Found 4 Cafes in Portland without a site"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTickerIndex((prev) => (prev + 1) % tickers.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session) {
+      onLoginClick();
+      return;
+    }
+    if (!keyword || !city) return;
+    
+    setFocusedField(null);
+    setLoading(true);
+    setHasSearched(true);
+    setLeads([]);
+
+    try {
+      const results = await searchLeads({ keyword, city });
+      setLeads(results);
+    } catch (error) {
+      console.error("Search failed", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCategorySelect = (value: string) => {
+    setKeyword(value);
+    // Auto-advance to city field for better UX
+    setTimeout(() => {
+        inputRefCity.current?.focus();
+        setFocusedField('city');
+    }, 100);
+  };
+
+  const handleCitySelect = (value: string) => {
+    setCity(value);
+    setFocusedField(null);
+  };
+
+  const filteredLeads = leads.filter(l => !l.has_website);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+    },
+  };
+
+  const wordVariants = {
+    hidden: { opacity: 0, y: 20, filter: 'blur(8px)' },
+    visible: {
+      opacity: 1,
+      y: 0,
+      filter: 'blur(0px)',
+      transition: { duration: 0.8, ease: [0.2, 0.65, 0.3, 0.9] },
+    },
+  };
+
+  const gradientWordVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8, ease: [0.2, 0.65, 0.3, 0.9] },
+    },
+  };
+
+  const dropdownVariants = {
+    hidden: { opacity: 0, y: -10, scale: 0.95 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.2, ease: "easeOut" } },
+    exit: { opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.15 } }
+  };
+
+  // Improved Split Island Animation
+  const getFieldStyle = (isFocused: boolean, isOtherFocused: boolean) => {
+      if (isFocused) {
+          return {
+              flex: 1.2,
+              opacity: 1,
+              scale: 1,
+              filter: "blur(0px)",
+              y: 0,
+              zIndex: 30
+          };
+      }
+      if (isOtherFocused) {
+          return {
+              flex: 1,
+              opacity: 0.4,
+              scale: 0.98,
+              filter: "blur(2px)",
+              y: -8, // Reduced slide up distance
+              zIndex: 10
+          };
+      }
+      return {
+          flex: 1,
+          opacity: 1,
+          scale: 1,
+          filter: "blur(0px)",
+          y: 0,
+          zIndex: 20
+      };
+  };
+
+  return (
+    <section className="relative pt-32 pb-16 lg:pt-48 lg:pb-32 min-h-screen flex flex-col items-center justify-start bg-white dark:bg-[#030712] transition-colors duration-300 overflow-hidden">
+      
+      <Background3D />
+
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none opacity-20 dark:opacity-40">
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+        <div className="absolute inset-0 bg-grid-black/[0.04] dark:bg-grid-white/[0.04] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 text-center relative z-10 w-full">
+        
+        {/* Modern Glass Ticker */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-auto w-fit mb-8"
+        >
+            <div className="flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/10 backdrop-blur-md shadow-sm ring-1 ring-black/5 dark:ring-white/5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <AnimatePresence mode="wait">
+                    <motion.span 
+                        key={tickerIndex}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 tracking-wide"
+                    >
+                        {tickers[tickerIndex]}
+                    </motion.span>
+                </AnimatePresence>
+            </div>
+        </motion.div>
+
+        {/* Hero Headline */}
+        <motion.h1 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tighter text-slate-900 dark:text-white mb-8 leading-[0.9] mx-auto max-w-6xl"
+        >
+          <span className="inline-block">
+            {["Find", "clients", "who"].map((word, i) => (
+              <motion.span key={i} variants={wordVariants} className="inline-block mr-2 md:mr-4">
+                {word}
+              </motion.span>
+            ))}
+          </span>
+          <br className="hidden md:block"/>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 via-orange-500 to-amber-500 dark:from-primary-400 dark:via-orange-400 dark:to-amber-400 inline-block pb-3">
+             {["actually", "need", "you."].map((word, i) => (
+              <motion.span key={i} variants={gradientWordVariants} className="inline-block mr-2 md:mr-4">
+                {word}
+              </motion.span>
+            ))}
+          </span>
+        </motion.h1>
+
+        {/* Subtext */}
+        <motion.p 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed font-light"
+        >
+          Stop cold calling businesses that already have great websites. We identify local companies with <strong>zero digital footprint</strong> so you can offer immediate value.
+        </motion.p>
+
+        {/* Search Bar / Login Gate */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-2xl mx-auto mb-16 relative z-30"
+        >
+          {session ? (
+            <form 
+              ref={formRef}
+              onSubmit={handleSearch}
+              className="relative flex flex-col md:flex-row items-center bg-slate-900 dark:bg-white p-1 rounded-[2.5rem] md:rounded-full border border-slate-800 dark:border-slate-200 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)] dark:shadow-[0_20px_40px_-10px_rgba(255,255,255,0.1)] transition-all duration-500 ease-out hover:shadow-[0_25px_50px_-8px_rgba(255,85,0,0.25)] group/search"
+            >
+              
+              {/* Category Input */}
+              <motion.div 
+                  layout
+                  className="relative group px-4 py-1.5 cursor-text rounded-3xl md:rounded-l-full hover:bg-white/5 dark:hover:bg-slate-100/50 transition-colors duration-300"
+                  onClick={() => inputRefKeyword.current?.focus()}
+                  animate={getFieldStyle(focusedField === 'keyword', focusedField === 'city')}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                  <div className="flex flex-col items-start justify-center h-full relative">
+                        <div className="flex items-center gap-2 mb-0">
+                            <label className={`text-[9px] font-bold tracking-widest uppercase transition-colors ${focusedField === 'keyword' ? 'text-primary-500' : 'text-slate-500 dark:text-slate-400'}`}>Category</label>
+                        </div>
+                        <div className="flex items-center gap-2 w-full">
+                           <IconSearch className={`w-3.5 h-3.5 transition-colors ${focusedField === 'keyword' ? 'text-primary-500' : 'text-slate-600 dark:text-slate-400'}`} />
+                           <input 
+                              ref={inputRefKeyword}
+                              type="text"
+                              className="w-full bg-transparent border-none p-0 text-base font-bold text-white dark:text-slate-900 placeholder:text-slate-600 dark:placeholder:text-slate-400 focus:ring-0 outline-none leading-none tracking-tight"
+                              placeholder="Select Category..."
+                              value={keyword}
+                              onChange={(e) => setKeyword(e.target.value)}
+                              onFocus={() => setFocusedField('keyword')}
+                              autoComplete="off"
+                            />
+                        </div>
+                  </div>
+                  <AnimatePresence>
+                    {focusedField === 'keyword' && (
+                      <motion.div
+                        variants={dropdownVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="absolute top-[120%] left-0 w-[140%] min-w-[300px] p-2 bg-slate-900/95 dark:bg-white/95 backdrop-blur-2xl border border-slate-700 dark:border-slate-200 rounded-3xl shadow-2xl z-50 overflow-hidden"
+                      >
+                         <div className="px-4 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Suggested Categories</div>
+                        {categories.map((item) => (
+                          <motion.button
+                            key={item.name}
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleCategorySelect(item.name); }}
+                            className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-300 dark:text-slate-700 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-3 group/item"
+                          >
+                            <div className="w-7 h-7 rounded-lg bg-slate-800 dark:bg-slate-100 flex items-center justify-center text-slate-400 dark:text-slate-500 group-hover/item:text-primary-500 group-hover/item:bg-primary-500/10 transition-colors">
+                               {item.icon}
+                            </div>
+                            {item.name}
+                          </motion.button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+              </motion.div>
+
+              {/* Vertical Divider */}
+              <motion.div 
+                layout
+                animate={{ 
+                    opacity: focusedField ? 0 : 0.2,
+                    scaleY: focusedField ? 0 : 1
+                }}
+                className="hidden md:block w-px h-6 bg-white dark:bg-slate-900 mx-2"
+              ></motion.div>
+              <div className="md:hidden h-px w-full bg-white/10 dark:bg-slate-200 my-2"></div>
+
+              {/* Location Input */}
+              <motion.div 
+                  layout
+                  className="relative group px-4 py-1.5 cursor-text rounded-3xl md:rounded-r-full md:mr-1 hover:bg-white/5 dark:hover:bg-slate-100/50 transition-colors duration-300"
+                  onClick={() => inputRefCity.current?.focus()}
+                  animate={getFieldStyle(focusedField === 'city', focusedField === 'keyword')}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                    <div className="flex flex-col items-start justify-center h-full relative">
+                        <div className="flex items-center gap-2 mb-0">
+                             <label className={`text-[9px] font-bold tracking-widest uppercase transition-colors ${focusedField === 'city' ? 'text-primary-500' : 'text-slate-500 dark:text-slate-400'}`}>Location</label>
+                        </div>
+                        <div className="flex items-center gap-2 w-full">
+                            <IconMapPin className={`w-3.5 h-3.5 transition-colors ${focusedField === 'city' ? 'text-primary-500' : 'text-slate-600 dark:text-slate-400'}`} />
+                            <input 
+                                  ref={inputRefCity}
+                                  type="text"
+                                  className="w-full bg-transparent border-none p-0 text-base font-bold text-white dark:text-slate-900 placeholder:text-slate-600 dark:placeholder:text-slate-300 focus:ring-0 outline-none leading-none tracking-tight"
+                                  placeholder="City, Zip..."
+                                  value={city}
+                                  onChange={(e) => setCity(e.target.value)}
+                                  onFocus={() => setFocusedField('city')}
+                                  autoComplete="off"
+                                />
+                        </div>
+                  </div>
+                  <AnimatePresence>
+                    {focusedField === 'city' && (
+                      <motion.div
+                        variants={dropdownVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="absolute top-[120%] left-0 w-full min-w-[280px] p-2 bg-slate-900/95 dark:bg-white/95 backdrop-blur-2xl border border-slate-700 dark:border-slate-200 rounded-3xl shadow-2xl z-50 overflow-hidden"
+                      >
+                         <div className="px-4 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Popular Locations</div>
+                        {citySuggestions.map((item) => (
+                          <motion.button
+                            key={item}
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleCitySelect(item); }}
+                            className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-300 dark:text-slate-700 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-3 group/item"
+                          >
+                             <div className="w-7 h-7 rounded-lg bg-slate-800 dark:bg-slate-100 flex items-center justify-center text-slate-400 dark:text-slate-500 group-hover/item:text-primary-500 group-hover/item:bg-primary-500/10 transition-colors">
+                               <IconGlobe className="w-4 h-4" />
+                            </div>
+                            {item}
+                          </motion.button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+              </motion.div>
+
+              {/* Search Button */}
+              <button 
+                  type="submit"
+                  className="hidden md:flex bg-primary-500 hover:bg-primary-400 text-white rounded-full w-10 h-10 items-center justify-center transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-105 active:scale-95 z-30 relative overflow-hidden group/btn"
+              >
+                  <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
+                  {loading ? (
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                      <IconSearch className="w-4 h-4" />
+                  )}
+              </button>
+              
+               {/* Mobile Search Button */}
+              <button 
+                  type="submit"
+                  className="md:hidden w-full mt-2 bg-primary-500 hover:bg-primary-400 text-white rounded-2xl p-3 font-bold text-lg transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+              >
+                  {loading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <IconSearch className="w-5 h-5" />
+                      Search
+                    </>
+                  )}
+              </button>
+            </form>
+          ) : (
+            // LOCKED STATE - Compact
+            <div className="relative group cursor-pointer" onClick={onLoginClick}>
+                 {/* Glow Effect */}
+                 <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-orange-500 rounded-full opacity-20 group-hover:opacity-40 blur-xl transition-opacity duration-500"></div>
+                 
+                 <div className="relative flex items-center justify-between bg-slate-900 dark:bg-white p-1 pr-1 rounded-[2rem] md:rounded-full border border-slate-800 dark:border-slate-200 shadow-2xl backdrop-blur-xl">
+                   <div className="flex-1 px-4 py-1.5 flex items-center gap-6 opacity-40 select-none grayscale group-hover:grayscale-0 transition-all duration-500">
+                     <div className="flex flex-col">
+                        <span className="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-0">Category</span>
+                        <div className="flex items-center gap-2">
+                             <IconSearch className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+                             <span className="text-base font-bold text-white dark:text-slate-900">Plumbers...</span>
+                        </div>
+                     </div>
+                     <div className="w-px h-6 bg-white/10 dark:bg-slate-200"></div>
+                     <div className="flex flex-col">
+                        <span className="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-0">Location</span>
+                        <div className="flex items-center gap-2">
+                             <IconMapPin className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
+                             <span className="text-base font-bold text-white dark:text-slate-900">Austin, TX...</span>
+                        </div>
+                     </div>
+                   </div>
+                   
+                   <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-full w-10 h-10 flex items-center justify-center shadow-xl transition-transform group-hover:scale-105">
+                     <IconShield className="w-4 h-4" />
+                   </div>
+                </div>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Results Interface */}
+        <AnimatePresence>
+        {(hasSearched || loading) && session && (
+          <motion.div
+             initial={{ opacity: 0, y: 40, scale: 0.95 }}
+             animate={{ opacity: 1, y: 0, scale: 1 }}
+             exit={{ opacity: 0, y: 20, scale: 0.95 }}
+             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+             className="relative mx-auto max-w-6xl text-left pb-20"
+          >
+            <div className="rounded-3xl bg-white dark:bg-[#0f172a] backdrop-blur-xl shadow-2xl dark:shadow-black/50 ring-1 ring-slate-200 dark:ring-white/10 overflow-hidden min-h-[500px] flex flex-col border border-slate-100 dark:border-white/5 relative transition-colors duration-300">
+              {/* Top Highlight Line */}
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500 to-transparent opacity-50"></div>
+              
+              {/* Window Header */}
+              <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] px-6 py-4 transition-colors">
+                <div className="flex items-center gap-4">
+                   <div className="flex gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50"></div>
+                   </div>
+                   <div className="h-4 w-px bg-slate-300 dark:bg-white/10 ml-2"></div>
+                   <div className="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400">
+                      <IconActivity className="w-3 h-3 text-primary-500 dark:text-primary-400" />
+                      {loading ? 'STATUS: SCANNING' : `STATUS: COMPLETE (${filteredLeads.length} FOUND)`}
+                   </div>
+                </div>
+                
+                {!loading && filteredLeads.length > 0 && (
+                  <button 
+                    onClick={() => exportToCSV(filteredLeads)}
+                    className="flex items-center gap-2 bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-primary-100 dark:hover:bg-primary-500/20 hover:text-primary-800 dark:hover:text-primary-200 transition-all border border-primary-200 dark:border-primary-500/20 shadow-sm"
+                  >
+                    <IconFileDown className="w-3.5 h-3.5" />
+                    Download CSV
+                  </button>
+                )}
+              </div>
+
+              {/* Content Area */}
+              <div className="flex-1 relative bg-white dark:bg-transparent transition-colors">
+                 {loading && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-white/50 dark:bg-[#020617]/50 backdrop-blur-sm">
+                       <div className="flex flex-col items-center gap-4">
+                          <div className="relative">
+                            <div className="w-16 h-16 border-4 border-primary-500/30 dark:border-primary-500/20 border-t-primary-500 rounded-full animate-spin"></div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <IconSearch className="w-6 h-6 text-primary-500 dark:text-primary-400" />
+                            </div>
+                          </div>
+                          <span className="text-sm font-medium text-slate-600 dark:text-slate-300 animate-pulse">Scanning {city} area...</span>
+                       </div>
+                    </div>
+                 )}
+
+                 {!loading && filteredLeads.length === 0 && (
+                    <div className="flex flex-col items-center justify-center h-full p-12 text-center">
+                       <div className="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-3xl flex items-center justify-center mb-6 ring-1 ring-slate-200 dark:ring-white/10 shadow-lg">
+                         <IconSearch className="w-10 h-10 text-slate-400 dark:text-slate-500" />
+                       </div>
+                       <h3 className="text-slate-900 dark:text-white text-xl font-bold mb-2">No results found</h3>
+                       <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm">We couldn't find any businesses matching "{keyword}" in "{city}" that fit our criteria.</p>
+                    </div>
+                 )}
+
+                 {filteredLeads.length > 0 && (
+                   <div className="overflow-x-auto">
+                     <table className="w-full text-left text-sm border-collapse">
+                       <thead>
+                         <tr className="border-b border-slate-200 dark:border-white/5 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider bg-slate-50 dark:bg-white/[0.02]">
+                           <th className="px-6 py-4 font-medium pl-8">Business Info</th>
+                           <th className="px-6 py-4 font-medium">Location</th>
+                           <th className="px-6 py-4 font-medium">Web Status</th>
+                           <th className="px-6 py-4 font-medium text-right pr-8">Link</th>
+                         </tr>
+                       </thead>
+                       <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                         {filteredLeads.map((row, i) => (
+                           <motion.tr 
+                              key={row.id} 
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: i * 0.05 }}
+                              className="group transition-all duration-300 hover:bg-slate-50 dark:hover:bg-white/[0.04] hover:shadow-[0_0_30px_-5px_rgba(253,107,46,0.15)] dark:hover:shadow-[0_0_30px_-5px_rgba(253,107,46,0.1)] relative hover:z-10"
+                           >
+                             <td className="px-6 py-4 pl-8">
+                                <div className="flex flex-col gap-1">
+                                   <span className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors text-base">{row.business_name}</span>
+                                   <div className="flex items-center gap-2">
+                                     <span className="text-xs text-slate-500 font-mono bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded">{row.phone}</span>
+                                     <span className="text-xs text-slate-500 dark:text-slate-500">{row.category}</span>
+                                   </div>
+                                </div>
+                             </td>
+                             <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-xs truncate">
+                                {row.address}
+                             </td>
+                             <td className="px-6 py-4">
+                               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 shadow-sm dark:shadow-[0_0_10px_rgba(244,63,94,0.1)]">
+                                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                                 No Website
+                               </span>
+                             </td>
+                             <td className="px-6 py-4 text-right pr-8">
+                                <a 
+                                 href={row.google_maps_url} 
+                                 target="_blank" 
+                                 rel="noreferrer"
+                                 className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium text-xs transition-colors bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/5"
+                               >
+                                 Open Maps
+                                 <IconArrowRight className="w-3 h-3" />
+                               </a>
+                             </td>
+                           </motion.tr>
+                         ))}
+                       </tbody>
+                     </table>
+                   </div>
+                 )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+};
+
+export default Hero;
