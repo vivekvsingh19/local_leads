@@ -74,17 +74,21 @@ const Features: React.FC = () => {
 
                      {/* Visual: Map Interface */}
                      <div className="mt-auto relative w-full h-48 bg-slate-100 dark:bg-[#0B1121] rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden shadow-inner">
-                        <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-97.7431,30.2672,13,0/600x400@2x?access_token=YOUR_TOKEN')] bg-cover opacity-20 dark:opacity-40 grayscale"></div>
+                        <div className="absolute inset-0 bg-grid-black/[0.05] dark:bg-grid-white/[0.05] bg-[size:20px_20px]"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-100/80 dark:from-[#0B1121]/80 to-transparent"></div>
+
                         <motion.div
                            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
                            transition={{ duration: 3, repeat: Infinity }}
                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-primary-500/30 rounded-full flex items-center justify-center"
                         >
-                           <div className="w-2 h-2 bg-primary-500 rounded-full shadow-[0_0_20px_#FD6B2E]"></div>
+                           <div className="w-2 h-2 bg-primary-500 rounded-full shadow-[0_0_20px_#FF5500]"></div>
                         </motion.div>
+
                         {/* Map Pins */}
-                        <div className="absolute top-1/3 left-1/3 w-3 h-3 bg-white rounded-full shadow-lg"></div>
-                        <div className="absolute top-2/3 right-1/4 w-3 h-3 bg-white rounded-full shadow-lg"></div>
+                        <div className="absolute top-1/4 left-1/4 w-3 h-3 bg-blue-500 rounded-full shadow-lg border-2 border-white dark:border-[#0B1121]"></div>
+                        <div className="absolute top-1/2 right-1/3 w-3 h-3 bg-orange-500 rounded-full shadow-lg border-2 border-white dark:border-[#0B1121]"></div>
+                        <div className="absolute bottom-1/4 left-1/2 w-3 h-3 bg-emerald-500 rounded-full shadow-lg border-2 border-white dark:border-[#0B1121]"></div>
                      </div>
                   </div>
                </motion.div>

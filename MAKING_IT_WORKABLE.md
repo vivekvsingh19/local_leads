@@ -34,7 +34,7 @@ This document shows **exactly what to do** to get the app working with real API 
 1. In Google Cloud Console, click search bar at top
 2. Search: "Places API"
 3. Click on result → Click "Enable"
-4. Search: "Maps JavaScript API"  
+4. Search: "Maps JavaScript API"
 5. Click on result → Click "Enable"
 ⏱️ Wait ~1 minute
 ```
@@ -287,12 +287,12 @@ User sees simulation results
 
 ## ✨ What You Can Do Now
 
-✅ Search for businesses by keyword and location  
-✅ Get phone numbers and addresses  
-✅ See ratings and reviews  
-✅ Export leads to CSV  
-✅ Log in with email  
-✅ Beautiful dark mode UI  
+✅ Search for businesses by keyword and location
+✅ Get phone numbers and addresses
+✅ See ratings and reviews
+✅ Export leads to CSV
+✅ Log in with email
+✅ Beautiful dark mode UI
 
 ---
 
