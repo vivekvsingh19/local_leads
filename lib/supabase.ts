@@ -6,10 +6,17 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Allow app to work without Supabase for testing
+// Just log a warning instead of throwing an error
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase configuration. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in .env.local. See ENV_SETUP.md for details.'
+  console.warn(
+    '⚠️ Supabase not configured. Login/auth features disabled. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local to enable.'
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create a dummy client if not configured (allows app to run without Supabase)
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
+
+export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);

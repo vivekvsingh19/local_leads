@@ -64,10 +64,11 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session) {
-      onLoginClick();
-      return;
-    }
+    // Allow search without login for testing
+    // if (!session) {
+    //   onLoginClick();
+    //   return;
+    // }
     if (!keyword || !city) return;
     
     setFocusedField(null);

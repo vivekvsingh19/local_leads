@@ -10,7 +10,7 @@ import Resources from './components/Resources';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import { motion, useScroll, useSpring } from 'framer-motion';
-import { supabase } from './lib/supabase';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 
 const App: React.FC = () => {
@@ -25,6 +25,12 @@ const App: React.FC = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   useEffect(() => {
+    // Only check session if Supabase is configured
+    if (!isSupabaseConfigured || !supabase) {
+      console.log('🔓 Running without authentication (Supabase not configured)');
+      return;
+    }
+
     // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
