@@ -90,7 +90,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
   };
 
   // Filter categories based on input
-  const filteredCategories = keyword.length > 0 
+  const filteredCategories = keyword.length > 0
     ? categories.filter(c => c.name.toLowerCase().includes(keyword.toLowerCase()))
     : categories;
 
@@ -162,11 +162,11 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
 
   // Filter state - show all or only without website
   const [showOnlyNoWebsite, setShowOnlyNoWebsite] = useState(true);
-  
-  const filteredLeads = showOnlyNoWebsite 
+
+  const filteredLeads = showOnlyNoWebsite
     ? leads.filter(l => !l.has_website)
     : leads;
-  
+
   const leadsWithoutWebsite = leads.filter(l => !l.has_website).length;
   const leadsWithWebsite = leads.filter(l => l.has_website).length;
 
@@ -377,7 +377,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                           <div className="px-4 py-3">
                             <p className="text-sm text-slate-400 dark:text-slate-500 mb-2">No matching categories. You can search for:</p>
                             <p className="text-sm font-semibold text-primary-500">"{keyword}"</p>
-                            <button 
+                            <button
                               type="button"
                               onClick={() => { setFocusedField(null); inputRefCity.current?.focus(); setFocusedField('city'); }}
                               className="mt-2 text-xs text-primary-500 hover:text-primary-400 font-medium"
@@ -442,7 +442,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                             <div className="w-5 h-5 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
                           </div>
                         )}
-                        
+
                         {!isLoadingCities && citySuggestions.length > 0 && (
                           <>
                             <div className="px-4 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
@@ -467,7 +467,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                             ))}
                           </>
                         )}
-                        
+
                         {!isLoadingCities && citySuggestions.length === 0 && city.length < 2 && (
                           <div className="px-4 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
                             Start typing a city name...
@@ -550,8 +550,8 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                       <button
                         onClick={() => setShowOnlyNoWebsite(false)}
                         className={`px-3 py-1.5 rounded-md font-medium transition-all ${
-                          !showOnlyNoWebsite 
-                            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm' 
+                          !showOnlyNoWebsite
+                            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
                             : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                         }`}
                       >
@@ -560,15 +560,15 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                       <button
                         onClick={() => setShowOnlyNoWebsite(true)}
                         className={`px-3 py-1.5 rounded-md font-medium transition-all ${
-                          showOnlyNoWebsite 
-                            ? 'bg-primary-500 text-white shadow-sm' 
+                          showOnlyNoWebsite
+                            ? 'bg-primary-500 text-white shadow-sm'
                             : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                         }`}
                       >
                         No Website ({leadsWithoutWebsite})
                       </button>
                     </div>
-                    
+
                     <button
                       onClick={() => exportToCSV(filteredLeads)}
                       className="flex items-center gap-2 bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-primary-100 dark:hover:bg-primary-500/20 hover:text-primary-800 dark:hover:text-primary-200 transition-all border border-primary-200 dark:border-primary-500/20 shadow-sm"

@@ -21,7 +21,7 @@ export interface CitySuggestion {
  */
 export const autocompleteCities = async (input: string): Promise<CitySuggestion[]> => {
   if (!input || input.length < 2) return [];
-  
+
   if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
     // Return static suggestions if no API key
     const staticCities = [
@@ -31,7 +31,7 @@ export const autocompleteCities = async (input: string): Promise<CitySuggestion[
       { placeId: '4', description: 'Chicago, IL, USA', mainText: 'Chicago', secondaryText: 'IL, USA' },
       { placeId: '5', description: 'Miami, FL, USA', mainText: 'Miami', secondaryText: 'FL, USA' },
     ];
-    return staticCities.filter(c => 
+    return staticCities.filter(c =>
       c.description.toLowerCase().includes(input.toLowerCase())
     );
   }
@@ -131,7 +131,7 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
 
     const data = await response.json();
     const places: GooglePlace[] = data.places || [];
-    
+
     // Debug: Log raw API response
     console.log('Google Places API returned:', places.length, 'results');
     console.log('Raw places data:', data);
