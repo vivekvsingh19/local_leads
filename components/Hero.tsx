@@ -19,7 +19,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [focusedField, setFocusedField] = useState<'keyword' | 'city' | null>(null);
-  
+
   const inputRefKeyword = useRef<HTMLInputElement>(null);
   const inputRefCity = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -32,9 +32,9 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
     { name: "Contractors", icon: <IconFileDown className="w-4 h-4" /> },
     { name: "Gyms", icon: <IconShield className="w-4 h-4" /> },
   ];
-  
+
   const citySuggestions = ["Austin, TX", "New York, NY", "Los Angeles, CA", "Miami, FL", "Chicago, IL"];
-  
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (formRef.current && !formRef.current.contains(event.target as Node)) {
@@ -70,7 +70,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
     //   return;
     // }
     if (!keyword || !city) return;
-    
+
     setFocusedField(null);
     setLoading(true);
     setHasSearched(true);
@@ -169,7 +169,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
 
   return (
     <section className="relative pt-32 pb-16 lg:pt-48 lg:pb-32 min-h-screen flex flex-col items-center justify-start bg-white dark:bg-[#030712] transition-colors duration-300 overflow-hidden">
-      
+
       <Background3D />
 
       <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none opacity-20 dark:opacity-40">
@@ -178,9 +178,9 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 text-center relative z-10 w-full">
-        
+
         {/* Modern Glass Ticker */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mx-auto w-fit mb-8"
@@ -191,7 +191,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
                 <AnimatePresence mode="wait">
-                    <motion.span 
+                    <motion.span
                         key={tickerIndex}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -205,7 +205,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
         </motion.div>
 
         {/* Hero Headline */}
-        <motion.h1 
+        <motion.h1
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -229,7 +229,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
         </motion.h1>
 
         {/* Subtext */}
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
@@ -239,21 +239,21 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
         </motion.p>
 
         {/* Search Bar / Login Gate */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="w-full max-w-2xl mx-auto mb-16 relative z-30"
         >
           {session ? (
-            <form 
+            <form
               ref={formRef}
               onSubmit={handleSearch}
               className="relative flex flex-col md:flex-row items-center bg-slate-900 dark:bg-white p-1 rounded-[2.5rem] md:rounded-full border border-slate-800 dark:border-slate-200 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)] dark:shadow-[0_20px_40px_-10px_rgba(255,255,255,0.1)] transition-all duration-500 ease-out hover:shadow-[0_25px_50px_-8px_rgba(255,85,0,0.25)] group/search"
             >
-              
+
               {/* Category Input */}
-              <motion.div 
+              <motion.div
                   layout
                   className="relative group px-4 py-1.5 cursor-text rounded-3xl md:rounded-l-full hover:bg-white/5 dark:hover:bg-slate-100/50 transition-colors duration-300"
                   onClick={() => inputRefKeyword.current?.focus()}
@@ -266,7 +266,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                         </div>
                         <div className="flex items-center gap-2 w-full">
                            <IconSearch className={`w-3.5 h-3.5 transition-colors ${focusedField === 'keyword' ? 'text-primary-500' : 'text-slate-600 dark:text-slate-400'}`} />
-                           <input 
+                           <input
                               ref={inputRefKeyword}
                               type="text"
                               className="w-full bg-transparent border-none p-0 text-base font-bold text-white dark:text-slate-900 placeholder:text-slate-600 dark:placeholder:text-slate-400 focus:ring-0 outline-none leading-none tracking-tight"
@@ -307,9 +307,9 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
               </motion.div>
 
               {/* Vertical Divider */}
-              <motion.div 
+              <motion.div
                 layout
-                animate={{ 
+                animate={{
                     opacity: focusedField ? 0 : 0.2,
                     scaleY: focusedField ? 0 : 1
                 }}
@@ -318,7 +318,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
               <div className="md:hidden h-px w-full bg-white/10 dark:bg-slate-200 my-2"></div>
 
               {/* Location Input */}
-              <motion.div 
+              <motion.div
                   layout
                   className="relative group px-4 py-1.5 cursor-text rounded-3xl md:rounded-r-full md:mr-1 hover:bg-white/5 dark:hover:bg-slate-100/50 transition-colors duration-300"
                   onClick={() => inputRefCity.current?.focus()}
@@ -331,7 +331,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                         </div>
                         <div className="flex items-center gap-2 w-full">
                             <IconMapPin className={`w-3.5 h-3.5 transition-colors ${focusedField === 'city' ? 'text-primary-500' : 'text-slate-600 dark:text-slate-400'}`} />
-                            <input 
+                            <input
                                   ref={inputRefCity}
                                   type="text"
                                   className="w-full bg-transparent border-none p-0 text-base font-bold text-white dark:text-slate-900 placeholder:text-slate-600 dark:placeholder:text-slate-300 focus:ring-0 outline-none leading-none tracking-tight"
@@ -372,7 +372,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
               </motion.div>
 
               {/* Search Button */}
-              <button 
+              <button
                   type="submit"
                   className="hidden md:flex bg-primary-500 hover:bg-primary-400 text-white rounded-full w-10 h-10 items-center justify-center transition-all shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 hover:scale-105 active:scale-95 z-30 relative overflow-hidden group/btn"
               >
@@ -383,9 +383,9 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                       <IconSearch className="w-4 h-4" />
                   )}
               </button>
-              
+
                {/* Mobile Search Button */}
-              <button 
+              <button
                   type="submit"
                   className="md:hidden w-full mt-2 bg-primary-500 hover:bg-primary-400 text-white rounded-2xl p-3 font-bold text-lg transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
               >
@@ -404,7 +404,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
             <div className="relative group cursor-pointer" onClick={onLoginClick}>
                  {/* Glow Effect */}
                  <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-orange-500 rounded-full opacity-20 group-hover:opacity-40 blur-xl transition-opacity duration-500"></div>
-                 
+
                  <div className="relative flex items-center justify-between bg-slate-900 dark:bg-white p-1 pr-1 rounded-[2rem] md:rounded-full border border-slate-800 dark:border-slate-200 shadow-2xl backdrop-blur-xl">
                    <div className="flex-1 px-4 py-1.5 flex items-center gap-6 opacity-40 select-none grayscale group-hover:grayscale-0 transition-all duration-500">
                      <div className="flex flex-col">
@@ -423,7 +423,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                         </div>
                      </div>
                    </div>
-                   
+
                    <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-full w-10 h-10 flex items-center justify-center shadow-xl transition-transform group-hover:scale-105">
                      <IconShield className="w-4 h-4" />
                    </div>
@@ -445,7 +445,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
             <div className="rounded-3xl bg-white dark:bg-[#0f172a] backdrop-blur-xl shadow-2xl dark:shadow-black/50 ring-1 ring-slate-200 dark:ring-white/10 overflow-hidden min-h-[500px] flex flex-col border border-slate-100 dark:border-white/5 relative transition-colors duration-300">
               {/* Top Highlight Line */}
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500 to-transparent opacity-50"></div>
-              
+
               {/* Window Header */}
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/[0.02] px-6 py-4 transition-colors">
                 <div className="flex items-center gap-4">
@@ -460,9 +460,9 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                       {loading ? 'STATUS: SCANNING' : `STATUS: COMPLETE (${filteredLeads.length} FOUND)`}
                    </div>
                 </div>
-                
+
                 {!loading && filteredLeads.length > 0 && (
-                  <button 
+                  <button
                     onClick={() => exportToCSV(filteredLeads)}
                     className="flex items-center gap-2 bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-primary-100 dark:hover:bg-primary-500/20 hover:text-primary-800 dark:hover:text-primary-200 transition-all border border-primary-200 dark:border-primary-500/20 shadow-sm"
                   >
@@ -511,8 +511,8 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                        </thead>
                        <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                          {filteredLeads.map((row, i) => (
-                           <motion.tr 
-                              key={row.id} 
+                           <motion.tr
+                              key={row.id}
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: i * 0.05 }}
@@ -537,9 +537,9 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                                </span>
                              </td>
                              <td className="px-6 py-4 text-right pr-8">
-                                <a 
-                                 href={row.google_maps_url} 
-                                 target="_blank" 
+                                <a
+                                 href={row.google_maps_url}
+                                 target="_blank"
                                  rel="noreferrer"
                                  className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium text-xs transition-colors bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/5"
                                >

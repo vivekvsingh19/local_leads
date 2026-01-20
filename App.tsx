@@ -53,7 +53,7 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-white dark:bg-[#030712] text-slate-900 dark:text-slate-200 overflow-x-hidden transition-colors duration-300 relative">
       {/* Noise Texture Overlay */}
       <div className="bg-noise"></div>
-      
+
       <Login isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
 
       {/* Scroll Progress Bar */}
@@ -62,15 +62,15 @@ const App: React.FC = () => {
         style={{ scaleX }}
       />
 
-      <Navbar 
-        session={session} 
-        onLoginClick={() => setIsLoginOpen(true)} 
+      <Navbar
+        session={session}
+        onLoginClick={() => setIsLoginOpen(true)}
       />
-      
+
       <main>
-        <Hero 
-          session={session} 
-          onLoginClick={() => setIsLoginOpen(true)} 
+        <Hero
+          session={session}
+          onLoginClick={() => setIsLoginOpen(true)}
         />
         <WhatItDoes />
         <Features />
