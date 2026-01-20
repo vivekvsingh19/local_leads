@@ -1,11 +1,23 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { IconArrowRight, IconSearch, IconFileDown, IconMapPin, IconActivity, IconZap, IconShield, IconGlobe } from './Icons';
 import { motion, AnimatePresence } from 'framer-motion';
-import { searchLeads, exportToCSV } from '../lib/api';
+import { searchLeads, exportToCSV, autocompleteCities, CitySuggestion } from '../lib/api';
 import { Lead } from '../lib/types';
 import { Session } from '@supabase/supabase-js';
 import Background3D from './Background3D';
+
+// Debounce helper function
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null;
+  return (...args: Parameters<T>) => {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
 
 interface HeroProps {
   session: Session | null;
@@ -19,21 +31,68 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [focusedField, setFocusedField] = useState<'keyword' | 'city' | null>(null);
+  const [citySuggestions, setCitySuggestions] = useState<CitySuggestion[]>([]);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
 
   const inputRefKeyword = useRef<HTMLInputElement>(null);
   const inputRefCity = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   const categories = [
-    { name: "Plumbers", icon: <IconZap className="w-4 h-4" /> },
-    { name: "Dentists", icon: <IconActivity className="w-4 h-4" /> },
-    { name: "Real Estate", icon: <IconMapPin className="w-4 h-4" /> },
     { name: "Restaurants", icon: <IconSearch className="w-4 h-4" /> },
-    { name: "Contractors", icon: <IconFileDown className="w-4 h-4" /> },
+    { name: "Hotels", icon: <IconMapPin className="w-4 h-4" /> },
     { name: "Gyms", icon: <IconShield className="w-4 h-4" /> },
+    { name: "Dentists", icon: <IconActivity className="w-4 h-4" /> },
+    { name: "Clinics", icon: <IconActivity className="w-4 h-4" /> },
+    { name: "Salons", icon: <IconGlobe className="w-4 h-4" /> },
+    { name: "Spas", icon: <IconGlobe className="w-4 h-4" /> },
+    { name: "Cafes", icon: <IconSearch className="w-4 h-4" /> },
+    { name: "Bakeries", icon: <IconSearch className="w-4 h-4" /> },
+    { name: "Pet Shops", icon: <IconShield className="w-4 h-4" /> },
+    { name: "Pharmacies", icon: <IconActivity className="w-4 h-4" /> },
+    { name: "Florists", icon: <IconGlobe className="w-4 h-4" /> },
+    { name: "Boutiques", icon: <IconGlobe className="w-4 h-4" /> },
+    { name: "Car Dealers", icon: <IconMapPin className="w-4 h-4" /> },
+    { name: "Auto Workshops", icon: <IconZap className="w-4 h-4" /> },
+    { name: "Jewelry Stores", icon: <IconGlobe className="w-4 h-4" /> },
+    { name: "Optical Stores", icon: <IconActivity className="w-4 h-4" /> },
+    { name: "Furniture Stores", icon: <IconMapPin className="w-4 h-4" /> },
+    { name: "Electronics Stores", icon: <IconZap className="w-4 h-4" /> },
+    { name: "Grocery Stores", icon: <IconSearch className="w-4 h-4" /> },
   ];
 
-  const citySuggestions = ["Austin, TX", "New York, NY", "Los Angeles, CA", "Miami, FL", "Chicago, IL"];
+  const defaultCitySuggestions = ["Austin, TX", "New York, NY", "Los Angeles, CA", "Miami, FL", "Chicago, IL", "Houston, TX", "Phoenix, AZ", "Denver, CO"];
+
+  // Debounced city autocomplete
+  const debouncedCitySearch = useCallback(
+    debounce(async (input: string) => {
+      if (input.length < 2) {
+        setCitySuggestions([]);
+        return;
+      }
+      setIsLoadingCities(true);
+      try {
+        const suggestions = await autocompleteCities(input);
+        setCitySuggestions(suggestions);
+      } catch (error) {
+        console.error('City autocomplete error:', error);
+      } finally {
+        setIsLoadingCities(false);
+      }
+    }, 300),
+    []
+  );
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCity(value);
+    debouncedCitySearch(value);
+  };
+
+  // Filter categories based on input
+  const filteredCategories = keyword.length > 0 
+    ? categories.filter(c => c.name.toLowerCase().includes(keyword.toLowerCase()))
+    : categories;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -98,9 +157,18 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
   const handleCitySelect = (value: string) => {
     setCity(value);
     setFocusedField(null);
+    setCitySuggestions([]);
   };
 
-  const filteredLeads = leads.filter(l => !l.has_website);
+  // Filter state - show all or only without website
+  const [showOnlyNoWebsite, setShowOnlyNoWebsite] = useState(true);
+  
+  const filteredLeads = showOnlyNoWebsite 
+    ? leads.filter(l => !l.has_website)
+    : leads;
+  
+  const leadsWithoutWebsite = leads.filter(l => !l.has_website).length;
+  const leadsWithWebsite = leads.filter(l => l.has_website).length;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -245,12 +313,12 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
           transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="w-full max-w-2xl mx-auto mb-16 relative z-30"
         >
-          {session ? (
-            <form
-              ref={formRef}
-              onSubmit={handleSearch}
-              className="relative flex flex-col md:flex-row items-center bg-slate-900 dark:bg-white p-1 rounded-[2.5rem] md:rounded-full border border-slate-800 dark:border-slate-200 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)] dark:shadow-[0_20px_40px_-10px_rgba(255,255,255,0.1)] transition-all duration-500 ease-out hover:shadow-[0_25px_50px_-8px_rgba(255,85,0,0.25)] group/search"
-            >
+          {/* Always show form for testing, removed session check */}
+          <form
+            ref={formRef}
+            onSubmit={handleSearch}
+            className="relative flex flex-col md:flex-row items-center bg-slate-900 dark:bg-white p-1 rounded-[2.5rem] md:rounded-full border border-slate-800 dark:border-slate-200 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)] dark:shadow-[0_20px_40px_-10px_rgba(255,255,255,0.1)] transition-all duration-500 ease-out hover:shadow-[0_25px_50px_-8px_rgba(255,85,0,0.25)] group/search"
+          >
 
               {/* Category Input */}
               <motion.div
@@ -285,22 +353,39 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                         initial="hidden"
                         animate="visible"
                         exit="exit"
-                        className="absolute top-[120%] left-0 w-[140%] min-w-[300px] p-2 bg-slate-900/95 dark:bg-white/95 backdrop-blur-2xl border border-slate-700 dark:border-slate-200 rounded-3xl shadow-2xl z-50 overflow-hidden"
+                        className="absolute top-[120%] left-0 w-[140%] min-w-[300px] max-h-[300px] overflow-y-auto p-2 bg-slate-900/95 dark:bg-white/95 backdrop-blur-2xl border border-slate-700 dark:border-slate-200 rounded-3xl shadow-2xl z-50"
                       >
-                         <div className="px-4 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Suggested Categories</div>
-                        {categories.map((item) => (
-                          <motion.button
-                            key={item.name}
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); handleCategorySelect(item.name); }}
-                            className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-300 dark:text-slate-700 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-3 group/item"
-                          >
-                            <div className="w-7 h-7 rounded-lg bg-slate-800 dark:bg-slate-100 flex items-center justify-center text-slate-400 dark:text-slate-500 group-hover/item:text-primary-500 group-hover/item:bg-primary-500/10 transition-colors">
-                               {item.icon}
-                            </div>
-                            {item.name}
-                          </motion.button>
-                        ))}
+                         <div className="px-4 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                           {keyword.length > 0 ? 'Matching Categories' : 'Suggested Categories'}
+                         </div>
+                        {filteredCategories.length > 0 ? (
+                          filteredCategories.map((item) => (
+                            <motion.button
+                              key={item.name}
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); handleCategorySelect(item.name); }}
+                              className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-300 dark:text-slate-700 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-3 group/item"
+                              whileHover={{ x: 4 }}
+                            >
+                              <div className="w-7 h-7 rounded-lg bg-slate-800 dark:bg-slate-100 flex items-center justify-center text-slate-400 dark:text-slate-500 group-hover/item:text-primary-500 group-hover/item:bg-primary-500/10 transition-colors">
+                                 {item.icon}
+                              </div>
+                              {item.name}
+                            </motion.button>
+                          ))
+                        ) : (
+                          <div className="px-4 py-3">
+                            <p className="text-sm text-slate-400 dark:text-slate-500 mb-2">No matching categories. You can search for:</p>
+                            <p className="text-sm font-semibold text-primary-500">"{keyword}"</p>
+                            <button 
+                              type="button"
+                              onClick={() => { setFocusedField(null); inputRefCity.current?.focus(); setFocusedField('city'); }}
+                              className="mt-2 text-xs text-primary-500 hover:text-primary-400 font-medium"
+                            >
+                              Continue with this category →
+                            </button>
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -335,9 +420,9 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                                   ref={inputRefCity}
                                   type="text"
                                   className="w-full bg-transparent border-none p-0 text-base font-bold text-white dark:text-slate-900 placeholder:text-slate-600 dark:placeholder:text-slate-300 focus:ring-0 outline-none leading-none tracking-tight"
-                                  placeholder="City, Zip..."
+                                  placeholder="Type city name..."
                                   value={city}
-                                  onChange={(e) => setCity(e.target.value)}
+                                  onChange={handleCityChange}
                                   onFocus={() => setFocusedField('city')}
                                   autoComplete="off"
                                 />
@@ -350,22 +435,50 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                         initial="hidden"
                         animate="visible"
                         exit="exit"
-                        className="absolute top-[120%] left-0 w-full min-w-[280px] p-2 bg-slate-900/95 dark:bg-white/95 backdrop-blur-2xl border border-slate-700 dark:border-slate-200 rounded-3xl shadow-2xl z-50 overflow-hidden"
+                        className="absolute top-[120%] left-0 w-full min-w-[280px] max-h-[300px] overflow-y-auto p-2 bg-slate-900/95 dark:bg-white/95 backdrop-blur-2xl border border-slate-700 dark:border-slate-200 rounded-3xl shadow-2xl z-50"
                       >
-                         <div className="px-4 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Popular Locations</div>
-                        {citySuggestions.map((item) => (
-                          <motion.button
-                            key={item}
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); handleCitySelect(item); }}
-                            className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-300 dark:text-slate-700 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-3 group/item"
-                          >
-                             <div className="w-7 h-7 rounded-lg bg-slate-800 dark:bg-slate-100 flex items-center justify-center text-slate-400 dark:text-slate-500 group-hover/item:text-primary-500 group-hover/item:bg-primary-500/10 transition-colors">
-                               <IconGlobe className="w-4 h-4" />
+                        {isLoadingCities && (
+                          <div className="flex items-center justify-center py-4">
+                            <div className="w-5 h-5 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
+                          </div>
+                        )}
+                        
+                        {!isLoadingCities && citySuggestions.length > 0 && (
+                          <>
+                            <div className="px-4 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                              {city.length >= 2 ? 'Matching Cities' : 'Popular Locations'}
                             </div>
-                            {item}
-                          </motion.button>
-                        ))}
+                            {citySuggestions.map((item) => (
+                              <motion.button
+                                key={item.placeId}
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); handleCitySelect(item.description); }}
+                                className="w-full text-left px-4 py-2.5 text-sm font-medium text-slate-300 dark:text-slate-700 hover:bg-slate-800 dark:hover:bg-slate-100 rounded-xl transition-colors flex items-center gap-3 group/item"
+                                whileHover={{ x: 4 }}
+                              >
+                                <div className="w-8 h-8 rounded-lg bg-slate-800 dark:bg-slate-100 flex items-center justify-center text-slate-400 dark:text-slate-500 group-hover/item:text-primary-500 group-hover/item:bg-primary-500/10 transition-colors">
+                                  <IconMapPin className="w-4 h-4" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-semibold text-white dark:text-slate-900">{item.mainText}</span>
+                                  <span className="text-xs text-slate-500 dark:text-slate-400">{item.secondaryText}</span>
+                                </div>
+                              </motion.button>
+                            ))}
+                          </>
+                        )}
+                        
+                        {!isLoadingCities && citySuggestions.length === 0 && city.length < 2 && (
+                          <div className="px-4 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
+                            Start typing a city name...
+                          </div>
+                        )}
+
+                        {!isLoadingCities && citySuggestions.length === 0 && city.length >= 2 && (
+                          <div className="px-4 py-4 text-center text-sm text-slate-500 dark:text-slate-400">
+                            No cities found. Try a different search.
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -399,42 +512,11 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                   )}
               </button>
             </form>
-          ) : (
-            // LOCKED STATE - Compact
-            <div className="relative group cursor-pointer" onClick={onLoginClick}>
-                 {/* Glow Effect */}
-                 <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-orange-500 rounded-full opacity-20 group-hover:opacity-40 blur-xl transition-opacity duration-500"></div>
-
-                 <div className="relative flex items-center justify-between bg-slate-900 dark:bg-white p-1 pr-1 rounded-[2rem] md:rounded-full border border-slate-800 dark:border-slate-200 shadow-2xl backdrop-blur-xl">
-                   <div className="flex-1 px-4 py-1.5 flex items-center gap-6 opacity-40 select-none grayscale group-hover:grayscale-0 transition-all duration-500">
-                     <div className="flex flex-col">
-                        <span className="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-0">Category</span>
-                        <div className="flex items-center gap-2">
-                             <IconSearch className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
-                             <span className="text-base font-bold text-white dark:text-slate-900">Plumbers...</span>
-                        </div>
-                     </div>
-                     <div className="w-px h-6 bg-white/10 dark:bg-slate-200"></div>
-                     <div className="flex flex-col">
-                        <span className="text-[9px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-0">Location</span>
-                        <div className="flex items-center gap-2">
-                             <IconMapPin className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
-                             <span className="text-base font-bold text-white dark:text-slate-900">Austin, TX...</span>
-                        </div>
-                     </div>
-                   </div>
-
-                   <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-full w-10 h-10 flex items-center justify-center shadow-xl transition-transform group-hover:scale-105">
-                     <IconShield className="w-4 h-4" />
-                   </div>
-                </div>
-            </div>
-          )}
         </motion.div>
 
         {/* Results Interface */}
         <AnimatePresence>
-        {(hasSearched || loading) && session && (
+        {(hasSearched || loading) && (
           <motion.div
              initial={{ opacity: 0, y: 40, scale: 0.95 }}
              animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -457,20 +539,64 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                    <div className="h-4 w-px bg-slate-300 dark:bg-white/10 ml-2"></div>
                    <div className="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400">
                       <IconActivity className="w-3 h-3 text-primary-500 dark:text-primary-400" />
-                      {loading ? 'STATUS: SCANNING' : `STATUS: COMPLETE (${filteredLeads.length} FOUND)`}
+                      {loading ? 'STATUS: SCANNING' : `STATUS: COMPLETE (${leads.length} TOTAL)`}
                    </div>
                 </div>
 
-                {!loading && filteredLeads.length > 0 && (
-                  <button
-                    onClick={() => exportToCSV(filteredLeads)}
-                    className="flex items-center gap-2 bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-primary-100 dark:hover:bg-primary-500/20 hover:text-primary-800 dark:hover:text-primary-200 transition-all border border-primary-200 dark:border-primary-500/20 shadow-sm"
-                  >
-                    <IconFileDown className="w-3.5 h-3.5" />
-                    Download CSV
-                  </button>
+                {!loading && leads.length > 0 && (
+                  <div className="flex items-center gap-3">
+                    {/* Filter Toggle */}
+                    <div className="flex items-center gap-2 bg-slate-100 dark:bg-white/5 rounded-lg p-1 text-xs">
+                      <button
+                        onClick={() => setShowOnlyNoWebsite(false)}
+                        className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+                          !showOnlyNoWebsite 
+                            ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm' 
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                        }`}
+                      >
+                        All ({leads.length})
+                      </button>
+                      <button
+                        onClick={() => setShowOnlyNoWebsite(true)}
+                        className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+                          showOnlyNoWebsite 
+                            ? 'bg-primary-500 text-white shadow-sm' 
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                        }`}
+                      >
+                        No Website ({leadsWithoutWebsite})
+                      </button>
+                    </div>
+                    
+                    <button
+                      onClick={() => exportToCSV(filteredLeads)}
+                      className="flex items-center gap-2 bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-primary-100 dark:hover:bg-primary-500/20 hover:text-primary-800 dark:hover:text-primary-200 transition-all border border-primary-200 dark:border-primary-500/20 shadow-sm"
+                    >
+                      <IconFileDown className="w-3.5 h-3.5" />
+                      Download CSV
+                    </button>
+                  </div>
                 )}
               </div>
+
+              {/* Stats Bar */}
+              {!loading && leads.length > 0 && (
+                <div className="flex items-center gap-6 px-6 py-3 bg-slate-50/50 dark:bg-white/[0.01] border-b border-slate-200 dark:border-white/5 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span className="text-slate-600 dark:text-slate-400">
+                      <strong className="text-emerald-600 dark:text-emerald-400">{leadsWithoutWebsite}</strong> without website (leads!)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                    <span className="text-slate-600 dark:text-slate-400">
+                      <strong>{leadsWithWebsite}</strong> with website
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Content Area */}
               <div className="flex-1 relative bg-white dark:bg-transparent transition-colors">
@@ -488,13 +614,32 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                     </div>
                  )}
 
-                 {!loading && filteredLeads.length === 0 && (
+                 {!loading && filteredLeads.length === 0 && leads.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-full p-12 text-center">
                        <div className="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-3xl flex items-center justify-center mb-6 ring-1 ring-slate-200 dark:ring-white/10 shadow-lg">
                          <IconSearch className="w-10 h-10 text-slate-400 dark:text-slate-500" />
                        </div>
                        <h3 className="text-slate-900 dark:text-white text-xl font-bold mb-2">No results found</h3>
-                       <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm">We couldn't find any businesses matching "{keyword}" in "{city}" that fit our criteria.</p>
+                       <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm">We couldn't find any businesses matching "{keyword}" in "{city}". Try a different category or location.</p>
+                    </div>
+                 )}
+
+                 {!loading && filteredLeads.length === 0 && leads.length > 0 && showOnlyNoWebsite && (
+                    <div className="flex flex-col items-center justify-center h-full p-12 text-center">
+                       <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-500/10 rounded-3xl flex items-center justify-center mb-6 ring-1 ring-emerald-200 dark:ring-emerald-500/20 shadow-lg">
+                         <IconGlobe className="w-10 h-10 text-emerald-500 dark:text-emerald-400" />
+                       </div>
+                       <h3 className="text-slate-900 dark:text-white text-xl font-bold mb-2">All businesses have websites!</h3>
+                       <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm mb-4">
+                         We found {leads.length} businesses, but they all have websites already.
+                       </p>
+                       <button
+                         onClick={() => setShowOnlyNoWebsite(false)}
+                         className="text-primary-500 hover:text-primary-400 font-semibold text-sm flex items-center gap-2"
+                       >
+                         View all {leads.length} results anyway
+                         <IconArrowRight className="w-4 h-4" />
+                       </button>
                     </div>
                  )}
 

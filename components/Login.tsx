@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IconX, IconZap } from './Icons';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 interface LoginProps {
   isOpen: boolean;
@@ -14,6 +14,12 @@ const Login: React.FC<LoginProps> = ({ isOpen, onClose }) => {
   const [error, setError] = useState<string | null>(null);
 
   const handleGoogleLogin = async () => {
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured || !supabase) {
+      setError("Login is disabled - Supabase not configured. You can still use the app without logging in!");
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);

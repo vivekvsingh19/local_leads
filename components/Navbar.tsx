@@ -98,20 +98,14 @@ const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick }) => {
 
            {/* CTA Button */}
           <div className="">
-            {session ? (
+            {/* Sign In button hidden for testing */}
+            {session && (
                <button
                  onClick={handleSignOut}
                  className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-4 py-2 transition-colors"
                >
                  Sign Out
                </button>
-            ) : (
-              <button
-                onClick={onLoginClick}
-                className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-2.5 rounded-full text-sm font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
-              >
-                Sign In
-              </button>
             )}
           </div>
 

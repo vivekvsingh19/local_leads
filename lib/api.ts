@@ -4,6 +4,77 @@ import { Lead, SearchParams } from './types';
 // Google Maps API Key from environment
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
+// Debug logging (only in development)
+if (import.meta.env.DEV) {
+  console.log('API Key loaded:', GOOGLE_MAPS_API_KEY ? `${GOOGLE_MAPS_API_KEY.substring(0, 10)}...` : 'NOT FOUND');
+}
+
+export interface CitySuggestion {
+  placeId: string;
+  description: string;
+  mainText: string;
+  secondaryText: string;
+}
+
+/**
+ * Autocomplete cities/places using Google Places Autocomplete API
+ */
+export const autocompleteCities = async (input: string): Promise<CitySuggestion[]> => {
+  if (!input || input.length < 2) return [];
+  
+  if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
+    // Return static suggestions if no API key
+    const staticCities = [
+      { placeId: '1', description: 'Austin, TX, USA', mainText: 'Austin', secondaryText: 'TX, USA' },
+      { placeId: '2', description: 'New York, NY, USA', mainText: 'New York', secondaryText: 'NY, USA' },
+      { placeId: '3', description: 'Los Angeles, CA, USA', mainText: 'Los Angeles', secondaryText: 'CA, USA' },
+      { placeId: '4', description: 'Chicago, IL, USA', mainText: 'Chicago', secondaryText: 'IL, USA' },
+      { placeId: '5', description: 'Miami, FL, USA', mainText: 'Miami', secondaryText: 'FL, USA' },
+    ];
+    return staticCities.filter(c => 
+      c.description.toLowerCase().includes(input.toLowerCase())
+    );
+  }
+
+  try {
+    const response = await fetch(
+      `https://places.googleapis.com/v1/places:autocomplete`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
+        },
+        body: JSON.stringify({
+          input,
+          includedPrimaryTypes: ['locality', 'sublocality', 'postal_code', 'administrative_area_level_3'],
+          languageCode: 'en',
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Autocomplete API error:', response.status, errorText);
+      return [];
+    }
+
+    const data = await response.json();
+    console.log('Autocomplete response:', data);
+    const suggestions = data.suggestions || [];
+
+    return suggestions.map((s: any) => ({
+      placeId: s.placePrediction?.placeId || '',
+      description: s.placePrediction?.text?.text || '',
+      mainText: s.placePrediction?.structuredFormat?.mainText?.text || '',
+      secondaryText: s.placePrediction?.structuredFormat?.secondaryText?.text || '',
+    }));
+  } catch (error) {
+    console.error('Autocomplete error:', error);
+    return [];
+  }
+};
+
 interface GooglePlace {
   id: string;
   displayName?: { text: string };
@@ -60,6 +131,10 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
 
     const data = await response.json();
     const places: GooglePlace[] = data.places || [];
+    
+    // Debug: Log raw API response
+    console.log('Google Places API returned:', places.length, 'results');
+    console.log('Raw places data:', data);
 
     // Transform Google Places results to our Lead format
     const leads: Lead[] = places.map((place) => {

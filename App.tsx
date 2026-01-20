@@ -54,7 +54,8 @@ const App: React.FC = () => {
       {/* Noise Texture Overlay */}
       <div className="bg-noise"></div>
 
-      <Login isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      {/* Login modal disabled for testing */}
+      {/* <Login isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} /> */}
 
       {/* Scroll Progress Bar */}
       <motion.div
@@ -64,13 +65,13 @@ const App: React.FC = () => {
 
       <Navbar
         session={session}
-        onLoginClick={() => setIsLoginOpen(true)}
+        onLoginClick={() => console.log('Login disabled for testing')}
       />
 
       <main>
         <Hero
           session={session}
-          onLoginClick={() => setIsLoginOpen(true)}
+          onLoginClick={() => console.log('Login disabled for testing')}
         />
         <WhatItDoes />
         <Features />
