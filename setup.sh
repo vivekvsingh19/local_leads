@@ -11,20 +11,20 @@ echo ""
 echo "📋 Checking .env.local..."
 if [ -f .env.local ]; then
     echo "✅ .env.local exists"
-    
+
     # Check if variables are set
     if grep -q "VITE_SUPABASE_URL" .env.local; then
         echo "  ✅ VITE_SUPABASE_URL found"
     else
         echo "  ❌ VITE_SUPABASE_URL missing"
     fi
-    
+
     if grep -q "VITE_SUPABASE_ANON_KEY" .env.local; then
         echo "  ✅ VITE_SUPABASE_ANON_KEY found"
     else
         echo "  ❌ VITE_SUPABASE_ANON_KEY missing"
     fi
-    
+
     if grep -q "VITE_GOOGLE_MAPS_API_KEY" .env.local; then
         echo "  ✅ VITE_GOOGLE_MAPS_API_KEY found"
     else

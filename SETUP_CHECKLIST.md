@@ -247,12 +247,12 @@ If you get stuck, check these in order:
 
 Once everything is ✅ checked, you have:
 
-✅ Fully functional lead search app  
-✅ Real data from Google Maps (or simulation)  
-✅ User authentication ready  
-✅ Export to CSV working  
-✅ Beautiful responsive UI  
-✅ Dark mode enabled  
+✅ Fully functional lead search app
+✅ Real data from Google Maps (or simulation)
+✅ User authentication ready
+✅ Export to CSV working
+✅ Beautiful responsive UI
+✅ Dark mode enabled
 
 **Time to start finding leads! 🎉**
 

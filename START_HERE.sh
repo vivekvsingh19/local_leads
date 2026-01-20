@@ -66,7 +66,7 @@ cat << 'EOF'
 STEP 1: Get your API keys (5 minutes)
   • Google Maps: https://console.cloud.google.com
   • Supabase: https://app.supabase.com
-  
+
 STEP 2: Create .env.local file
   • Copy .env.example to .env.local
   • Add your API keys from Step 1
@@ -193,7 +193,7 @@ bash setup.sh
 Error: "Using simulation mode"
 → Add VITE_GOOGLE_MAPS_API_KEY to .env.local
 
-Error: "CORS error" 
+Error: "CORS error"
 → Add http://localhost:3000 to Google API key restrictions
 
 Error: "Supabase connection failed"
