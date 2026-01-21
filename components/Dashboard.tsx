@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Session } from '@supabase/supabase-js';
-import { 
-  IconSearch, IconFileDown, IconMapPin, IconActivity, 
-  IconZap, IconShield, IconGlobe, IconArrowRight 
+import {
+  IconSearch, IconFileDown, IconMapPin, IconActivity,
+  IconZap, IconShield, IconGlobe, IconArrowRight
 } from './Icons';
 import { SavedLead, SavedSearch, Analytics, PRICING_PLANS, User } from '../lib/types';
 
@@ -191,7 +191,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
               of {currentPlan.limits.searches_per_month === -1 ? '∞' : currentPlan.limits.searches_per_month} searches
             </p>
             <div className="mt-3 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-              <div 
+              <div
                 className="h-full bg-blue-500 rounded-full transition-all"
                 style={{ width: `${Math.min((user.searches_this_month / (currentPlan.limits.searches_per_month || 100)) * 100, 100)}%` }}
               />
@@ -298,7 +298,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
                             <span className="text-xs text-slate-500">{item.count}</span>
                           </div>
                           <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div 
+                            <div
                               className="h-full bg-primary-500 rounded-full"
                               style={{ width: `${(item.count / mockAnalytics.searches_by_category[0].count) * 100}%` }}
                             />

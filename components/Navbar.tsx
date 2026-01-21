@@ -92,8 +92,8 @@ const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick, currentPage = 'h
               key={link.name}
               onClick={() => link.page === 'pricing' ? handleNavClick('pricing') : (currentPage === 'home' ? window.location.href = link.href : handleNavClick('home'))}
               className={`text-sm font-medium px-4 py-2 rounded-full transition-all duration-200 ${
-                (link.page === currentPage) 
-                  ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10' 
+                (link.page === currentPage)
+                  ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5'
               }`}
             >

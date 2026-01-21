@@ -30,13 +30,13 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
 
           {/* Toggle */}
           <div className="inline-flex items-center p-1.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full backdrop-blur-md shadow-sm">
-             <button 
+             <button
                 onClick={() => setIsAnnual(false)}
                 className={`px-8 py-3 rounded-full text-sm font-bold transition-all ${!isAnnual ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
              >
                 Monthly
              </button>
-             <button 
+             <button
                 onClick={() => setIsAnnual(true)}
                 className={`px-8 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${isAnnual ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
              >
@@ -66,7 +66,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                 </li>
               ))}
             </ul>
-            <button 
+            <button
               onClick={() => handleSelectPlan('free')}
               className="w-full py-4 px-6 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
             >
@@ -97,7 +97,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                 </li>
               ))}
             </ul>
-            <button 
+            <button
               onClick={() => handleSelectPlan('pro')}
               className="relative w-full py-5 px-6 rounded-2xl bg-primary-600 text-white font-bold hover:bg-primary-500 transition-all shadow-lg shadow-primary-600/30 text-lg"
             >
@@ -124,7 +124,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                 </li>
               ))}
             </ul>
-            <button 
+            <button
               onClick={() => handleSelectPlan('business')}
               className="w-full py-4 px-6 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
             >
