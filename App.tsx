@@ -14,6 +14,7 @@ import PricingPage from './components/PricingPage';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
+import { SubscriptionTier } from './lib/types';
 
 type Page = 'home' | 'dashboard' | 'pricing';
 
@@ -28,6 +29,9 @@ const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<Page>('home');
+  // Track user subscription tier (default: free, can be upgraded to starter/pro/business)
+  // For testing: change this to 'pro' to test comprehensive search
+  const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionTier>('pro');
 
   useEffect(() => {
     // Only check session if Supabase is configured
@@ -39,6 +43,9 @@ const App: React.FC = () => {
     // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      // TODO: Fetch user's subscription tier from database
+      // For now, logged in users could be given starter tier
+      // if (session) setSubscriptionTier('starter');
     });
 
     // Listen for changes
@@ -48,6 +55,7 @@ const App: React.FC = () => {
       setSession(session);
       if (session) {
         setIsLoginOpen(false);
+        // TODO: Fetch user's subscription tier from database
       }
     });
 
@@ -61,11 +69,14 @@ const App: React.FC = () => {
 
   const handleSelectPlan = (planId: string) => {
     console.log('Selected plan:', planId);
+    // Update subscription tier (in real app, this would happen after payment)
+    setSubscriptionTier(planId as SubscriptionTier);
+
     // TODO: Integrate with Stripe for payment
     if (planId === 'free') {
       setIsLoginOpen(true);
     } else {
-      alert(`Stripe integration coming soon! Selected plan: ${planId}`);
+      alert(`Plan selected: ${planId}. Stripe integration coming soon!`);
     }
   };
 
@@ -101,6 +112,7 @@ const App: React.FC = () => {
             <Hero
               session={session}
               onLoginClick={() => setIsLoginOpen(true)}
+              subscriptionTier={subscriptionTier}
             />
             <WhatItDoes />
             <Features />
@@ -128,7 +140,7 @@ const App: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <PricingPage onSelectPlan={handleSelectPlan} currentPlan="free" />
+            <PricingPage onSelectPlan={handleSelectPlan} currentPlan={subscriptionTier} />
           </motion.main>
         )}
       </AnimatePresence>

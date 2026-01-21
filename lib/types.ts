@@ -24,6 +24,7 @@ export interface Lead {
 export interface SearchParams {
   keyword: string;
   city: string;
+  isPro?: boolean; // Pro users get comprehensive search with more results
 }
 
 // SaaS User & Subscription Types

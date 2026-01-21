@@ -88,11 +88,33 @@ interface GooglePlace {
 }
 
 /**
+ * Helper function to transform Google Places to Lead format
+ */
+const transformPlaceToLead = (place: GooglePlace, keyword: string, city: string): Lead => {
+  const hasWebsite = !!place.websiteUri;
+  return {
+    id: place.id || `lead_${Math.random().toString(36).substr(2, 9)}`,
+    business_name: place.displayName?.text || 'Unknown Business',
+    address: place.formattedAddress || 'Address not available',
+    phone: place.internationalPhoneNumber || 'Phone not available',
+    category: keyword,
+    city: city,
+    has_website: hasWebsite,
+    website_url: place.websiteUri,
+    google_maps_url: place.googleMapsUri || `https://maps.google.com/?q=${encodeURIComponent(place.displayName?.text || keyword)}`,
+    rating: place.rating,
+    reviews: place.userRatingCount || 0
+  };
+};
+
+/**
  * Search for local businesses using Google Places API (New)
+ * Free users: Basic search (1 query, ~20 results) - Lower API cost
+ * Pro users: Comprehensive search (multiple queries + nearby, 60-80+ results)
  * Note: For production, move this to a backend API to protect your API key
  */
 export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
-  const { keyword, city } = params;
+  const { keyword, city, isPro = false } = params;
 
   // Check if API key is configured
   if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
@@ -101,68 +123,207 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
   }
 
   try {
-    // Use Google Places API (New) - Text Search
     const searchUrl = `https://places.googleapis.com/v1/places:searchText`;
+    const allPlaces: GooglePlace[] = [];
+    const seenIds = new Set<string>();
+    
+    // FREE: Single query | PRO: Multiple search variations for comprehensive results
+    const searchQueries = isPro 
+      ? [
+          `${keyword} in ${city}`,
+          `${keyword} near ${city}`,
+          `best ${keyword} ${city}`,
+          `local ${keyword} ${city}`,
+        ]
+      : [`${keyword} in ${city}`]; // Free users get just 1 query
 
-    const requestBody = {
-      textQuery: `${keyword} in ${city}`,
-      maxResultCount: 20,
-      languageCode: 'en'
-    };
-
-    const response = await fetch(searchUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
-        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.googleMapsUri,places.types'
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Google Places API error:', response.status, errorText);
-
-      // Fallback to simulation if API fails
-      console.warn('Falling back to simulation mode due to API error');
-      return simulateSearchLeads(params);
+    // PRO only: Get location coordinates for better local results and nearby search
+    let locationBias: { latitude: number; longitude: number } | null = null;
+    
+    if (isPro) {
+      try {
+        // Try to geocode the city to get coordinates for better local results
+        const geocodeResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(city)}&key=${GOOGLE_MAPS_API_KEY}`
+        );
+        if (geocodeResponse.ok) {
+          const geocodeData = await geocodeResponse.json();
+          if (geocodeData.results && geocodeData.results[0]) {
+            locationBias = geocodeData.results[0].geometry.location;
+            console.log('PRO: Got location bias for city:', city, locationBias);
+          }
+        }
+      } catch (e) {
+        console.log('Could not geocode city, continuing without location bias');
+      }
     }
 
-    const data = await response.json();
-    const places: GooglePlace[] = data.places || [];
+    // Perform multiple searches to get more results
+    for (const query of searchQueries) {
+      try {
+        const requestBody: any = {
+          textQuery: query,
+          maxResultCount: 20,
+          languageCode: 'en'
+        };
 
-    // Debug: Log raw API response
-    console.log('Google Places API returned:', places.length, 'results');
-    console.log('Raw places data:', data);
+        // Add location bias if available (searches within ~50km radius)
+        if (locationBias) {
+          requestBody.locationBias = {
+            circle: {
+              center: locationBias,
+              radius: 50000.0 // 50km radius to cover the area
+            }
+          };
+        }
 
-    // Transform Google Places results to our Lead format
-    const leads: Lead[] = places.map((place) => {
-      const hasWebsite = !!place.websiteUri;
+        const response = await fetch(searchUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
+            'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.googleMapsUri,places.types'
+          },
+          body: JSON.stringify(requestBody)
+        });
 
-      return {
-        id: place.id || `lead_${Math.random().toString(36).substr(2, 9)}`,
-        business_name: place.displayName?.text || 'Unknown Business',
-        address: place.formattedAddress || 'Address not available',
-        phone: place.internationalPhoneNumber || 'Phone not available',
-        category: keyword,
-        city: city,
-        has_website: hasWebsite,
-        website_url: place.websiteUri,
-        google_maps_url: place.googleMapsUri || `https://maps.google.com/?q=${encodeURIComponent(place.displayName?.text || keyword)}`,
-        rating: place.rating,
-        reviews: place.userRatingCount || 0
-      };
+        if (response.ok) {
+          const data = await response.json();
+          const places: GooglePlace[] = data.places || [];
+          
+          console.log(`Query "${query}" returned ${places.length} results`);
+          
+          // Add unique places only
+          for (const place of places) {
+            if (place.id && !seenIds.has(place.id)) {
+              seenIds.add(place.id);
+              allPlaces.push(place);
+            }
+          }
+        }
+      } catch (queryError) {
+        console.error(`Error with query "${query}":`, queryError);
+      }
+      
+      // Small delay between requests to avoid rate limiting (Pro only has multiple)
+      if (isPro) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+    }
+
+    // PRO ONLY: If we have location bias, also do a Nearby Search for even more local results
+    if (isPro && locationBias) {
+      try {
+        const nearbyUrl = `https://places.googleapis.com/v1/places:searchNearby`;
+        const nearbyBody = {
+          includedTypes: getPlaceTypesForKeyword(keyword),
+          maxResultCount: 20,
+          locationRestriction: {
+            circle: {
+              center: locationBias,
+              radius: 25000.0 // 25km radius for nearby search
+            }
+          }
+        };
+
+        const nearbyResponse = await fetch(nearbyUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
+            'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.googleMapsUri,places.types'
+          },
+          body: JSON.stringify(nearbyBody)
+        });
+
+        if (nearbyResponse.ok) {
+          const nearbyData = await nearbyResponse.json();
+          const nearbyPlaces: GooglePlace[] = nearbyData.places || [];
+          
+          console.log(`Nearby search returned ${nearbyPlaces.length} results`);
+          
+          for (const place of nearbyPlaces) {
+            if (place.id && !seenIds.has(place.id)) {
+              seenIds.add(place.id);
+              allPlaces.push(place);
+            }
+          }
+        }
+      } catch (nearbyError) {
+        console.error('Nearby search error:', nearbyError);
+      }
+    }
+
+    console.log(`Total unique places found: ${allPlaces.length}`);
+
+    // Transform all places to leads
+    const leads: Lead[] = allPlaces.map((place) => 
+      transformPlaceToLead(place, keyword, city)
+    );
+
+    // Sort by rating (highest first) and then by number of reviews
+    leads.sort((a, b) => {
+      const ratingA = a.rating || 0;
+      const ratingB = b.rating || 0;
+      if (ratingB !== ratingA) return ratingB - ratingA;
+      return (b.reviews || 0) - (a.reviews || 0);
     });
 
     return leads;
 
   } catch (error) {
     console.error('Error searching leads:', error);
-    // Fallback to simulation on error
     console.warn('Falling back to simulation mode due to error');
     return simulateSearchLeads(params);
   }
+};
+
+/**
+ * Map common keywords to Google Places types for nearby search
+ */
+const getPlaceTypesForKeyword = (keyword: string): string[] => {
+  const keywordLower = keyword.toLowerCase();
+  
+  const typeMap: { [key: string]: string[] } = {
+    'restaurant': ['restaurant', 'cafe', 'meal_takeaway'],
+    'plumber': ['plumber'],
+    'electrician': ['electrician'],
+    'dentist': ['dentist'],
+    'doctor': ['doctor', 'health'],
+    'lawyer': ['lawyer'],
+    'gym': ['gym', 'fitness_center'],
+    'salon': ['hair_salon', 'beauty_salon'],
+    'spa': ['spa'],
+    'hotel': ['hotel', 'lodging'],
+    'mechanic': ['car_repair'],
+    'auto': ['car_repair', 'car_dealer'],
+    'real estate': ['real_estate_agency'],
+    'insurance': ['insurance_agency'],
+    'bank': ['bank'],
+    'pharmacy': ['pharmacy'],
+    'grocery': ['grocery_or_supermarket'],
+    'bakery': ['bakery'],
+    'florist': ['florist'],
+    'pet': ['pet_store', 'veterinary_care'],
+    'vet': ['veterinary_care'],
+    'accounting': ['accounting'],
+    'locksmith': ['locksmith'],
+    'moving': ['moving_company'],
+    'cleaning': ['laundry'],
+    'roofing': ['roofing_contractor'],
+    'hvac': ['hvac_contractor'],
+    'contractor': ['general_contractor'],
+  };
+
+  // Find matching types
+  for (const [key, types] of Object.entries(typeMap)) {
+    if (keywordLower.includes(key)) {
+      return types;
+    }
+  }
+  
+  // Default to general establishment types
+  return ['establishment'];
 };
 
 /**

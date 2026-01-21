@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { IconArrowRight, IconSearch, IconFileDown, IconMapPin, IconActivity, IconZap, IconShield, IconGlobe } from './Icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { searchLeads, exportToCSV, autocompleteCities, CitySuggestion } from '../lib/api';
-import { Lead } from '../lib/types';
+import { Lead, SubscriptionTier } from '../lib/types';
 import { Session } from '@supabase/supabase-js';
 import Background3D from './Background3D';
 
@@ -22,9 +22,10 @@ function debounce<T extends (...args: any[]) => any>(
 interface HeroProps {
   session: Session | null;
   onLoginClick: () => void;
+  subscriptionTier?: SubscriptionTier; // Pass user's subscription tier for tiered search
 }
 
-const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
+const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = 'free' }) => {
   const [keyword, setKeyword] = useState('');
   const [city, setCity] = useState('');
   const [loading, setLoading] = useState(false);
@@ -135,8 +136,12 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
     setHasSearched(true);
     setLeads([]);
 
+    // Pro/Business users get comprehensive search (more results, more API calls)
+    // Free/Starter users get basic search (fewer results, lower cost)
+    const isPro = subscriptionTier === 'pro' || subscriptionTier === 'business';
+
     try {
-      const results = await searchLeads({ keyword, city });
+      const results = await searchLeads({ keyword, city, isPro });
       setLeads(results);
     } catch (error) {
       console.error("Search failed", error);
@@ -583,6 +588,17 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
               {/* Stats Bar */}
               {!loading && leads.length > 0 && (
                 <div className="flex items-center gap-6 px-6 py-3 bg-slate-50/50 dark:bg-white/[0.01] border-b border-slate-200 dark:border-white/5 text-xs">
+                  {/* Search Mode Badge */}
+                  {(subscriptionTier === 'pro' || subscriptionTier === 'business') ? (
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30">
+                      <IconZap className="w-3 h-3 text-amber-500" />
+                      <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase">Pro Search</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                      <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Basic Search</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                     <span className="text-slate-600 dark:text-slate-400">
@@ -595,6 +611,13 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                       <strong>{leadsWithWebsite}</strong> with website
                     </span>
                   </div>
+                  {(subscriptionTier === 'free' || subscriptionTier === 'starter') && (
+                    <div className="ml-auto text-[10px] text-slate-400 dark:text-slate-500">
+                      <span className="text-primary-500 hover:underline cursor-pointer" onClick={() => window.scrollTo({ top: document.getElementById('pricing')?.offsetTop || 0, behavior: 'smooth' })}>
+                        Upgrade to Pro for 3x more results →
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -609,7 +632,15 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick }) => {
                               <IconSearch className="w-6 h-6 text-primary-500 dark:text-primary-400" />
                             </div>
                           </div>
-                          <span className="text-sm font-medium text-slate-600 dark:text-slate-300 animate-pulse">Scanning {city} area...</span>
+                          <span className="text-sm font-medium text-slate-600 dark:text-slate-300 animate-pulse">
+                            {(subscriptionTier === 'pro' || subscriptionTier === 'business') 
+                              ? `Deep scanning ${city} area (Pro)...`
+                              : `Scanning ${city} area...`
+                            }
+                          </span>
+                          {(subscriptionTier === 'pro' || subscriptionTier === 'business') && (
+                            <span className="text-xs text-slate-400 dark:text-slate-500">Running comprehensive search for more results</span>
+                          )}
                        </div>
                     </div>
                  )}
