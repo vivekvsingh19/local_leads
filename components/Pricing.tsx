@@ -2,8 +2,18 @@
 import React, { useState } from 'react';
 import { IconCheck } from './Icons';
 
-const Pricing: React.FC = () => {
+interface PricingProps {
+  onSelectPlan?: (planId: string) => void;
+}
+
+const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
   const [isAnnual, setIsAnnual] = useState(true);
+
+  const handleSelectPlan = (planId: string) => {
+    if (onSelectPlan) {
+      onSelectPlan(planId);
+    }
+  };
 
   return (
     <section id="pricing" className="py-32 bg-slate-50 dark:bg-[#030712] relative transition-colors duration-300 overflow-hidden">
@@ -56,7 +66,10 @@ const Pricing: React.FC = () => {
                 </li>
               ))}
             </ul>
-            <button className="w-full py-4 px-6 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+            <button 
+              onClick={() => handleSelectPlan('free')}
+              className="w-full py-4 px-6 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+            >
               Get Started Free
             </button>
           </div>
@@ -84,7 +97,10 @@ const Pricing: React.FC = () => {
                 </li>
               ))}
             </ul>
-            <button className="relative w-full py-5 px-6 rounded-2xl bg-primary-600 text-white font-bold hover:bg-primary-500 transition-all shadow-lg shadow-primary-600/30 text-lg">
+            <button 
+              onClick={() => handleSelectPlan('pro')}
+              className="relative w-full py-5 px-6 rounded-2xl bg-primary-600 text-white font-bold hover:bg-primary-500 transition-all shadow-lg shadow-primary-600/30 text-lg"
+            >
               Start 14-Day Free Trial
             </button>
           </div>
@@ -108,7 +124,10 @@ const Pricing: React.FC = () => {
                 </li>
               ))}
             </ul>
-            <button className="w-full py-4 px-6 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+            <button 
+              onClick={() => handleSelectPlan('business')}
+              className="w-full py-4 px-6 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+            >
               Contact Sales
             </button>
           </div>

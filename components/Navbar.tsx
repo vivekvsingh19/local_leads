@@ -8,9 +8,11 @@ import { supabase } from '../lib/supabase';
 interface NavbarProps {
   session: Session | null;
   onLoginClick: () => void;
+  currentPage?: string;
+  onNavigate?: (page: string) => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick }) => {
+const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick, currentPage = 'home', onNavigate }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDark, setIsDark] = useState(true);
@@ -44,13 +46,23 @@ const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick }) => {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    onNavigate?.('home');
+  };
+
+  const handleNavClick = (page: string) => {
+    if (onNavigate) {
+      onNavigate(page);
+    }
+    setIsOpen(false);
   };
 
   const navLinks = [
-    { name: 'Features', href: '#features' },
-    { name: 'How it Works', href: '#what-it-does' },
-    { name: 'Pricing', href: '#pricing' },
+    { name: 'Features', page: 'home', href: '#features' },
+    { name: 'How it Works', page: 'home', href: '#what-it-does' },
+    { name: 'Pricing', page: 'pricing', href: '#pricing' },
   ];
 
   return (
@@ -63,27 +75,43 @@ const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick }) => {
         } rounded-full py-2 pl-2 pr-2 md:pl-5 md:pr-2 flex items-center gap-4 md:gap-8 max-w-4xl w-full justify-between`}
       >
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2 group">
+        <button onClick={() => handleNavClick('home')} className="flex items-center gap-2 group">
           <div className="relative">
             <div className="absolute inset-0 bg-primary-500 blur-sm opacity-50 group-hover:opacity-100 transition-opacity"></div>
             <div className="bg-gradient-to-br from-primary-500 to-primary-600 text-white p-1.5 rounded-full relative">
               <IconZap className="w-4 h-4" />
             </div>
           </div>
-          <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white hidden md:block">LocalLeads</span>
-        </a>
+          <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white hidden md:block">ClientMine</span>
+        </button>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => (
-            <a
+            <button
               key={link.name}
-              href={link.href}
-              className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 px-4 py-2 rounded-full transition-all duration-200"
+              onClick={() => link.page === 'pricing' ? handleNavClick('pricing') : (currentPage === 'home' ? window.location.href = link.href : handleNavClick('home'))}
+              className={`text-sm font-medium px-4 py-2 rounded-full transition-all duration-200 ${
+                (link.page === currentPage) 
+                  ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10' 
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5'
+              }`}
             >
               {link.name}
-            </a>
+            </button>
           ))}
+          {session && (
+            <button
+              onClick={() => handleNavClick('dashboard')}
+              className={`text-sm font-medium px-4 py-2 rounded-full transition-all duration-200 ${
+                currentPage === 'dashboard'
+                  ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5'
+              }`}
+            >
+              Dashboard
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -97,15 +125,37 @@ const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick }) => {
            </button>
 
            {/* CTA Button */}
-          <div className="">
-            {/* Sign In button hidden for testing */}
-            {session && (
-               <button
-                 onClick={handleSignOut}
-                 className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-4 py-2 transition-colors"
-               >
-                 Sign Out
-               </button>
+          <div className="flex items-center gap-2">
+            {session ? (
+              <>
+                <button
+                  onClick={() => handleNavClick('dashboard')}
+                  className="hidden md:block text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 px-4 py-2 rounded-full transition-colors"
+                >
+                  Dashboard
+                </button>
+                <button
+                  onClick={handleSignOut}
+                  className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-4 py-2 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={onLoginClick}
+                  className="hidden md:block text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-4 py-2 transition-colors"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={onLoginClick}
+                  className="text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 px-4 py-2 rounded-full transition-colors"
+                >
+                  Get Started
+                </button>
+              </>
             )}
           </div>
 
