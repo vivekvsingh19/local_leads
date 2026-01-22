@@ -19,19 +19,19 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex gap-4">
                {/* Developer Links */}
-               <a 
-                 href="https://x.com/vivek_uncovered" 
-                 target="_blank" 
-                 rel="noopener noreferrer" 
+               <a
+                 href="https://x.com/vivek_uncovered"
+                 target="_blank"
+                 rel="noopener noreferrer"
                  aria-label="Contact Developer on X"
                  className="w-8 h-8 bg-slate-200 dark:bg-white/5 rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer border border-transparent dark:border-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400"
                >
                  <IconTwitter className="w-4 h-4" />
                </a>
-               <a 
-                 href="https://github.com/vivekvsingh19" 
-                 target="_blank" 
-                 rel="noopener noreferrer" 
+               <a
+                 href="https://github.com/vivekvsingh19"
+                 target="_blank"
+                 rel="noopener noreferrer"
                  aria-label="View Developer on GitHub"
                  className="w-8 h-8 bg-slate-200 dark:bg-white/5 rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer border border-transparent dark:border-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400"
                >
@@ -40,7 +40,7 @@ const Footer: React.FC = () => {
             </div>
             <p className="text-[10px] text-slate-400 mt-2 font-medium uppercase tracking-wider">Contact Developer</p>
           </div>
-          
+
           <div>
             <h4 className="font-bold text-slate-900 dark:text-white mb-6">Product</h4>
             <ul className="space-y-4 text-sm text-slate-600 dark:text-slate-400">

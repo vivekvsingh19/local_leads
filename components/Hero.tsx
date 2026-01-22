@@ -633,7 +633,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                             </div>
                           </div>
                           <span className="text-sm font-medium text-slate-600 dark:text-slate-300 animate-pulse">
-                            {(subscriptionTier === 'pro' || subscriptionTier === 'business') 
+                            {(subscriptionTier === 'pro' || subscriptionTier === 'business')
                               ? `Deep scanning ${city} area (Pro)...`
                               : `Scanning ${city} area...`
                             }

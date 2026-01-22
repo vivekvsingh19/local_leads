@@ -116,19 +116,23 @@ const transformPlaceToLead = (place: GooglePlace, keyword: string, city: string)
 export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
   const { keyword, city, isPro = false } = params;
 
+  console.log(`🔍 Starting search: "${keyword}" in "${city}" | Mode: ${isPro ? 'PRO (comprehensive)' : 'FREE (basic)'}`);
+
   // Check if API key is configured
   if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
     console.warn('Google Maps API key not configured. Using simulation mode.');
     return simulateSearchLeads(params);
   }
 
+  console.log('API Key present:', GOOGLE_MAPS_API_KEY.substring(0, 10) + '...');
+
   try {
     const searchUrl = `https://places.googleapis.com/v1/places:searchText`;
     const allPlaces: GooglePlace[] = [];
     const seenIds = new Set<string>();
-    
+
     // FREE: Single query | PRO: Multiple search variations for comprehensive results
-    const searchQueries = isPro 
+    const searchQueries = isPro
       ? [
           `${keyword} in ${city}`,
           `${keyword} near ${city}`,
@@ -139,7 +143,7 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
 
     // PRO only: Get location coordinates for better local results and nearby search
     let locationBias: { latitude: number; longitude: number } | null = null;
-    
+
     if (isPro) {
       try {
         // Try to geocode the city to get coordinates for better local results
@@ -149,7 +153,12 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
         if (geocodeResponse.ok) {
           const geocodeData = await geocodeResponse.json();
           if (geocodeData.results && geocodeData.results[0]) {
-            locationBias = geocodeData.results[0].geometry.location;
+            // Geocode returns {lat, lng} but Places API needs {latitude, longitude}
+            const loc = geocodeData.results[0].geometry.location;
+            locationBias = {
+              latitude: loc.lat,
+              longitude: loc.lng
+            };
             console.log('PRO: Got location bias for city:', city, locationBias);
           }
         }
@@ -177,6 +186,8 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
           };
         }
 
+        console.log(`Searching: "${query}"`, requestBody);
+
         const response = await fetch(searchUrl, {
           method: 'POST',
           headers: {
@@ -190,9 +201,9 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
         if (response.ok) {
           const data = await response.json();
           const places: GooglePlace[] = data.places || [];
-          
+
           console.log(`Query "${query}" returned ${places.length} results`);
-          
+
           // Add unique places only
           for (const place of places) {
             if (place.id && !seenIds.has(place.id)) {
@@ -200,13 +211,16 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
               allPlaces.push(place);
             }
           }
+        } else {
+          const errorText = await response.text();
+          console.error(`API error for query "${query}":`, response.status, errorText);
         }
       } catch (queryError) {
         console.error(`Error with query "${query}":`, queryError);
       }
-      
+
       // Small delay between requests to avoid rate limiting (Pro only has multiple)
-      if (isPro) {
+      if (isPro && searchQueries.length > 1) {
         await new Promise(resolve => setTimeout(resolve, 200));
       }
     }
@@ -215,8 +229,11 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
     if (isPro && locationBias) {
       try {
         const nearbyUrl = `https://places.googleapis.com/v1/places:searchNearby`;
+        const placeTypes = getPlaceTypesForKeyword(keyword);
+        console.log(`PRO: Running nearby search with types:`, placeTypes);
+
         const nearbyBody = {
-          includedTypes: getPlaceTypesForKeyword(keyword),
+          includedTypes: placeTypes,
           maxResultCount: 20,
           locationRestriction: {
             circle: {
@@ -239,15 +256,18 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
         if (nearbyResponse.ok) {
           const nearbyData = await nearbyResponse.json();
           const nearbyPlaces: GooglePlace[] = nearbyData.places || [];
-          
+
           console.log(`Nearby search returned ${nearbyPlaces.length} results`);
-          
+
           for (const place of nearbyPlaces) {
             if (place.id && !seenIds.has(place.id)) {
               seenIds.add(place.id);
               allPlaces.push(place);
             }
           }
+        } else {
+          const errorText = await nearbyResponse.text();
+          console.error('Nearby search API error:', nearbyResponse.status, errorText);
         }
       } catch (nearbyError) {
         console.error('Nearby search error:', nearbyError);
@@ -256,8 +276,15 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
 
     console.log(`Total unique places found: ${allPlaces.length}`);
 
+    // If no results from API, fall back to simulation
+    if (allPlaces.length === 0) {
+      console.warn('No results from Google Places API. Falling back to simulation mode.');
+      console.warn('Make sure your API key has "Places API (New)" enabled in Google Cloud Console.');
+      return simulateSearchLeads(params);
+    }
+
     // Transform all places to leads
-    const leads: Lead[] = allPlaces.map((place) => 
+    const leads: Lead[] = allPlaces.map((place) =>
       transformPlaceToLead(place, keyword, city)
     );
 
@@ -283,7 +310,7 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
  */
 const getPlaceTypesForKeyword = (keyword: string): string[] => {
   const keywordLower = keyword.toLowerCase();
-  
+
   const typeMap: { [key: string]: string[] } = {
     'restaurant': ['restaurant', 'cafe', 'meal_takeaway'],
     'plumber': ['plumber'],
@@ -321,7 +348,7 @@ const getPlaceTypesForKeyword = (keyword: string): string[] => {
       return types;
     }
   }
-  
+
   // Default to general establishment types
   return ['establishment'];
 };
