@@ -33,17 +33,17 @@ const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick, currentPage = 'h
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleTheme = () => {
-    if (isDark) {
-      document.documentElement.classList.remove('dark');
-      localStorage.theme = 'light';
-      setIsDark(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.theme = 'dark';
-      setIsDark(true);
-    }
-  };
+  // const toggleTheme = () => {
+  //   if (isDark) {
+  //     document.documentElement.classList.remove('dark');
+  //     localStorage.theme = 'light';
+  //     setIsDark(false);
+  //   } else {
+  //     document.documentElement.classList.add('dark');
+  //     localStorage.theme = 'dark';
+  //     setIsDark(true);
+  //   }
+  // };
 
   const handleSignOut = async () => {
     if (supabase) {
@@ -116,13 +116,13 @@ const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick, currentPage = 'h
 
         <div className="flex items-center gap-2">
            {/* Theme Toggle */}
-           <button
+           {/* <button
              onClick={toggleTheme}
              className="p-2.5 rounded-full text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
              aria-label="Toggle theme"
-           >
-             {isDark ? <IconSun className="w-4 h-4" /> : <IconMoon className="w-4 h-4" />}
-           </button>
+           > */}
+             {/* {isDark ? <IconSun className="w-4 h-4" /> : <IconMoon className="w-4 h-4" />}
+           </button> */}
 
            {/* CTA Button */}
           <div className="flex items-center gap-2">
