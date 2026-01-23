@@ -362,7 +362,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                          <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 backdrop-blur-sm sticky top-0 z-20">
                             <div className="relative">
                                 <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                <input 
+                                <input
                                     autoFocus
                                     type="text"
                                     placeholder="Type to filter categories..."
@@ -377,7 +377,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                             <div className="px-2 py-3 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                               {keyword.length > 0 ? 'Matching Results' : 'Browse Categories'}
                             </div>
-                            
+
                             {filteredCategories.length > 0 ? (
                               <div className="grid grid-cols-2 gap-2">
                               {filteredCategories.map((item) => (
