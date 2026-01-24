@@ -246,7 +246,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
   };
 
   return (
-    <section className="relative pt-32 pb-16 lg:pt-48 lg:pb-32 min-h-screen flex flex-col items-center justify-start bg-white dark:bg-[#030712] transition-colors duration-300 overflow-hidden">
+    <section className="relative pt-32 pb-16 lg:pt-48 lg:pb-32 min-h-screen flex flex-col items-center justify-start bg-white dark:bg-[#030712] transition-colors duration-300 overflow-visible">
 
       <Background3D />
 
