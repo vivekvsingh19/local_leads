@@ -316,13 +316,13 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full max-w-2xl mx-auto mb-16 relative z-30"
+          className="w-full mx-auto mb-16 relative z-30 px-4"
         >
           {/* Always show form for testing, removed session check */}
           <form
             ref={formRef}
             onSubmit={handleSearch}
-            className="relative flex flex-col md:flex-row items-center bg-white dark:bg-slate-900 p-1 rounded-[2.5rem] md:rounded-full border border-slate-200 dark:border-slate-800 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] transition-all duration-500 ease-out hover:shadow-xl dark:hover:shadow-2xl group/search"
+            className="relative flex flex-col md:flex-row items-center bg-white dark:bg-slate-900 p-1 rounded-[2.5rem] md:rounded-full border border-slate-200 dark:border-slate-800 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] transition-all duration-500 ease-out hover:shadow-xl dark:hover:shadow-2xl group/search max-w-5xl mx-auto w-full"
           >
 
               {/* Category Input */}
@@ -359,13 +359,13 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                         initial="hidden"
                         animate="visible"
                         exit="exit"
-                        className="absolute top-[120%] left-0 w-[280%] min-w-[600px] max-h-[400px] overflow-y-auto p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-700 rounded-3xl shadow-2xl z-50 text-left"
+                        className="absolute top-[120%] left-1/2 -translate-x-1/2 w-screen max-w-6xl max-h-[500px] overflow-y-auto p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-700 rounded-3xl shadow-2xl z-50 text-left"
                       >
                          <div className="px-2 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-10 mx-1">
                            {keyword.length > 0 ? 'Matching Categories' : 'Browse Categories'}
                          </div>
                         {filteredCategories.length > 0 ? (
-                          <div className="grid grid-cols-4 gap-2">
+                          <div className="grid grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3">
                            {filteredCategories.map((item) => (
                             <motion.button
                               key={item.name}
