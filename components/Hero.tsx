@@ -359,13 +359,13 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                         initial="hidden"
                         animate="visible"
                         exit="exit"
-                        className="absolute top-[120%] left-0 w-[180%] min-w-[340px] max-h-[400px] overflow-y-auto p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-700 rounded-3xl shadow-2xl z-50 text-left"
+                        className="absolute top-[120%] left-0 w-[280%] min-w-[600px] max-h-[400px] overflow-y-auto p-3 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-slate-200 dark:border-slate-700 rounded-3xl shadow-2xl z-50 text-left"
                       >
                          <div className="px-2 py-2 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md z-10 mx-1">
                            {keyword.length > 0 ? 'Matching Categories' : 'Browse Categories'}
                          </div>
                         {filteredCategories.length > 0 ? (
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-4 gap-2">
                            {filteredCategories.map((item) => (
                             <motion.button
                               key={item.name}
