@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { IconArrowRight, IconSearch, IconFileDown, IconMapPin, IconActivity, IconZap, IconShield, IconGlobe, IconChevronDown, IconCrown } from './Icons';
+import { IconArrowRight, IconSearch, IconFileDown, IconMapPin, IconActivity, IconZap, IconShield, IconGlobe, IconChevronDown, IconCrown, IconLock } from './Icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { searchLeads, exportToCSV, autocompleteCities, CitySuggestion } from '../lib/api';
 import { Lead, SubscriptionTier } from '../lib/types';
@@ -713,13 +713,27 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                 <div className="flex flex-col gap-1">
                                    <span className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors text-base">{row.business_name}</span>
                                    <div className="flex items-center gap-2">
-                                     <span className="text-xs text-slate-500 font-mono bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded">{row.phone}</span>
+                                     {subscriptionTier === 'free' ? (
+                                        <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded cursor-help" title="Upgrade to view phone number">
+                                          <IconLock className="w-3 h-3 text-slate-400" />
+                                          <span className="text-xs text-slate-400 font-mono blur-[3px] select-none">+1 (555) 000-0000</span>
+                                        </div>
+                                     ) : (
+                                        <span className="text-xs text-slate-500 font-mono bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded">{row.phone}</span>
+                                     )}
                                      <span className="text-xs text-slate-500 dark:text-slate-500">{row.category}</span>
                                    </div>
                                 </div>
                              </td>
                              <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-xs truncate">
-                                {row.address}
+                                {subscriptionTier === 'free' ? (
+                                   <div className="flex items-center gap-2 cursor-help" title="Upgrade to view location">
+                                      <IconLock className="w-3 h-3 text-slate-400 shrink-0" />
+                                      <span className="blur-[4px] select-none">123 Hidden Business St, City, State</span>
+                                   </div>
+                                ) : (
+                                   row.address
+                                )}
                              </td>
                              <td className="px-6 py-4">
                                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 shadow-sm dark:shadow-[0_0_10px_rgba(244,63,94,0.1)]">

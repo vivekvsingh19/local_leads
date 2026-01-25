@@ -25,7 +25,8 @@ import {
   MessageSquare,
   HelpCircle,
   ChevronDown,
-  Crown
+  Crown,
+  Lock
 } from 'lucide-react';
 
 // Re-export Lucide icons with the existing naming convention to maintain compatibility
@@ -56,3 +57,4 @@ export const IconMessageSquare = MessageSquare;
 export const IconHelpCircle = HelpCircle;
 export const IconChevronDown = ChevronDown;
 export const IconCrown = Crown;
+export const IconLock = Lock;
