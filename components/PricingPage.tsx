@@ -44,7 +44,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
             Simple, transparent pricing
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-8">
-            Choose the perfect plan for your business. All plans include a 14-day free trial.
+            Pay only for what you use. Start small, scale as you grow. Each plan includes a 14-day free trial.
           </p>
 
           {/* Billing Toggle */}
@@ -72,6 +72,30 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
                 Save 17%
               </span>
             </button>
+          </div>
+        </motion.div>
+
+        {/* Usage Guide */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-16 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/50 dark:to-slate-800/30 border border-blue-200 dark:border-slate-700/50 rounded-2xl p-8 max-w-4xl mx-auto"
+        >
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">How much will you use?</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div>
+              <p className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Starter - Side Hustle</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">~10 searches/week = 40/month. Exploring markets before committing.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Professional - Active Freelancer</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">~50 searches/week = 200/month. Finding 200-400 leads to pitch regularly.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-slate-700 dark:text-slate-300 mb-2">Business - Scaling Agency</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">Unlimited searches. Managing multiple campaigns & team members.</p>
+            </div>
           </div>
         </motion.div>
 
@@ -197,24 +221,20 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
                 a: 'Yes! You can cancel your subscription at any time. Your access will continue until the end of your billing period. No long-term contracts required.',
               },
               {
-                q: 'What happens after my trial ends?',
-                a: "Your trial lasts 14 days. We'll send you a reminder before charging your payment method. You can cancel anytime during the trial without any charges.",
+                q: 'How many leads will I get?',
+                a: 'Most users get 2-5 qualified leads per search. Starter users (~12 searches) typically find 50-100 leads/month to contact.',
               },
               {
                 q: 'Do you offer refunds?',
                 a: "We offer a 30-day money-back guarantee. If you're not satisfied, contact us for a full refund.",
               },
               {
-                q: 'Can I change plans later?',
-                a: 'Absolutely! You can upgrade or downgrade your plan at any time. Changes take effect immediately.',
-              },
-              {
                 q: 'What payment methods do you accept?',
                 a: 'We accept all major credit cards (Visa, MasterCard, American Express) and PayPal.',
               },
               {
-                q: 'Is there a discount for non-profits?',
-                a: 'Yes! Non-profit organizations get 50% off any plan. Contact us with your 501(c)(3) documentation.',
+                q: 'Which plan should I start with?',
+                a: 'Start with Starter to test markets (~10 searches/week). Upgrade to Professional when doing 50+ searches/week or needing team features.',
               },
             ].map((faq, i) => (
               <div key={i} className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6">

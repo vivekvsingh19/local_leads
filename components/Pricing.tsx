@@ -52,14 +52,14 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
             <div className="mb-6">
               <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-xs mb-4">Starter</h3>
               <div className="flex items-baseline gap-1">
-                 <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">${isAnnual ? '14' : '14'}</span>
+                 <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">$9</span>
                  <span className="text-slate-500 font-medium">/mo</span>
               </div>
-              <p className="text-slate-500 text-sm mt-4 leading-relaxed">Perfect for freelancers just getting started.</p>
+              <p className="text-slate-500 text-sm mt-4 leading-relaxed">Test the market with 40 searches/month. Perfect for side hustles.</p>
             </div>
             <div className="h-px w-full bg-slate-200 dark:bg-white/5 mb-8"></div>
             <ul className="space-y-4 mb-8 flex-1">
-              {['300 searches/month', 'Export up to 50 leads', 'Save 1,000 leads', 'Email templates', 'Email Support'].map((item) => (
+              {['40 searches/month', '12 CSV exports', 'Save 500 leads', 'Basic analytics', 'Email support'].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-slate-700 dark:text-slate-300 text-sm font-medium">
                   <IconCheck className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0" />
                   {item}
@@ -81,14 +81,14 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
               <div className="inline-block px-3 py-1 rounded-full bg-primary-500 text-white text-[10px] font-bold mb-4 tracking-wider uppercase shadow-lg shadow-primary-500/40">Most Popular</div>
               <h3 className="text-lg font-bold text-slate-400 uppercase tracking-widest text-xs mb-2">Professional</h3>
               <div className="flex items-baseline gap-1">
-                 <span className="text-6xl font-extrabold text-white tracking-tight">${isAnnual ? '39' : '39'}</span>
+                 <span className="text-6xl font-extrabold text-white tracking-tight">$29</span>
                  <span className="text-slate-400 font-medium">/mo</span>
               </div>
-              <p className="text-slate-400 text-sm mt-4 leading-relaxed">For growing freelancers and small agencies.</p>
+              <p className="text-slate-400 text-sm mt-4 leading-relaxed">For serious freelancers. 200 searches gets you 200-400 qualified leads.</p>
             </div>
             <div className="h-px w-full bg-white/10 mb-8"></div>
             <ul className="space-y-4 mb-10 flex-1 relative">
-              {['1,500 searches/month', 'Unlimited exports', 'Unlimited saved leads', 'Priority Support', 'API Access', 'Advanced analytics', '5 team members'].map((item) => (
+              {['200 searches/month', 'Unlimited exports', 'Unlimited saved leads', 'Lead tracking', '3 team members', 'Advanced analytics', 'Priority support'].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-white text-sm font-medium">
                   <div className="w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center shrink-0 shadow-lg shadow-primary-500/40">
                      <IconCheck className="w-3 h-3 text-white" />
@@ -110,14 +110,14 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
             <div className="mb-6">
               <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-xs mb-4">Business</h3>
               <div className="flex items-baseline gap-1">
-                 <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">${isAnnual ? '99' : '99'}</span>
+                 <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">$79</span>
                  <span className="text-slate-500 font-medium">/mo</span>
               </div>
-              <p className="text-slate-500 text-sm mt-4 leading-relaxed">For agencies and scaling teams that need unlimited access.</p>
+              <p className="text-slate-500 text-sm mt-4 leading-relaxed">For agencies scaling operations. Unlimited searches & team collaboration.</p>
             </div>
             <div className="h-px w-full bg-slate-200 dark:bg-white/5 mb-8"></div>
             <ul className="space-y-4 mb-8 flex-1">
-              {['Unlimited searches', 'Unlimited exports', 'Unlimited everything', 'Dedicated Support', 'Full API Access', 'White-label reports', 'Unlimited team members'].map((item) => (
+              {['Unlimited searches', 'Unlimited exports', 'Advanced reporting', 'Lead quality scoring', '10 team members', 'API access', 'White-label exports'].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-slate-700 dark:text-slate-300 text-sm font-medium">
                   <IconCheck className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0" />
                   {item}
