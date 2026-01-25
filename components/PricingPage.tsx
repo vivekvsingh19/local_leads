@@ -8,25 +8,25 @@ interface PricingPageProps {
   currentPlan?: string;
 }
 
-const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = 'free' }) => {
+const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = 'starter' }) => {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
 
   const getIcon = (planId: string) => {
     switch (planId) {
-      case 'free': return <IconShield className="w-6 h-6" />;
       case 'starter': return <IconZap className="w-6 h-6" />;
       case 'pro': return <IconActivity className="w-6 h-6" />;
       case 'business': return <IconArrowRight className="w-6 h-6" />;
+      case 'enterprise': return <IconShield className="w-6 h-6" />;
       default: return <IconShield className="w-6 h-6" />;
     }
   };
 
   const getGradient = (planId: string) => {
     switch (planId) {
-      case 'free': return 'from-slate-500 to-slate-600';
       case 'starter': return 'from-blue-500 to-blue-600';
       case 'pro': return 'from-primary-500 to-orange-500';
       case 'business': return 'from-purple-500 to-pink-500';
+      case 'enterprise': return 'from-slate-500 to-slate-600';
       default: return 'from-slate-500 to-slate-600';
     }
   };
@@ -151,7 +151,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
                     : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100'
                 }`}
               >
-                {currentPlan === plan.id ? 'Current Plan' : plan.price === 0 ? 'Get Started Free' : 'Start Free Trial'}
+                {currentPlan === plan.id ? 'Current Plan' : 'Start Free Trial'}
               </button>
 
               {/* Features */}
@@ -194,11 +194,11 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
             {[
               {
                 q: 'Can I cancel anytime?',
-                a: 'Yes! You can cancel your subscription at any time. Your access will continue until the end of your billing period.',
+                a: 'Yes! You can cancel your subscription at any time. Your access will continue until the end of your billing period. No long-term contracts required.',
               },
               {
                 q: 'What happens after my trial ends?',
-                a: "You'll automatically be moved to the Free plan unless you choose to upgrade. No charges without your consent.",
+                a: "Your trial lasts 14 days. We'll send you a reminder before charging your payment method. You can cancel anytime during the trial without any charges.",
               },
               {
                 q: 'Do you offer refunds?',
@@ -235,7 +235,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
           <div className="bg-gradient-to-br from-primary-500 to-orange-500 rounded-3xl p-12 text-white">
             <h2 className="text-3xl font-bold mb-4">Ready to find more clients?</h2>
             <p className="text-white/80 mb-8 max-w-xl mx-auto">
-              Join thousands of freelancers and agencies who use ClientMine to find businesses that need their services.
+              Join thousands of freelancers and agencies who use this platform to find businesses that need their services.
             </p>
             <button
               onClick={() => onSelectPlan('starter')}

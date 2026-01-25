@@ -41,7 +41,7 @@ export interface User {
   created_at: string;
 }
 
-export type SubscriptionTier = 'free' | 'starter' | 'pro' | 'business';
+export type SubscriptionTier = 'starter' | 'pro' | 'business' | 'enterprise';
 
 export interface PricingPlan {
   id: SubscriptionTier;
@@ -127,88 +127,99 @@ export interface ActivityItem {
 // Pricing Plans Configuration
 export const PRICING_PLANS: PricingPlan[] = [
   {
-    id: 'free',
-    name: 'Free',
-    price: 0,
-    yearlyPrice: 0,
-    description: 'Perfect for trying out the platform',
-    features: [
-      '10 searches per month',
-      '2 CSV exports per month',
-      'Save up to 50 leads',
-      'Basic email templates',
-      'Community support',
-    ],
-    limits: {
-      searches_per_month: 10,
-      exports_per_month: 2,
-      saved_leads: 50,
-      team_members: 1,
-      email_templates: 3,
-    },
-  },
-  {
     id: 'starter',
     name: 'Starter',
-    price: 29,
-    yearlyPrice: 290,
-    description: 'For freelancers getting started',
+    price: 14,
+    yearlyPrice: 149,
+    description: 'Perfect for freelancers just getting started',
     features: [
-      '100 searches per month',
-      '20 CSV exports per month',
-      'Save up to 500 leads',
-      '10 email templates',
+      '300 searches per month',
+      '50 CSV exports per month',
+      'Save up to 1,000 leads',
+      '20 email templates',
       'Search history & analytics',
       'Email support',
+      '14-day free trial',
     ],
     limits: {
-      searches_per_month: 100,
-      exports_per_month: 20,
-      saved_leads: 500,
+      searches_per_month: 300,
+      exports_per_month: 50,
+      saved_leads: 1000,
       team_members: 1,
-      email_templates: 10,
+      email_templates: 20,
     },
   },
   {
     id: 'pro',
     name: 'Pro',
-    price: 79,
-    yearlyPrice: 790,
-    description: 'For growing agencies',
+    price: 39,
+    yearlyPrice: 399,
+    description: 'For growing freelancers & agencies',
     popular: true,
     features: [
-      '500 searches per month',
+      '1,500 searches per month',
       'Unlimited exports',
       'Unlimited saved leads',
       'Unlimited email templates',
-      'Advanced analytics',
+      'Advanced analytics & reports',
       'Priority support',
       'API access',
-      '3 team members',
+      '5 team members',
+      'Saved searches',
+      '14-day free trial',
     ],
     limits: {
-      searches_per_month: 500,
+      searches_per_month: 1500,
       exports_per_month: -1, // unlimited
       saved_leads: -1, // unlimited
-      team_members: 3,
+      team_members: 5,
       email_templates: -1, // unlimited
     },
   },
   {
     id: 'business',
     name: 'Business',
-    price: 199,
-    yearlyPrice: 1990,
-    description: 'For large teams & agencies',
+    price: 99,
+    yearlyPrice: 999,
+    description: 'For agencies & scaling teams',
     features: [
       'Unlimited searches',
-      'Unlimited everything',
+      'Unlimited exports',
+      'Unlimited saved leads',
+      'Unlimited email templates',
+      'Advanced analytics',
+      'Priority support',
+      'Full API access',
+      'Unlimited team members',
       'White-label reports',
       'Custom integrations',
+      '14-day free trial',
+    ],
+    limits: {
+      searches_per_month: -1, // unlimited
+      exports_per_month: -1,
+      saved_leads: -1,
+      team_members: -1,
+      email_templates: -1,
+    },
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 299,
+    yearlyPrice: 2990,
+    description: 'For large organizations & custom needs',
+    features: [
+      'Everything in Business',
       'Dedicated account manager',
-      'Phone support',
-      'Unlimited team members',
-      'Custom email domain',
+      'Phone & chat support',
+      'Custom data sources',
+      'Advanced security & SSO',
+      'SLA guarantees',
+      'Training & onboarding',
+      'Custom integrations',
+      'On-premise options available',
+      '14-day free trial',
     ],
     limits: {
       searches_per_month: -1, // unlimited

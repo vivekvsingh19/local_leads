@@ -50,16 +50,16 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
           {/* Starter Plan */}
           <div className="p-8 rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] backdrop-blur-sm flex flex-col hover:border-slate-300 dark:hover:bg-white/[0.04] transition-all duration-300">
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-xs mb-4">Hobby</h3>
+              <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-xs mb-4">Starter</h3>
               <div className="flex items-baseline gap-1">
-                 <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">$0</span>
+                 <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">${isAnnual ? '14' : '14'}</span>
                  <span className="text-slate-500 font-medium">/mo</span>
               </div>
-              <p className="text-slate-500 text-sm mt-4 leading-relaxed">Perfect for testing the waters and finding your first few leads.</p>
+              <p className="text-slate-500 text-sm mt-4 leading-relaxed">Perfect for freelancers just getting started.</p>
             </div>
             <div className="h-px w-full bg-slate-200 dark:bg-white/5 mb-8"></div>
             <ul className="space-y-4 mb-8 flex-1">
-              {['5 searches per day', 'Export up to 50 leads', 'Standard Support', 'CSV Download'].map((item) => (
+              {['300 searches/month', 'Export up to 50 leads', 'Save 1,000 leads', 'Email templates', 'Email Support'].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-slate-700 dark:text-slate-300 text-sm font-medium">
                   <IconCheck className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0" />
                   {item}
@@ -67,10 +67,10 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
               ))}
             </ul>
             <button
-              onClick={() => handleSelectPlan('free')}
+              onClick={() => handleSelectPlan('starter')}
               className="w-full py-4 px-6 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
             >
-              Get Started Free
+              Start 14-Day Free Trial
             </button>
           </div>
 
@@ -79,16 +79,16 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-orange-500"></div>
             <div className="mb-6 relative">
               <div className="inline-block px-3 py-1 rounded-full bg-primary-500 text-white text-[10px] font-bold mb-4 tracking-wider uppercase shadow-lg shadow-primary-500/40">Most Popular</div>
-              <h3 className="text-lg font-bold text-slate-400 uppercase tracking-widest text-xs mb-2">Freelancer</h3>
+              <h3 className="text-lg font-bold text-slate-400 uppercase tracking-widest text-xs mb-2">Professional</h3>
               <div className="flex items-baseline gap-1">
-                 <span className="text-6xl font-extrabold text-white tracking-tight">{isAnnual ? '$29' : '$39'}</span>
+                 <span className="text-6xl font-extrabold text-white tracking-tight">${isAnnual ? '39' : '39'}</span>
                  <span className="text-slate-400 font-medium">/mo</span>
               </div>
-              <p className="text-slate-400 text-sm mt-4 leading-relaxed">Everything you need to run a serious lead generation operation.</p>
+              <p className="text-slate-400 text-sm mt-4 leading-relaxed">For growing freelancers and small agencies.</p>
             </div>
             <div className="h-px w-full bg-white/10 mb-8"></div>
             <ul className="space-y-4 mb-10 flex-1 relative">
-              {['Unlimited searches', 'Export unlimited leads', 'Phone & Address included', 'Save search history', 'Priority Support'].map((item) => (
+              {['1,500 searches/month', 'Unlimited exports', 'Unlimited saved leads', 'Priority Support', 'API Access', 'Advanced analytics', '5 team members'].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-white text-sm font-medium">
                   <div className="w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center shrink-0 shadow-lg shadow-primary-500/40">
                      <IconCheck className="w-3 h-3 text-white" />
@@ -105,19 +105,19 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
             </button>
           </div>
 
-          {/* Agency Plan */}
+          {/* Business Plan */}
           <div className="p-8 rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] backdrop-blur-sm flex flex-col hover:border-slate-300 dark:hover:bg-white/[0.04] transition-all duration-300">
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-xs mb-4">Agency</h3>
+              <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-xs mb-4">Business</h3>
               <div className="flex items-baseline gap-1">
-                 <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">{isAnnual ? '$99' : '$129'}</span>
+                 <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">${isAnnual ? '99' : '99'}</span>
                  <span className="text-slate-500 font-medium">/mo</span>
               </div>
-              <p className="text-slate-500 text-sm mt-4 leading-relaxed">For teams that need scale, custom data, and API access.</p>
+              <p className="text-slate-500 text-sm mt-4 leading-relaxed">For agencies and scaling teams that need unlimited access.</p>
             </div>
             <div className="h-px w-full bg-slate-200 dark:bg-white/5 mb-8"></div>
             <ul className="space-y-4 mb-8 flex-1">
-              {['5 Team Seats', 'API Access', 'Dedicated Account Manager', 'Custom Data Exports', 'White-label Reports'].map((item) => (
+              {['Unlimited searches', 'Unlimited exports', 'Unlimited everything', 'Dedicated Support', 'Full API Access', 'White-label reports', 'Unlimited team members'].map((item) => (
                 <li key={item} className="flex items-start gap-3 text-slate-700 dark:text-slate-300 text-sm font-medium">
                   <IconCheck className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0" />
                   {item}
@@ -128,7 +128,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
               onClick={() => handleSelectPlan('business')}
               className="w-full py-4 px-6 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
             >
-              Contact Sales
+              Start 14-Day Free Trial
             </button>
           </div>
         </div>
