@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { IconArrowRight, IconSearch, IconFileDown, IconMapPin, IconActivity, IconZap, IconShield, IconGlobe, IconChevronDown } from './Icons';
+import { IconArrowRight, IconSearch, IconFileDown, IconMapPin, IconActivity, IconZap, IconShield, IconGlobe, IconChevronDown, IconCrown } from './Icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { searchLeads, exportToCSV, autocompleteCities, CitySuggestion } from '../lib/api';
 import { Lead, SubscriptionTier } from '../lib/types';
@@ -39,26 +39,26 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
   const formRef = useRef<HTMLFormElement>(null);
 
   const categories = [
-    { name: "Restaurants", icon: <IconSearch className="w-4 h-4" /> },
-    { name: "Hotels", icon: <IconMapPin className="w-4 h-4" /> },
-    { name: "Gyms", icon: <IconShield className="w-4 h-4" /> },
-    { name: "Dentists", icon: <IconActivity className="w-4 h-4" /> },
-    { name: "Clinics", icon: <IconActivity className="w-4 h-4" /> },
-    { name: "Salons", icon: <IconGlobe className="w-4 h-4" /> },
-    { name: "Spas", icon: <IconGlobe className="w-4 h-4" /> },
-    { name: "Cafes", icon: <IconSearch className="w-4 h-4" /> },
-    { name: "Bakeries", icon: <IconSearch className="w-4 h-4" /> },
-    { name: "Pet Shops", icon: <IconShield className="w-4 h-4" /> },
-    { name: "Pharmacies", icon: <IconActivity className="w-4 h-4" /> },
-    { name: "Florists", icon: <IconGlobe className="w-4 h-4" /> },
-    { name: "Boutiques", icon: <IconGlobe className="w-4 h-4" /> },
-    { name: "Car Dealers", icon: <IconMapPin className="w-4 h-4" /> },
-    { name: "Auto Workshops", icon: <IconZap className="w-4 h-4" /> },
-    { name: "Jewelry Stores", icon: <IconGlobe className="w-4 h-4" /> },
-    { name: "Optical Stores", icon: <IconActivity className="w-4 h-4" /> },
-    { name: "Furniture Stores", icon: <IconMapPin className="w-4 h-4" /> },
-    { name: "Electronics Stores", icon: <IconZap className="w-4 h-4" /> },
-    { name: "Grocery Stores", icon: <IconSearch className="w-4 h-4" /> },
+    { name: "Restaurants", icon: <IconSearch className="w-4 h-4" />, isPremium: true },
+    { name: "Hotels", icon: <IconMapPin className="w-4 h-4" />, isPremium: true },
+    { name: "Gyms", icon: <IconShield className="w-4 h-4" />, isPremium: true },
+    { name: "Dentists", icon: <IconActivity className="w-4 h-4" />, isPremium: true },
+    { name: "Clinics", icon: <IconActivity className="w-4 h-4" />, isPremium: true },
+    { name: "Salons", icon: <IconGlobe className="w-4 h-4" />, isPremium: false },
+    { name: "Spas", icon: <IconGlobe className="w-4 h-4" />, isPremium: false },
+    { name: "Cafes", icon: <IconSearch className="w-4 h-4" />, isPremium: false },
+    { name: "Bakeries", icon: <IconSearch className="w-4 h-4" />, isPremium: false },
+    { name: "Pet Shops", icon: <IconShield className="w-4 h-4" />, isPremium: false },
+    { name: "Pharmacies", icon: <IconActivity className="w-4 h-4" />, isPremium: false },
+    { name: "Florists", icon: <IconGlobe className="w-4 h-4" />, isPremium: false },
+    { name: "Boutiques", icon: <IconGlobe className="w-4 h-4" />, isPremium: false },
+    { name: "Car Dealers", icon: <IconMapPin className="w-4 h-4" />, isPremium: true },
+    { name: "Auto Workshops", icon: <IconZap className="w-4 h-4" />, isPremium: true },
+    { name: "Jewelry Stores", icon: <IconGlobe className="w-4 h-4" />, isPremium: true },
+    { name: "Optical Stores", icon: <IconActivity className="w-4 h-4" />, isPremium: false },
+    { name: "Furniture Stores", icon: <IconMapPin className="w-4 h-4" />, isPremium: false },
+    { name: "Electronics Stores", icon: <IconZap className="w-4 h-4" />, isPremium: false },
+    { name: "Grocery Stores", icon: <IconSearch className="w-4 h-4" />, isPremium: false },
   ];
 
   const defaultCitySuggestions = ["Austin, TX", "New York, NY", "Los Angeles, CA", "Miami, FL", "Chicago, IL", "Houston, TX", "Phoenix, AZ", "Denver, CO"];
@@ -507,6 +507,11 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                  {item.icon}
                               </div>
                               <span className="truncate">{item.name}</span>
+                              {item.isPremium && (
+                                <div className="ml-auto w-5 h-5 flex items-center justify-center text-amber-500" title="Premium Category">
+                                   <IconCrown className="w-3.5 h-3.5 fill-current" />
+                                </div>
+                              )}
                             </motion.button>
                           ))}
                           </div>

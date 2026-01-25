@@ -24,7 +24,8 @@ import {
   Mail,
   MessageSquare,
   HelpCircle,
-  ChevronDown
+  ChevronDown,
+  Crown
 } from 'lucide-react';
 
 // Re-export Lucide icons with the existing naming convention to maintain compatibility
@@ -54,3 +55,4 @@ export const IconMail = Mail;
 export const IconMessageSquare = MessageSquare;
 export const IconHelpCircle = HelpCircle;
 export const IconChevronDown = ChevronDown;
+export const IconCrown = Crown;
