@@ -127,7 +127,7 @@ export interface ActivityItem {
 // Pricing Plans Configuration
 // Based on realistic usage patterns for lead generation:
 // - Freelancers: 5-10 searches/week, 2-3 exports/week
-// - Small Teams: 20-30 searches/week, 5-10 exports/week  
+// - Small Teams: 20-30 searches/week, 5-10 exports/week
 // - Agencies: 50+ searches/week, unlimited exports
 export const PRICING_PLANS: PricingPlan[] = [
   {
