@@ -68,7 +68,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-gradient-to-r from-primary-500/10 via-purple-500/5 to-pink-500/10 dark:from-primary-500/20 dark:via-purple-500/10 dark:to-pink-500/10 rounded-[100%] blur-[120px] -z-10 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -86,8 +86,8 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
              <button
                 onClick={() => setIsAnnual(false)}
                 className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
-                  !isAnnual 
-                    ? 'bg-gradient-to-r from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 text-white dark:text-slate-900 shadow-lg' 
+                  !isAnnual
+                    ? 'bg-gradient-to-r from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 text-white dark:text-slate-900 shadow-lg'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
              >
@@ -96,15 +96,15 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
              <button
                 onClick={() => setIsAnnual(true)}
                 className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
-                  isAnnual 
-                    ? 'bg-gradient-to-r from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 text-white dark:text-slate-900 shadow-lg' 
+                  isAnnual
+                    ? 'bg-gradient-to-r from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 text-white dark:text-slate-900 shadow-lg'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
              >
                 Yearly
                 <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                  isAnnual 
-                    ? 'bg-emerald-400/20 text-emerald-600' 
+                  isAnnual
+                    ? 'bg-emerald-400/20 text-emerald-600'
                     : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
                 }`}>
                   Save 17%
@@ -122,8 +122,8 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
               className={`relative group rounded-3xl transition-all duration-500 ${
-                plan.popular 
-                  ? 'md:scale-105 md:z-10' 
+                plan.popular
+                  ? 'md:scale-105 md:z-10'
                   : ''
               }`}
             >
@@ -140,7 +140,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                   ? `${plan.borderColor} bg-gradient-to-br from-white dark:from-slate-800 to-slate-50 dark:to-slate-900 shadow-2xl`
                   : `${plan.borderColor} bg-white dark:bg-slate-800/40 hover:shadow-xl`
               }`}>
-                
+
                 {/* Popular Badge */}
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
@@ -162,7 +162,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
 
                 {/* Content */}
                 <div className="p-8 flex flex-col h-full">
-                  
+
                   {/* Icon and Header */}
                   <div className="mb-8">
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center mb-4 shadow-lg`}>
