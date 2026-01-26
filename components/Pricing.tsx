@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { IconCheck, IconZap, IconActivity, IconTrendingUp } from './Icons';
+import { IconCheck, IconZap, IconActivity, IconCrown } from './Icons';
 import { motion } from 'framer-motion';
 
 interface PricingProps {
@@ -45,7 +45,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
     {
       id: 'business',
       name: 'Business',
-      icon: IconTrendingUp,
+      icon: IconCrown,
       color: 'from-purple-500 to-pink-500',
       borderColor: 'border-purple-200 dark:border-purple-500/30',
       bgColor: 'bg-purple-50 dark:bg-purple-500/5',
