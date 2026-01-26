@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { IconCheck } from './Icons';
+import { IconCheck, IconZap, IconActivity, IconTrendingUp } from './Icons';
+import { motion } from 'framer-motion';
 
 interface PricingProps {
   onSelectPlan?: (planId: string) => void;
@@ -15,123 +16,232 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
     }
   };
 
+  const plans = [
+    {
+      id: 'starter',
+      name: 'Starter',
+      icon: IconZap,
+      color: 'from-blue-500 to-cyan-500',
+      borderColor: 'border-blue-200 dark:border-blue-500/30',
+      bgColor: 'bg-blue-50 dark:bg-blue-500/5',
+      price: 9,
+      yearlyPrice: 89,
+      desc: 'Test the market with 40 searches/month. Perfect for side hustles.',
+      users: 'For side hustles',
+    },
+    {
+      id: 'pro',
+      name: 'Professional',
+      icon: IconActivity,
+      color: 'from-primary-500 to-orange-500',
+      borderColor: 'border-primary-200 dark:border-primary-500/30',
+      bgColor: 'bg-primary-50 dark:bg-primary-500/5',
+      price: 29,
+      yearlyPrice: 290,
+      desc: 'For serious freelancers. 200 searches gets you 200-400 qualified leads.',
+      users: 'For active freelancers',
+      popular: true,
+    },
+    {
+      id: 'business',
+      name: 'Business',
+      icon: IconTrendingUp,
+      color: 'from-purple-500 to-pink-500',
+      borderColor: 'border-purple-200 dark:border-purple-500/30',
+      bgColor: 'bg-purple-50 dark:bg-purple-500/5',
+      price: 79,
+      yearlyPrice: 790,
+      desc: 'For agencies scaling operations. Unlimited searches & team collaboration.',
+      users: 'For agencies',
+    },
+  ];
+
+  const features = {
+    starter: ['40 searches/month', '12 CSV exports', 'Save 500 leads', 'Basic analytics', 'Email support'],
+    pro: ['200 searches/month', 'Unlimited exports', 'Unlimited saved leads', 'Lead tracking', '3 team members', 'Advanced analytics', 'Priority support'],
+    business: ['Unlimited searches', 'Unlimited exports', 'Advanced reporting', 'Lead quality scoring', '10 team members', 'API access', 'White-label exports'],
+  };
+
   return (
-    <section id="pricing" className="py-32 bg-slate-50 dark:bg-[#030712] relative transition-colors duration-300 overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-primary-500/5 dark:bg-primary-500/10 rounded-[100%] blur-[120px] -z-10 pointer-events-none"></div>
+    <section id="pricing" className="py-32 bg-gradient-to-b from-slate-50 to-white dark:from-[#030712] dark:to-[#0f172a] relative transition-colors duration-300 overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-gradient-to-r from-primary-500/10 via-purple-500/5 to-pink-500/10 dark:from-primary-500/20 dark:via-purple-500/10 dark:to-pink-500/10 rounded-[100%] blur-[120px] -z-10 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-20">
-          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-            Simple pricing, <br/><span className="text-primary-500">huge ROI.</span>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-3xl mx-auto mb-20"
+        >
+          <h2 className="text-5xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
+            Simple pricing, <br/><span className="bg-gradient-to-r from-primary-500 to-orange-500 bg-clip-text text-transparent">huge ROI.</span>
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg mb-10">
-            One new client pays for the entire year. Choose the plan that fits your scale.
+          <p className="text-slate-600 dark:text-slate-400 text-xl mb-12 leading-relaxed">
+            One new client pays for the entire year. Start small, scale fast. No surprises, just results.
           </p>
 
-          {/* Toggle */}
-          <div className="inline-flex items-center p-1.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full backdrop-blur-md shadow-sm">
+          {/* Toggle with improved styling */}
+          <div className="inline-flex items-center gap-1 p-2 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-full backdrop-blur-md shadow-lg">
              <button
                 onClick={() => setIsAnnual(false)}
-                className={`px-8 py-3 rounded-full text-sm font-bold transition-all ${!isAnnual ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+                className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
+                  !isAnnual 
+                    ? 'bg-gradient-to-r from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 text-white dark:text-slate-900 shadow-lg' 
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
              >
                 Monthly
              </button>
              <button
                 onClick={() => setIsAnnual(true)}
-                className={`px-8 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${isAnnual ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'}`}
+                className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+                  isAnnual 
+                    ? 'bg-gradient-to-r from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 text-white dark:text-slate-900 shadow-lg' 
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
              >
                 Yearly
-                <span className={`text-[10px] uppercase px-2 py-0.5 rounded-full ${isAnnual ? 'bg-primary-500 text-white' : 'bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300'}`}>-20%</span>
+                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                  isAnnual 
+                    ? 'bg-emerald-400/20 text-emerald-600' 
+                    : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                }`}>
+                  Save 17%
+                </span>
              </button>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
-          {/* Starter Plan */}
-          <div className="p-8 rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] backdrop-blur-sm flex flex-col hover:border-slate-300 dark:hover:bg-white/[0.04] transition-all duration-300">
-            <div className="mb-6">
-              <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-xs mb-4">Starter</h3>
-              <div className="flex items-baseline gap-1">
-                 <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">$9</span>
-                 <span className="text-slate-500 font-medium">/mo</span>
-              </div>
-              <p className="text-slate-500 text-sm mt-4 leading-relaxed">Test the market with 40 searches/month. Perfect for side hustles.</p>
-            </div>
-            <div className="h-px w-full bg-slate-200 dark:bg-white/5 mb-8"></div>
-            <ul className="space-y-4 mb-8 flex-1">
-              {['40 searches/month', '12 CSV exports', 'Save 500 leads', 'Basic analytics', 'Email support'].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-slate-700 dark:text-slate-300 text-sm font-medium">
-                  <IconCheck className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={() => handleSelectPlan('starter')}
-              className="w-full py-4 px-6 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+        {/* Pricing Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {plans.map((plan, idx) => (
+            <motion.div
+              key={plan.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              className={`relative group rounded-3xl transition-all duration-500 ${
+                plan.popular 
+                  ? 'md:scale-105 md:z-10' 
+                  : ''
+              }`}
             >
-              Start 14-Day Free Trial
-            </button>
-          </div>
+              {/* Glow effect */}
+              <div className={`absolute -inset-1 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl -z-10 ${
+                plan.popular
+                  ? 'bg-gradient-to-r from-primary-500 via-orange-500 to-pink-500'
+                  : 'bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-600 dark:to-slate-500'
+              }`}></div>
 
-          {/* Pro Plan - Highlighted */}
-          <div className="relative p-8 md:p-10 rounded-[2.5rem] bg-gradient-to-b from-slate-900 to-black dark:from-[#1e293b] dark:to-[#0f172a] text-white flex flex-col shadow-2xl shadow-primary-900/20 ring-1 ring-white/10 md:-mt-8 md:mb-8 z-10">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-orange-500"></div>
-            <div className="mb-6 relative">
-              <div className="inline-block px-3 py-1 rounded-full bg-primary-500 text-white text-[10px] font-bold mb-4 tracking-wider uppercase shadow-lg shadow-primary-500/40">Most Popular</div>
-              <h3 className="text-lg font-bold text-slate-400 uppercase tracking-widest text-xs mb-2">Professional</h3>
-              <div className="flex items-baseline gap-1">
-                 <span className="text-6xl font-extrabold text-white tracking-tight">$29</span>
-                 <span className="text-slate-400 font-medium">/mo</span>
-              </div>
-              <p className="text-slate-400 text-sm mt-4 leading-relaxed">For serious freelancers. 200 searches gets you 200-400 qualified leads.</p>
-            </div>
-            <div className="h-px w-full bg-white/10 mb-8"></div>
-            <ul className="space-y-4 mb-10 flex-1 relative">
-              {['200 searches/month', 'Unlimited exports', 'Unlimited saved leads', 'Lead tracking', '3 team members', 'Advanced analytics', 'Priority support'].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-white text-sm font-medium">
-                  <div className="w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center shrink-0 shadow-lg shadow-primary-500/40">
-                     <IconCheck className="w-3 h-3 text-white" />
+              {/* Card */}
+              <div className={`relative h-full rounded-3xl border-2 backdrop-blur-sm transition-all duration-300 flex flex-col ${
+                plan.popular
+                  ? `${plan.borderColor} bg-gradient-to-br from-white dark:from-slate-800 to-slate-50 dark:to-slate-900 shadow-2xl`
+                  : `${plan.borderColor} bg-white dark:bg-slate-800/40 hover:shadow-xl`
+              }`}>
+                
+                {/* Popular Badge */}
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      transition={{ type: 'spring', delay: 0.3 }}
+                      className="px-4 py-1.5 bg-gradient-to-r from-primary-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg uppercase tracking-wider"
+                    >
+                      ⭐ Most Popular
+                    </motion.div>
                   </div>
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={() => handleSelectPlan('pro')}
-              className="relative w-full py-5 px-6 rounded-2xl bg-primary-600 text-white font-bold hover:bg-primary-500 transition-all shadow-lg shadow-primary-600/30 text-lg"
-            >
-              Start 14-Day Free Trial
-            </button>
-          </div>
+                )}
 
-          {/* Business Plan */}
-          <div className="p-8 rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white/50 dark:bg-white/[0.02] backdrop-blur-sm flex flex-col hover:border-slate-300 dark:hover:bg-white/[0.04] transition-all duration-300">
-            <div className="mb-6">
-              <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-xs mb-4">Business</h3>
-              <div className="flex items-baseline gap-1">
-                 <span className="text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">$79</span>
-                 <span className="text-slate-500 font-medium">/mo</span>
+                {/* Top accent line */}
+                {plan.popular && (
+                  <div className={`h-1 w-full rounded-t-3xl bg-gradient-to-r ${plan.color}`}></div>
+                )}
+
+                {/* Content */}
+                <div className="p-8 flex flex-col h-full">
+                  
+                  {/* Icon and Header */}
+                  <div className="mb-8">
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center mb-4 shadow-lg`}>
+                      <plan.icon className="w-7 h-7 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{plan.name}</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">{plan.users}</p>
+                  </div>
+
+                  {/* Price */}
+                  <div className="mb-8">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-5xl font-extrabold text-slate-900 dark:text-white">${isAnnual ? Math.round(plan.yearlyPrice / 12) : plan.price}</span>
+                      <span className="text-slate-600 dark:text-slate-400 text-lg font-semibold">/mo</span>
+                    </div>
+                    {isAnnual && (
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                        Billed <span className="font-semibold text-slate-900 dark:text-white">${plan.yearlyPrice}</span>/year
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed">{plan.desc}</p>
+
+                  {/* Features */}
+                  <div className="mb-8 flex-1">
+                    <div className="space-y-3.5">
+                      {features[plan.id as keyof typeof features].map((feature, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -10 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 + i * 0.05 }}
+                          className="flex items-start gap-3"
+                        >
+                          <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 ${
+                            plan.popular
+                              ? 'bg-gradient-to-br from-primary-500 to-orange-500'
+                              : 'bg-gradient-to-br from-slate-400 to-slate-500'
+                          }`}>
+                            <IconCheck className="w-3 h-3 text-white" />
+                          </div>
+                          <span className="text-slate-700 dark:text-slate-300 text-sm font-medium leading-snug">{feature}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleSelectPlan(plan.id)}
+                    className={`w-full py-4 px-6 rounded-2xl font-bold text-base transition-all duration-300 shadow-lg hover:shadow-xl ${
+                      plan.popular
+                        ? 'bg-gradient-to-r from-primary-600 to-orange-600 text-white hover:from-primary-500 hover:to-orange-500'
+                        : 'bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 text-slate-900 dark:text-white hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 border border-slate-200 dark:border-slate-600'
+                    }`}
+                  >
+                    Start 14-Day Free Trial
+                  </motion.button>
+                </div>
               </div>
-              <p className="text-slate-500 text-sm mt-4 leading-relaxed">For agencies scaling operations. Unlimited searches & team collaboration.</p>
-            </div>
-            <div className="h-px w-full bg-slate-200 dark:bg-white/5 mb-8"></div>
-            <ul className="space-y-4 mb-8 flex-1">
-              {['Unlimited searches', 'Unlimited exports', 'Advanced reporting', 'Lead quality scoring', '10 team members', 'API access', 'White-label exports'].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-slate-700 dark:text-slate-300 text-sm font-medium">
-                  <IconCheck className="w-5 h-5 text-slate-400 dark:text-slate-500 shrink-0" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={() => handleSelectPlan('business')}
-              className="w-full py-4 px-6 rounded-2xl border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-            >
-              Start 14-Day Free Trial
-            </button>
-          </div>
+            </motion.div>
+          ))}
         </div>
+
+        {/* Value proposition */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mt-20 text-center max-w-3xl mx-auto"
+        >
+          <div className="inline-block px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full mb-4">
+            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">✓ No credit card required • Cancel anytime • Money-back guarantee</p>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
