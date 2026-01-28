@@ -44,7 +44,7 @@ const Features: React.FC = () => {
                   <IconZap className="w-4 h-4" />
                   <span>Unfair Advantage</span>
                </motion.div>
-               
+
                <motion.h2
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -89,7 +89,7 @@ const Features: React.FC = () => {
                         Drill down to specific zip codes or neighborhoods. Our engine scans thousands of data points from Google Maps in seconds, finding businesses even if they're hidden.
                      </p>
                   </div>
-                  
+
                   <div className="flex-1 w-full h-48 md:h-64 bg-slate-100 dark:bg-[#0B1121] rounded-2xl border border-slate-200 dark:border-white/5 overflow-hidden shadow-inner relative group-hover:scale-[1.02] transition-transform duration-500">
                      <div className="absolute inset-0 bg-grid-black/[0.05] dark:bg-grid-white/[0.05] bg-[size:20px_20px]"></div>
                      <div className="absolute inset-0 bg-gradient-to-t from-slate-100/90 dark:from-[#0B1121]/90 to-transparent"></div>
@@ -183,7 +183,7 @@ const Features: React.FC = () => {
                         Verified phone numbers and addresses extracted directly from listings. Skip the gatekeepers.
                      </p>
                   </div>
-                  
+
                   {/* Floating Contact Card Visual */}
                   <div className="hidden sm:block relative w-48 h-32 flex-shrink-0">
                       <motion.div
