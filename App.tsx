@@ -6,7 +6,6 @@ import WhatItDoes from './components/WhatItDoes';
 import Features from './components/Features';
 import Pricing from './components/Pricing';
 import Testimonials from './components/Testimonials';
-import Resources from './components/Resources';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
@@ -118,7 +117,6 @@ const App: React.FC = () => {
             <Features />
             <Pricing onSelectPlan={handleSelectPlan} />
             <Testimonials />
-            <Resources />
           </motion.main>
         )}
 
