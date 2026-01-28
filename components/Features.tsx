@@ -102,21 +102,21 @@ const Features: React.FC = () => {
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                         className="absolute w-24 h-24 bg-orange-500/5 rounded-full"
                      />
-                     
+
                      {/* Dots */}
-                     <motion.div 
-                        initial={{ scale: 0 }} animate={{ scale: 1 }} 
-                        className="absolute w-3 h-3 bg-orange-500 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.5)] z-10" 
+                     <motion.div
+                        initial={{ scale: 0 }} animate={{ scale: 1 }}
+                        className="absolute w-3 h-3 bg-orange-500 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.5)] z-10"
                      />
-                     <motion.div 
+                     <motion.div
                         animate={{ x: [20, 25, 20], y: [-20, -25, -20] }}
                         transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
-                        className="absolute top-1/3 right-1/3 w-2 h-2 bg-blue-500 rounded-full opacity-80" 
+                        className="absolute top-1/3 right-1/3 w-2 h-2 bg-blue-500 rounded-full opacity-80"
                      />
-                     <motion.div 
+                     <motion.div
                         animate={{ x: [-30, -35, -30], y: [10, 15, 10] }}
                         transition={{ duration: 4, repeat: Infinity, repeatType: "reverse" }}
-                        className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-emerald-500 rounded-full opacity-80" 
+                        className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-emerald-500 rounded-full opacity-80"
                      />
                   </div>
                </motion.div>
@@ -196,7 +196,7 @@ const Features: React.FC = () => {
                         Verified phone numbers and addresses extracted directly from listings. Skip the gatekeepers.
                      </p>
                   </div>
-                  
+
                   {/* Visual based on Screenshot: Floating Call Card */}
                   <div className="relative w-full max-w-[200px]">
                       <motion.div
