@@ -1,230 +1,250 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { IconMapPin, IconGlobe, IconFileDown, IconPhone, IconZap } from './Icons';
+import { IconMapPin, IconGlobe, IconFileDown, IconPhone, IconZap, IconArrowRight } from './Icons';
 
 const Features: React.FC = () => {
-   const containerVariants = {
-      hidden: { opacity: 0 },
-      visible: {
-         opacity: 1,
-         transition: {
-            staggerChildren: 0.15,
-            delayChildren: 0.2
-         }
-      }
-   };
-
-   const itemVariants = {
-      hidden: { opacity: 0, y: 30 },
-      visible: {
-         opacity: 1,
-         y: 0,
-         transition: { duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }
-      }
-   };
-
    return (
-      <section id="features" className="py-32 bg-white dark:bg-[#030712] relative overflow-hidden transition-colors duration-300">
-         {/* Subtle Background Gradient */}
-         <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-primary-500/5 via-transparent to-blue-500/5 rounded-full blur-3xl"></div>
+      <section id="features" className="py-24 bg-white dark:bg-[#030712] relative overflow-hidden">
+         {/* Background Glows */}
+         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div className="absolute top-[20%] right-0 w-[600px] h-[600px] bg-primary-500/5 rounded-full blur-[120px]"></div>
+            <div className="absolute bottom-[20%] left-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px]"></div>
          </div>
 
-         <div className="max-w-6xl mx-auto px-6 sm:px-8 relative z-10">
-
+         <div className="max-w-7xl mx-auto px-6 sm:px-8 relative z-10">
             {/* Header */}
             <div className="max-w-3xl mx-auto text-center mb-24">
                <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 text-sm font-medium mb-8"
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 text-xs font-semibold uppercase tracking-wider mb-6 border border-primary-100 dark:border-primary-500/20"
                >
-                  <IconZap className="w-4 h-4" />
-                  <span>Unfair Advantage</span>
+                  <IconZap className="w-3.5 h-3.5" />
+                  <span>The Engine</span>
                </motion.div>
 
                <motion.h2
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-6"
+                  className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-6"
                >
-                  Everything you need to{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-orange-500">
-                     dominate your local market.
-                  </span>
+                  Complete dominance.<br />
+                  <span className="text-slate-400 dark:text-slate-600">Zero complexity.</span>
                </motion.h2>
                <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.1 }}
-                  className="text-lg text-slate-600 dark:text-slate-400 max-w-xl mx-auto"
+                  className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed"
                >
-                  No scripts. No proxies. No headaches. Just a powerful engine that prints leads while you sleep.
+                  We built a lead generation engine that mimics human behavior at scale. It finds what others miss and verifies what others guess.
                </motion.p>
             </div>
 
-            {/* Feature Grid - Modern SaaS Style */}
-            <motion.div
-               variants={containerVariants}
-               initial="hidden"
-               whileInView="visible"
-               viewport={{ once: true, margin: "-100px" }}
-               className="space-y-20"
-            >
-               {/* Feature 1: Hyper-Local Targeting */}
-               <motion.div variants={itemVariants} className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-                  <div className="flex-1 order-2 lg:order-1">
-                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25">
-                           <IconMapPin className="w-5 h-5" />
-                        </div>
-                        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Precision</span>
-                     </div>
-                     <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Hyper-Local Targeting</h3>
-                     <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed mb-6">
-                        Drill down to specific zip codes or neighborhoods. Our engine scans thousands of data points from Google Maps in seconds, finding businesses even if they're hidden.
-                     </p>
-                     <div className="flex items-center gap-6 text-sm text-slate-500 dark:text-slate-500">
-                        <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Zip Code Level</span>
-                        <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Neighborhood Scan</span>
-                     </div>
+            {/* Feature 1: The Radar */}
+            <div className="grid lg:grid-cols-2 gap-16 items-center mb-32 group">
+               <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="order-2 lg:order-1"
+               >
+                  <div className="flex items-center gap-4 mb-6">
+                     <span className="flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        <IconMapPin className="w-6 h-6" />
+                     </span>
+                     <span className="text-5xl font-bold text-slate-200 dark:text-slate-800 select-none">01</span>
                   </div>
-                  <div className="flex-1 order-1 lg:order-2 w-full">
-                     <div className="relative aspect-square max-w-sm mx-auto">
-                        {/* Radar Animation */}
+                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Hyper-Local Radar</h3>
+                  <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
+                     Most scrapers only look at control centers. Our engine walks the streets virtually. It drills down to specific neighborhoods and zip codes to find businesses that aren't listing properly.
+                  </p>
+                  <ul className="space-y-3">
+                     {['Precise Zip Code Targeting', 'Hidden Listing Detection', 'Google Maps Deep-Scan'].map((item, i) => (
+                        <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                           <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                           {item}
+                        </li>
+                     ))}
+                  </ul>
+               </motion.div>
+
+               <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="order-1 lg:order-2 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-[#0B1121] dark:to-[#020617] rounded-[2.5rem] border border-slate-200 dark:border-white/5 p-2"
+               >
+                  <div className="relative aspect-square w-full max-w-md mx-auto bg-white dark:bg-[#030712] rounded-[2rem] overflow-hidden shadow-2xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-white/5 flex items-center justify-center">
+                     {/* Modern Radar UI */}
+                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent"></div>
+                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                     
+                     {/* Scale markings */}
+                     <div className="absolute w-[80%] h-[80%] border border-dashed border-slate-300 dark:border-white/10 rounded-full"></div>
+                     <div className="absolute w-[50%] h-[50%] border border-slate-200 dark:border-white/5 rounded-full"></div>
+                     
+                     {/* Sweep Animation */}
+                     <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-0 w-full h-full"
+                     >
+                        <div className="absolute top-1/2 left-1/2 w-[45%] h-[2px] bg-gradient-to-r from-blue-500 to-transparent origin-left -translate-y-1/2"></div>
+                     </motion.div>
+
+                     {/* Center */}
+                     <div className="w-4 h-4 bg-blue-500 rounded-full shadow-lg shadow-blue-500/50 z-10 relative">
+                        <div className="absolute inset-0 animate-ping bg-blue-500 rounded-full opacity-75"></div>
+                     </div>
+
+                     {/* Blips */}
+                     {[
+                        { top: '30%', left: '60%', delay: 0, color: 'bg-orange-500' },
+                        { top: '70%', left: '40%', delay: 1, color: 'bg-emerald-500' },
+                        { top: '40%', left: '25%', delay: 2, color: 'bg-indigo-500' },
+                     ].map((blip, i) => (
                         <motion.div
-                           animate={{ rotate: 360 }}
-                           transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                           className="absolute inset-0"
-                        >
-                           <div className="absolute top-1/2 left-1/2 w-1/2 h-0.5 origin-left bg-gradient-to-r from-primary-500/60 to-transparent -translate-y-1/2"></div>
-                        </motion.div>
-                        {/* Rings */}
-                        <div className="absolute inset-[15%] border border-slate-200 dark:border-white/10 rounded-full"></div>
-                        <div className="absolute inset-[30%] border border-slate-200 dark:border-white/10 rounded-full"></div>
-                        <div className="absolute inset-[45%] border border-slate-200 dark:border-white/10 rounded-full"></div>
-                        {/* Center Dot */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-primary-500 rounded-full shadow-[0_0_20px_rgba(255,85,0,0.6)]"></div>
-                        {/* Detected Points */}
-                        <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2, repeat: Infinity }} className="absolute top-[25%] left-[60%] w-2 h-2 bg-blue-500 rounded-full"></motion.div>
-                        <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }} className="absolute top-[65%] left-[30%] w-2 h-2 bg-emerald-500 rounded-full"></motion.div>
-                        <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 3, repeat: Infinity, delay: 1 }} className="absolute top-[40%] left-[75%] w-2 h-2 bg-orange-500 rounded-full"></motion.div>
+                           key={i}
+                           initial={{ opacity: 0, scale: 0 }}
+                           animate={{ opacity: [0, 1, 0] }}
+                           transition={{ duration: 3, delay: blip.delay, repeat: Infinity }}
+                           className={`absolute w-3 h-3 ${blip.color} rounded-full shadow-lg z-10`}
+                           style={{ top: blip.top, left: blip.left }}
+                        />
+                     ))}
+                  </div>
+               </motion.div>
+            </div>
+
+            {/* Feature 2: Terminal */}
+            <div className="grid lg:grid-cols-2 gap-16 items-center mb-32">
+               <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  className="bg-[#0F1117] rounded-[2rem] border border-[#1F2937] p-8 md:p-12 shadow-2xl relative overflow-hidden"
+               >
+                  {/* Traffic Lights */}
+                  <div className="flex gap-2 mb-6">
+                     <div className="w-3 h-3 rounded-full bg-[#EF4444]"></div>
+                     <div className="w-3 h-3 rounded-full bg-[#F59E0B]"></div>
+                     <div className="w-3 h-3 rounded-full bg-[#10B981]"></div>
+                  </div>
+                  {/* Code Content */}
+                  <div className="font-mono text-sm md:text-base space-y-4">
+                     <div className="flex gap-4">
+                        <span className="text-slate-500">1</span>
+                        <span className="text-purple-400">async function</span> <span className="text-blue-400">verifyLead</span><span className="text-slate-300">(url)</span> <span className="text-slate-500">{'{'}</span>
+                     </div>
+                     <div className="flex gap-4">
+                        <span className="text-slate-500">2</span>
+                        <span className="text-slate-500 pl-4">// Real-time connection check</span>
+                     </div>
+                     <div className="flex gap-4">
+                        <span className="text-slate-500">3</span>
+                        <span className="text-purple-400 pl-4">const</span> <span className="text-slate-300">status</span> <span className="text-purple-400">=</span> <span className="text-purple-400">await</span> <span className="text-blue-400">fetch</span><span className="text-slate-300">(url);</span>
+                     </div>
+                     <div className="flex gap-4">
+                        <span className="text-slate-500">4</span>
+                        <div className="pl-4">
+                           <span className="text-purple-400">if</span> <span className="text-slate-300">(status === </span><span className="text-orange-400">404</span><span className="text-slate-300">)</span> <span className="text-slate-500">{'{'}</span>
+                        </div>
+                     </div>
+                     <div className="flex gap-4 bg-green-500/10 -mx-4 px-4 py-1 border-l-2 border-green-500">
+                        <span className="text-slate-500">5</span>
+                        <span className="text-green-400 pl-8">return "HOT_LEAD";</span>
+                     </div>
+                     <div className="flex gap-4">
+                        <span className="text-slate-500">6</span>
+                        <span className="text-slate-500 pl-4">{'}'}</span>
+                     </div>
+                     <div className="flex gap-4">
+                        <span className="text-slate-500">7</span>
+                        <span className="text-slate-500">{'}'}</span>
                      </div>
                   </div>
                </motion.div>
 
-               {/* Feature 2: Live Verification */}
-               <motion.div variants={itemVariants} className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
-                  <div className="flex-1 w-full">
-                     <div className="bg-[#0a0a0a] rounded-2xl p-6 font-mono text-sm max-w-md mx-auto lg:mx-0 shadow-2xl">
-                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
-                           <span className="text-zinc-500 text-xs">lead_scanner.sh</span>
-                           <div className="flex gap-1.5">
-                              <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                              <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                           </div>
-                        </div>
-                        <div className="space-y-2">
-                           <div className="flex justify-between text-green-400">
-                              <span>$ verify_url(target)</span>
-                              <span className="text-zinc-600">12ms</span>
-                           </div>
-                           <div className="flex justify-between text-red-400">
-                              <span>→ status: 404 NOT FOUND</span>
-                              <span className="text-yellow-400">[HOT]</span>
-                           </div>
-                           <div className="flex justify-between text-blue-400">
-                              <span>→ add_to_queue(lead)</span>
-                              <span className="text-emerald-400">[OK]</span>
-                           </div>
-                           <div className="text-zinc-600 mt-2">───────────────────────</div>
-                           <div className="text-emerald-400">✓ Lead captured successfully</div>
-                        </div>
-                     </div>
+               <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+               >
+                  <div className="flex items-center gap-4 mb-6">
+                     <span className="flex items-center justify-center w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        <IconGlobe className="w-6 h-6" />
+                     </span>
+                     <span className="text-5xl font-bold text-slate-200 dark:text-slate-800 select-none">02</span>
                   </div>
-                  <div className="flex-1">
-                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/25">
-                           <IconGlobe className="w-5 h-5" />
-                        </div>
-                        <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Real-Time</span>
-                     </div>
-                     <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Live Verification</h3>
-                     <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed mb-6">
-                        We visit every link in real-time. If it returns a 404 or fails to load, we flag it as a "Hot Lead" instantly. No stale data, ever.
-                     </p>
-                     <div className="flex items-center gap-6 text-sm text-slate-500 dark:text-slate-500">
-                        <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> 404 Detection</span>
-                        <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Auto-Flagging</span>
-                     </div>
-                  </div>
+                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Live Verification</h3>
+                  <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
+                     Dead leads kill productivity. We ping every website in real-time. If a business has a broken website or a 404 error, we flag it immediately. These are your hottest prospects.
+                  </p>
+                  <ul className="space-y-3">
+                     {['Automatic Signal Detection', 'No Stale Databases', 'Instant Validation'].map((item, i) => (
+                        <li key={i} className="flex items-center gap-3 text-slate-700 dark:text-slate-300">
+                           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                           {item}
+                        </li>
+                     ))}
+                  </ul>
                </motion.div>
+            </div>
 
-               {/* Feature 3 & 4: Two Column */}
-               <motion.div variants={itemVariants} className="grid md:grid-cols-2 gap-12 lg:gap-16">
-                  {/* Instant Export */}
-                  <div className="group">
-                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/25">
-                           <IconFileDown className="w-5 h-5" />
-                        </div>
-                        <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider">Export</span>
-                     </div>
-                     <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Instant Export</h3>
-                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                        Get formatted CSVs compatible with Excel, Google Sheets, or your CRM in one click. Your data, your way.
-                     </p>
-                     {/* Progress Visual */}
-                     <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                           <span className="text-slate-500">Exporting leads...</span>
-                           <span className="text-violet-600 dark:text-violet-400 font-medium">87%</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
-                           <motion.div
-                              initial={{ width: 0 }}
-                              whileInView={{ width: "87%" }}
-                              viewport={{ once: true }}
-                              transition={{ duration: 1.5, ease: "easeOut" }}
-                              className="h-full bg-gradient-to-r from-violet-500 to-violet-600 rounded-full"
-                           />
-                        </div>
-                     </div>
-                  </div>
-
-                  {/* Direct Contact */}
-                  <div className="group">
-                     <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white shadow-lg shadow-orange-500/25">
-                           <IconPhone className="w-5 h-5" />
-                        </div>
-                        <span className="text-xs font-semibold text-orange-600 dark:text-orange-400 uppercase tracking-wider">Contact</span>
-                     </div>
-                     <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">Direct Contact Info</h3>
-                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                        Verified phone numbers and addresses extracted directly from listings. Skip the gatekeepers and close deals faster.
-                     </p>
-                     {/* Contact Card Visual */}
-                     <div className="inline-flex items-center gap-4 px-4 py-3 bg-slate-50 dark:bg-white/5 rounded-xl">
-                        <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center">
-                           <IconPhone className="w-5 h-5 text-orange-500" />
-                        </div>
-                        <div>
-                           <div className="h-2 w-24 bg-slate-200 dark:bg-white/10 rounded mb-1.5"></div>
-                           <div className="h-2 w-16 bg-slate-100 dark:bg-white/5 rounded"></div>
-                        </div>
-                        <button className="ml-4 px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg text-xs font-semibold hover:opacity-90 transition-opacity">
-                           Call
-                        </button>
-                     </div>
-                  </div>
-               </motion.div>
-            </motion.div>
+            {/* Feature 3: Action */}
+            <div className="bg-slate-50 dark:bg-[#0F1117] rounded-3xl p-8 md:p-12 border border-slate-100 dark:border-white/5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+                
+                <div className="grid md:grid-cols-2 gap-12 items-center relative z-10">
+                   <div>
+                      <div className="flex items-center gap-4 mb-6">
+                         <span className="flex items-center justify-center w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400">
+                            <div className="flex gap-1">
+                               <IconFileDown className="w-5 h-5" />
+                            </div>
+                         </span>
+                         <span className="text-5xl font-bold text-slate-200 dark:text-slate-800 select-none">03</span>
+                      </div>
+                      <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Export & Conquer</h3>
+                      <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
+                         Get your data out instantly. We provide clean, formatted CSVs compatible with every major CRM. Plus, we scrape direct phone numbers so you can bypass the front desk.
+                      </p>
+                      <button className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-semibold hover:gap-3 transition-all">
+                         View Integration Docs <IconArrowRight className="w-4 h-4" />
+                      </button>
+                   </div>
+                   
+                   {/* Action Cards Grid */}
+                   <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white dark:bg-[#1A1F2E] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col items-center text-center gap-3 hover:-translate-y-1 transition-transform duration-300">
+                         <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-500/20 text-green-600 flex items-center justify-center">
+                            <span className="font-bold text-xs">CSV</span>
+                         </div>
+                         <span className="font-medium text-slate-900 dark:text-white">Excel Export</span>
+                      </div>
+                      <div className="bg-white dark:bg-[#1A1F2E] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col items-center text-center gap-3 hover:-translate-y-1 transition-transform duration-300">
+                         <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 flex items-center justify-center">
+                            <span className="font-bold text-xs">CRM</span>
+                         </div>
+                         <span className="font-medium text-slate-900 dark:text-white">CRM Sync</span>
+                      </div>
+                      <div className="bg-white dark:bg-[#1A1F2E] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col items-center text-center gap-3 col-span-2 bg-gradient-to-r from-white to-orange-50 dark:from-[#1A1F2E] dark:to-[#2A1810]">
+                         <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/20 text-orange-600 flex items-center justify-center">
+                            <IconPhone className="w-6 h-6" />
+                         </div>
+                         <div>
+                            <span className="block font-bold text-slate-900 dark:text-white mb-1">Direct Dial</span>
+                            <span className="text-xs text-slate-500">Verified Numbers Only</span>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+            </div>
          </div>
       </section>
    );
