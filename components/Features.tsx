@@ -186,7 +186,7 @@ const Features: React.FC = () => {
                            <span className="text-violet-600 dark:text-violet-400 font-medium">87%</span>
                         </div>
                         <div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
-                           <motion.div 
+                           <motion.div
                               initial={{ width: 0 }}
                               whileInView={{ width: "87%" }}
                               viewport={{ once: true }}
