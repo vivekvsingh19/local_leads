@@ -116,6 +116,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'searches' | 'templates'>('overview');
   const user = mockUser;
   const currentPlan = PRICING_PLANS.find(p => p.id === user.subscription_tier)!;
+  const hasAccessToContactInfo = user.subscription_tier !== 'starter';
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -372,7 +373,9 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
                         <td className="px-6 py-4">
                           <div>
                             <p className="font-medium text-slate-900 dark:text-white">{lead.business_name}</p>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">{lead.phone}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                              {hasAccessToContactInfo ? lead.phone : lead.phone.slice(0, -5) + '****'}
+                            </p>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">{lead.category}</td>
@@ -390,7 +393,11 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
                             <button className="p-1.5 text-slate-400 hover:text-primary-500 transition-colors" title="Send Email">
                               <IconZap className="w-4 h-4" />
                             </button>
-                            <button className="p-1.5 text-slate-400 hover:text-primary-500 transition-colors" title="View on Map">
+                            <button 
+                              className={`p-1.5 transition-colors ${hasAccessToContactInfo ? 'text-slate-400 hover:text-primary-500' : 'text-slate-300 cursor-not-allowed opacity-50'}`}
+                              title={hasAccessToContactInfo ? "View on Map" : "Upgrade to view map"}
+                              onClick={() => hasAccessToContactInfo && window.open(lead.google_maps_url, '_blank')}
+                            >
                               <IconMapPin className="w-4 h-4" />
                             </button>
                           </div>

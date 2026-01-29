@@ -713,7 +713,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                 <div className="flex flex-col gap-1">
                                    <span className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors text-base">{row.business_name}</span>
                                    <div className="flex items-center gap-2">
-                                     {subscriptionTier === 'free' ? (
+                                     {subscriptionTier === 'free' || subscriptionTier === 'starter' ? (
                                         <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded cursor-help" title="Upgrade to view phone number">
                                           <IconLock className="w-3 h-3 text-slate-400" />
                                           <span className="text-xs text-slate-400 font-mono blur-[3px] select-none">+1 (555) 000-0000</span>
@@ -726,7 +726,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                 </div>
                              </td>
                              <td className="px-6 py-4 text-slate-500 dark:text-slate-400 max-w-xs truncate">
-                                {subscriptionTier === 'free' ? (
+                                {subscriptionTier === 'free' || subscriptionTier === 'starter' ? (
                                    <div className="flex items-center gap-2 cursor-help" title="Upgrade to view location">
                                       <IconLock className="w-3 h-3 text-slate-400 shrink-0" />
                                       <span className="blur-[4px] select-none">123 Hidden Business St, City, State</span>
@@ -742,15 +742,25 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                </span>
                              </td>
                              <td className="px-6 py-4 text-right pr-8">
-                                <a
-                                 href={row.google_maps_url}
-                                 target="_blank"
-                                 rel="noreferrer"
-                                 className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium text-xs transition-colors bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/5"
-                               >
-                                 Open Maps
-                                 <IconArrowRight className="w-3 h-3" />
-                               </a>
+                                {subscriptionTier === 'free' || subscriptionTier === 'starter' ? (
+                                   <button
+                                     className="inline-flex items-center gap-1 text-slate-400 dark:text-slate-600 font-medium text-xs bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/5 cursor-not-allowed opacity-70"
+                                     title="Upgrade to view map"
+                                   >
+                                     <IconLock className="w-3 h-3" />
+                                     Open Maps
+                                   </button>
+                                ) : (
+                                   <a
+                                     href={row.google_maps_url}
+                                     target="_blank"
+                                     rel="noreferrer"
+                                     className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium text-xs transition-colors bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-white/5"
+                                   >
+                                     Open Maps
+                                     <IconArrowRight className="w-3 h-3" />
+                                   </a>
+                                )}
                              </td>
                            </motion.tr>
                          ))}
