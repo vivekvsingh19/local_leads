@@ -65,7 +65,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
 
   return (
     <section id="pricing" className="py-24 sm:py-32 relative overflow-hidden">
-      
+
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -125,13 +125,13 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                   ? 'bg-white dark:bg-[#0B1121] border-primary-500/50 dark:border-primary-500/50 shadow-2xl shadow-primary-500/10'
                   : 'bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/50'
               }`}>
-                
+
                 {plan.popular && (
                   <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary-500 via-orange-500 to-pink-500" />
                 )}
 
                 <div className="p-8 sm:p-10 flex flex-col h-full">
-                  
+
                   {/* Header */}
                   <div className="mb-8">
                     <div className="flex justify-between items-start mb-6">
@@ -144,7 +144,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                         </span>
                       )}
                     </div>
-                    
+
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{plan.name}</h3>
                     <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{plan.users}</p>
                   </div>

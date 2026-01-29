@@ -114,7 +114,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
                   <div className="mb-8">
                      <div className="flex justify-between items-start mb-6">
                         <div className={`p-3 rounded-2xl ${
-                          plan.id === 'pro' ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400' : 
+                          plan.id === 'pro' ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400' :
                           plan.id === 'business' ? 'bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400' :
                           'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'
                         }`}>
