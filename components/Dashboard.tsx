@@ -393,7 +393,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
                             <button className="p-1.5 text-slate-400 hover:text-primary-500 transition-colors" title="Send Email">
                               <IconZap className="w-4 h-4" />
                             </button>
-                            <button 
+                            <button
                               className={`p-1.5 transition-colors ${hasAccessToContactInfo ? 'text-slate-400 hover:text-primary-500' : 'text-slate-300 cursor-not-allowed opacity-50'}`}
                               title={hasAccessToContactInfo ? "View on Map" : "Upgrade to view map"}
                               onClick={() => hasAccessToContactInfo && window.open(lead.google_maps_url, '_blank')}

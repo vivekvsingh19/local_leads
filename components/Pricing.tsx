@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { IconCheck, IconZap, IconActivity, IconCrown } from './Icons';
 import { motion } from 'framer-motion';
+import { PRICING_PLANS } from '../lib/types';
 
 interface PricingProps {
   onSelectPlan?: (planId: string) => void;
@@ -16,51 +17,51 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
     }
   };
 
-  const plans = [
-    {
-      id: 'starter',
-      name: 'Starter',
-      icon: IconZap,
-      color: 'from-blue-500 to-cyan-500',
-      borderColor: 'border-blue-200 dark:border-blue-500/30',
-      bgColor: 'bg-blue-50 dark:bg-blue-500/5',
-      price: 9,
-      yearlyPrice: 89,
-      desc: 'Test the market with 40 searches/month. Perfect for side hustles.',
-      users: 'For side hustles',
-    },
-    {
-      id: 'pro',
-      name: 'Professional',
-      icon: IconActivity,
-      color: 'from-primary-500 to-orange-500',
-      borderColor: 'border-primary-200 dark:border-primary-500/30',
-      bgColor: 'bg-primary-50 dark:bg-primary-500/5',
-      price: 29,
-      yearlyPrice: 290,
-      desc: 'For serious freelancers. 200 searches gets you 200-400 qualified leads.',
-      users: 'For active freelancers',
-      popular: true,
-    },
-    {
-      id: 'business',
-      name: 'Business',
-      icon: IconCrown,
-      color: 'from-purple-500 to-pink-500',
-      borderColor: 'border-purple-200 dark:border-purple-500/30',
-      bgColor: 'bg-purple-50 dark:bg-purple-500/5',
-      price: 79,
-      yearlyPrice: 790,
-      desc: 'For agencies scaling operations. Unlimited searches & team collaboration.',
-      users: 'For agencies',
-    },
-  ];
-
-  const features = {
-    starter: ['40 searches/month', '12 CSV exports', 'Save 500 leads', 'Basic analytics', 'Email support'],
-    pro: ['200 searches/month', 'Unlimited exports', 'Unlimited saved leads', 'Lead tracking', '3 team members', 'Advanced analytics', 'Priority support'],
-    business: ['Unlimited searches', 'Unlimited exports', 'Advanced reporting', 'Lead quality scoring', '10 team members', 'API access', 'White-label exports'],
+  const getPlanStyles = (planId: string) => {
+    switch (planId) {
+      case 'starter':
+        return {
+          icon: IconZap,
+          color: 'from-blue-500 to-cyan-500',
+          borderColor: 'border-blue-200 dark:border-blue-500/30',
+          bgColor: 'bg-blue-50 dark:bg-blue-500/5',
+          users: 'For side hustles',
+        };
+      case 'pro':
+        return {
+          icon: IconActivity,
+          color: 'from-primary-500 to-orange-500',
+          borderColor: 'border-primary-200 dark:border-primary-500/30',
+          bgColor: 'bg-primary-50 dark:bg-primary-500/5',
+          users: 'For active freelancers',
+        };
+      case 'business':
+        return {
+          icon: IconCrown,
+          color: 'from-purple-500 to-pink-500',
+          borderColor: 'border-purple-200 dark:border-purple-500/30',
+          bgColor: 'bg-purple-50 dark:bg-purple-500/5',
+          users: 'For agencies',
+        };
+      default:
+        return {
+          icon: IconZap,
+          color: 'from-slate-500 to-gray-500',
+          borderColor: 'border-slate-200 dark:border-slate-500/30',
+          bgColor: 'bg-slate-50 dark:bg-slate-500/5',
+          users: '',
+        };
+    }
   };
+
+  const plans = PRICING_PLANS.map(plan => {
+    const styles = getPlanStyles(plan.id);
+    return {
+      ...plan,
+      ...styles,
+      desc: plan.description,
+    };
+  });
 
   return (
     <section id="pricing" className="py-32 bg-gradient-to-b from-slate-50 to-white dark:from-[#030712] dark:to-[#0f172a] relative transition-colors duration-300 overflow-hidden">
@@ -191,7 +192,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                   {/* Features */}
                   <div className="mb-8 flex-1">
                     <div className="space-y-3.5">
-                      {features[plan.id as keyof typeof features].map((feature, i) => (
+                      {plan.features.map((feature, i) => (
                         <motion.div
                           key={i}
                           initial={{ opacity: 0, x: -10 }}
