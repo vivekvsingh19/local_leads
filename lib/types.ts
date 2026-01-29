@@ -41,7 +41,7 @@ export interface User {
   created_at: string;
 }
 
-export type SubscriptionTier = 'starter' | 'pro' | 'business' | 'enterprise';
+export type SubscriptionTier = 'starter' | 'pro' | 'business';
 
 export interface PricingPlan {
   id: SubscriptionTier;
@@ -197,7 +197,6 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Dedicated support',
       'API access',
       'White-label exports',
-      '14-day free trial',
       '1000s of leads/month potential',
     ],
     limits: {
@@ -206,35 +205,6 @@ export const PRICING_PLANS: PricingPlan[] = [
       saved_leads: -1,
       team_members: 10,
       email_templates: -1, // unlimited
-    },
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 199,
-    yearlyPrice: 1990,
-    description: 'For large-scale operations & resellers',
-    features: [
-      'Everything in Business',
-      'Unlimited team members',
-      'Dedicated account manager',
-      'Phone & email support',
-      'Custom data fields',
-      'Advanced integrations',
-      'Lead enrichment data',
-      'Bulk imports/exports',
-      'Custom reporting',
-      'SLA guarantees',
-      'Training & onboarding',
-      'Volume pricing available',
-      '14-day free trial',
-    ],
-    limits: {
-      searches_per_month: -1, // unlimited
-      exports_per_month: -1,
-      saved_leads: -1,
-      team_members: -1,
-      email_templates: -1,
     },
   },
 ];
