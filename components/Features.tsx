@@ -47,7 +47,7 @@ const Features: React.FC = () => {
 
             {/* Feature 1: The Radar */}
             <div className="grid lg:grid-cols-2 gap-16 items-center mb-32 group">
-               <motion.div 
+               <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -73,7 +73,7 @@ const Features: React.FC = () => {
                   </ul>
                </motion.div>
 
-               <motion.div 
+               <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
@@ -83,11 +83,11 @@ const Features: React.FC = () => {
                      {/* Modern Radar UI */}
                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent"></div>
                      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-                     
+
                      {/* Scale markings */}
                      <div className="absolute w-[80%] h-[80%] border border-dashed border-slate-300 dark:border-white/10 rounded-full"></div>
                      <div className="absolute w-[50%] h-[50%] border border-slate-200 dark:border-white/5 rounded-full"></div>
-                     
+
                      {/* Sweep Animation */}
                      <motion.div
                         animate={{ rotate: 360 }}
@@ -123,7 +123,7 @@ const Features: React.FC = () => {
 
             {/* Feature 2: Terminal */}
             <div className="grid lg:grid-cols-2 gap-16 items-center mb-32">
-               <motion.div 
+               <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
@@ -170,7 +170,7 @@ const Features: React.FC = () => {
                   </div>
                </motion.div>
 
-               <motion.div 
+               <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
@@ -199,7 +199,7 @@ const Features: React.FC = () => {
             {/* Feature 3: Action */}
             <div className="bg-slate-50 dark:bg-[#0F1117] rounded-3xl p-8 md:p-12 border border-slate-100 dark:border-white/5 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/5 rounded-full blur-[100px] pointer-events-none"></div>
-                
+
                 <div className="grid md:grid-cols-2 gap-12 items-center relative z-10">
                    <div>
                       <div className="flex items-center gap-4 mb-6">
@@ -218,7 +218,7 @@ const Features: React.FC = () => {
                          View Integration Docs <IconArrowRight className="w-4 h-4" />
                       </button>
                    </div>
-                   
+
                    {/* Action Cards Grid */}
                    <div className="grid grid-cols-2 gap-4">
                       <div className="bg-white dark:bg-[#1A1F2E] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col items-center text-center gap-3 hover:-translate-y-1 transition-transform duration-300">
