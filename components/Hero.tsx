@@ -307,7 +307,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed font-light"
+          className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-24 leading-relaxed font-light"
         >
           Stop cold calling businesses that already have great websites. We identify local companies with <strong>zero digital footprint</strong> so you can offer immediate value.
         </motion.p>
