@@ -143,8 +143,6 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Leads without website filter',
       'Basic analytics',
       'Email support',
-      '14-day free trial',
-      'No credit card required',
     ],
     limits: {
       searches_per_month: 40,
@@ -171,7 +169,6 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Search history & trends',
       'Up to 3 team members',
       'Priority support',
-      '14-day free trial',
       '~200-400 leads/month potential',
     ],
     limits: {

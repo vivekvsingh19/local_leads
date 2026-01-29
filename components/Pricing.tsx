@@ -224,7 +224,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
                         : 'bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 text-slate-900 dark:text-white hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 border border-slate-200 dark:border-slate-600'
                     }`}
                   >
-                    Start 14-Day Free Trial
+                    Subscribe Now
                   </motion.button>
                 </div>
               </div>
@@ -240,7 +240,7 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
           className="mt-20 text-center max-w-3xl mx-auto"
         >
           <div className="inline-block px-4 py-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-full mb-4">
-            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">✓ No credit card required • Cancel anytime • Money-back guarantee</p>
+            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">✓ Cancel anytime • Money-back guarantee • Secure payment</p>
           </div>
         </motion.div>
       </div>

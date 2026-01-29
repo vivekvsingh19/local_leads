@@ -42,7 +42,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
             Simple, transparent pricing
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-8">
-            Pay only for what you use. Start small, scale as you grow. Each plan includes a 14-day free trial.
+            Pay only for what you use. Start small, scale as you grow. Choose the plan that fits your needs.
           </p>
 
           {/* Billing Toggle */}
@@ -181,7 +181,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
                     : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
                 }`}
               >
-                {currentPlan === plan.id ? 'Current Plan' : 'Start 14-Day Free Trial'}
+                {currentPlan === plan.id ? 'Current Plan' : 'Subscribe Now'}
               </button>
             </motion.div>
           ))}
@@ -244,7 +244,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
               onClick={() => onSelectPlan('starter')}
               className="px-8 py-4 bg-white text-primary-600 rounded-xl font-semibold hover:bg-slate-100 transition-colors shadow-lg"
             >
-              Start Your Free Trial
+              Get Started Now
             </button>
           </div>
         </motion.div>
