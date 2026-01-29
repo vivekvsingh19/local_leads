@@ -4,7 +4,8 @@ import { IconZap, IconTwitter, IconGithub } from './Icons';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-slate-50 dark:bg-[#020617] pt-20 pb-10 border-t border-slate-200 dark:border-white/5 transition-colors duration-300">
+    <footer className="pt-20 pb-10 border-t border-slate-200 dark:border-white/5 transition-colors duration-300 relative">
+      <div className="absolute inset-0 bg-slate-50/50 dark:bg-[#020617]/50 -z-10"></div>
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-16">
           <div className="col-span-2 md:col-span-1">

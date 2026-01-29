@@ -20,15 +20,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
     }
   };
 
-  const getGradient = (planId: string) => {
-    switch (planId) {
-      case 'starter': return 'from-blue-500 to-cyan-500';
-      case 'pro': return 'from-primary-500 to-orange-500';
-      case 'business': return 'from-purple-500 to-pink-500';
-      default: return 'from-slate-500 to-slate-600';
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white dark:bg-[#030712] pt-24 pb-20 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -105,84 +96,93 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currentPlan = '
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`relative rounded-3xl p-8 flex flex-col h-full transition-all duration-300 ${
-                plan.popular
-                  ? 'bg-white dark:bg-slate-800 border-2 border-primary-500 ring-4 ring-primary-500/10 shadow-2xl shadow-primary-500/20 md:-mt-4 md:mb-4 z-10'
-                  : 'bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-xl hover:-translate-y-1'
+              className={`relative flex flex-col ${
+                plan.popular ? 'md:-mt-8 md:mb-8 z-10' : ''
               }`}
             >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="px-4 py-1.5 bg-gradient-to-r from-primary-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg uppercase tracking-wider">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-
-              {/* Plan Header */}
-              <div className="mb-6 text-center">
-                <div className={`w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4 shadow-lg ${
-                   `bg-gradient-to-br ${getGradient(plan.id)}`
-                }`}>
-                  <div className="text-white">
-                    {getIcon(plan.id)}
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">
-                  {plan.name}
-                </h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 h-10">
-                  {plan.description}
-                </p>
-              </div>
-
-              {/* Price */}
-              <div className="mb-8 text-center pb-8 border-b border-slate-100 dark:border-slate-700/50">
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-4xl font-extrabold text-slate-900 dark:text-white">
-                    ${billingPeriod === 'monthly' ? plan.price : Math.round(plan.yearlyPrice / 12)}
-                  </span>
-                  <span className="text-slate-500 dark:text-slate-400 font-medium">
-                    /mo
-                  </span>
-                </div>
-                {billingPeriod === 'yearly' && plan.price > 0 && (
-                  <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium mt-2">
-                    Billed ${plan.yearlyPrice}/year
-                  </p>
+               <div className={`h-full relative rounded-3xl border transition-all duration-300 flex flex-col overflow-hidden ${
+                plan.popular
+                  ? 'bg-white dark:bg-[#0B1121] border-primary-500/50 dark:border-primary-500/50 shadow-2xl shadow-primary-500/10'
+                  : 'bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/50'
+              }`}>
+                {plan.popular && (
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary-500 via-orange-500 to-pink-500" />
                 )}
-              </div>
 
-              {/* Features */}
-              <ul className="space-y-4 mb-8 flex-1">
-                {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 ${
-                       plan.popular ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
-                    }`}>
-                      <IconCheck className="w-3 h-3" />
+                <div className="p-8 flex flex-col h-full">
+                  {/* Header */}
+                  <div className="mb-8">
+                     <div className="flex justify-between items-start mb-6">
+                        <div className={`p-3 rounded-2xl ${
+                          plan.id === 'pro' ? 'bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400' : 
+                          plan.id === 'business' ? 'bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400' :
+                          'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                        }`}>
+                          {getIcon(plan.id)}
+                        </div>
+                        {plan.popular && (
+                          <span className="bg-primary-5 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide border border-primary-100 dark:border-primary-500/20">
+                            Most Popular
+                          </span>
+                        )}
+                     </div>
+
+                    <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">
+                      {plan.name}
+                    </h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                      {plan.description}
+                    </p>
+                  </div>
+
+                  {/* Price */}
+                  <div className="mb-8 pb-8 border-b border-slate-100 dark:border-slate-800/50">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white tracking-tight">
+                        ${billingPeriod === 'monthly' ? plan.price : Math.round(plan.yearlyPrice / 12)}
+                      </span>
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">
+                        /mo
+                      </span>
                     </div>
-                    <span className="text-sm text-slate-600 dark:text-slate-300">
-                      {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                    {billingPeriod === 'yearly' && plan.price > 0 && (
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-2">
+                        Billed ${plan.yearlyPrice} yearly
+                      </p>
+                    )}
+                  </div>
 
-              {/* CTA Button */}
-              <button
-                onClick={() => onSelectPlan(plan.id)}
-                disabled={currentPlan === plan.id}
-                className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm transition-all shadow-lg hover:shadow-xl active:scale-95 ${
-                  currentPlan === plan.id
-                    ? 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed shadow-none'
-                    : plan.popular
-                    ? 'bg-gradient-to-r from-primary-600 to-orange-600 text-white hover:from-primary-500 hover:to-orange-500'
-                    : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
-                }`}
-              >
-                {currentPlan === plan.id ? 'Current Plan' : 'Subscribe Now'}
-              </button>
+                  {/* Features */}
+                  <ul className="space-y-4 mb-10 flex-1">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs opacity-80">Includes:</p>
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <IconCheck className={`w-5 h-5 flex-shrink-0 ${
+                            plan.popular ? 'text-primary-500' : 'text-slate-400 dark:text-slate-500'
+                          }`} />
+                        <span className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA Button */}
+                  <button
+                    onClick={() => onSelectPlan(plan.id)}
+                    disabled={currentPlan === plan.id}
+                    className={`w-full py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-300 ${
+                      currentPlan === plan.id
+                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                        : plan.popular
+                        ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transform hover:-translate-y-0.5'
+                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white'
+                    }`}
+                  >
+                    {currentPlan === plan.id ? 'Current Plan' : 'Subscribe Now'}
+                  </button>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>

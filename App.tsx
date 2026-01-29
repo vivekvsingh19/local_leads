@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -80,9 +79,16 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#030712] text-slate-900 dark:text-slate-200 overflow-x-hidden transition-colors duration-300 relative">
+    <div className="min-h-screen bg-white dark:bg-[#030712] bg-grid-black dark:bg-grid-white text-slate-900 dark:text-slate-200 overflow-x-hidden transition-colors duration-300 relative">
       {/* Noise Texture Overlay */}
       <div className="bg-noise"></div>
+
+      {/* Ambient Background Glows */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-primary-500/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob" />
+        <div className="absolute top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-orange-500/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-blue-500/20 blur-[120px] mix-blend-multiply dark:mix-blend-screen animate-blob animation-delay-4000" />
+      </div>
 
       {/* Login modal */}
       <Login isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />

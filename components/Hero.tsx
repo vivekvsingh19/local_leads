@@ -246,14 +246,10 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
   };
 
   return (
-    <section className="relative pt-32 pb-16 lg:pt-48 lg:pb-32 min-h-screen flex flex-col items-center justify-start bg-white dark:bg-[#030712] transition-colors duration-300 overflow-visible">
+    <section className="relative pt-32 pb-16 lg:pt-48 lg:pb-32 min-h-screen flex flex-col items-center justify-start bg-transparent transition-colors duration-300 overflow-visible">
 
       <Background3D />
 
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none opacity-20 dark:opacity-40">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-        <div className="absolute inset-0 bg-grid-black/[0.04] dark:bg-grid-white/[0.04] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]"></div>
-      </div>
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 text-center relative z-10 w-full">
 

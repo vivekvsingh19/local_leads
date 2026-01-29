@@ -64,10 +64,8 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
   });
 
   return (
-    <section id="pricing" className="py-32 bg-gradient-to-b from-slate-50 to-white dark:from-[#030712] dark:to-[#0f172a] relative transition-colors duration-300 overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-gradient-to-r from-primary-500/10 via-purple-500/5 to-pink-500/10 dark:from-primary-500/20 dark:via-purple-500/10 dark:to-pink-500/10 rounded-[100%] blur-[120px] -z-10 pointer-events-none"></div>
-
+    <section id="pricing" className="py-24 sm:py-32 relative overflow-hidden">
+      
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -75,40 +73,36 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-            Simple pricing, <br/><span className="bg-gradient-to-r from-primary-500 to-orange-500 bg-clip-text text-transparent">huge ROI.</span>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
+            Simple pricing, <span className="text-primary-600 dark:text-primary-400">huge ROI</span>
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-xl mb-12 leading-relaxed">
-            One new client pays for the entire year. Start small, scale fast. No surprises, just results.
+          <p className="text-slate-600 dark:text-slate-400 text-lg mb-10 leading-relaxed max-w-2xl mx-auto">
+            Start small, scale fast. No surprises, just results.
           </p>
 
           {/* Toggle with improved styling */}
-          <div className="inline-flex items-center gap-1 p-2 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-full backdrop-blur-md shadow-lg">
+          <div className="inline-flex items-center p-1.5 bg-slate-100 dark:bg-slate-800/50 rounded-full">
              <button
                 onClick={() => setIsAnnual(false)}
-                className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
+                className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
                   !isAnnual
-                    ? 'bg-gradient-to-r from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 text-white dark:text-slate-900 shadow-lg'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
              >
                 Monthly
              </button>
              <button
                 onClick={() => setIsAnnual(true)}
-                className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+                className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${
                   isAnnual
-                    ? 'bg-gradient-to-r from-slate-900 to-slate-800 dark:from-white dark:to-slate-200 text-white dark:text-slate-900 shadow-lg'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
              >
                 Yearly
-                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                  isAnnual
-                    ? 'bg-emerald-400/20 text-emerald-600'
-                    : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                }`}>
-                  Save 17%
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">
+                  -17%
                 </span>
              </button>
           </div>
@@ -122,110 +116,82 @@ const Pricing: React.FC<PricingProps> = ({ onSelectPlan }) => {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className={`relative group rounded-3xl transition-all duration-500 ${
-                plan.popular
-                  ? 'md:scale-105 md:z-10'
-                  : ''
+              className={`relative group flex flex-col ${
+                plan.popular ? 'md:-mt-8 md:mb-8 z-10' : ''
               }`}
             >
-              {/* Glow effect */}
-              <div className={`absolute -inset-1 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl -z-10 ${
+              <div className={`h-full relative rounded-3xl border transition-all duration-300 flex flex-col overflow-hidden ${
                 plan.popular
-                  ? 'bg-gradient-to-r from-primary-500 via-orange-500 to-pink-500'
-                  : 'bg-gradient-to-r from-slate-300 to-slate-400 dark:from-slate-600 dark:to-slate-500'
-              }`}></div>
-
-              {/* Card */}
-              <div className={`relative h-full rounded-3xl border-2 backdrop-blur-sm transition-all duration-300 flex flex-col ${
-                plan.popular
-                  ? `${plan.borderColor} bg-gradient-to-br from-white dark:from-slate-800 to-slate-50 dark:to-slate-900 shadow-2xl`
-                  : `${plan.borderColor} bg-white dark:bg-slate-800/40 hover:shadow-xl`
+                  ? 'bg-white dark:bg-[#0B1121] border-primary-500/50 dark:border-primary-500/50 shadow-2xl shadow-primary-500/10'
+                  : 'bg-white/50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/50'
               }`}>
-
-                {/* Popular Badge */}
+                
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      whileInView={{ scale: 1 }}
-                      transition={{ type: 'spring', delay: 0.3 }}
-                      className="px-4 py-1.5 bg-gradient-to-r from-primary-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg uppercase tracking-wider"
-                    >
-                      ⭐ Most Popular
-                    </motion.div>
-                  </div>
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary-500 via-orange-500 to-pink-500" />
                 )}
 
-                {/* Top accent line */}
-                {plan.popular && (
-                  <div className={`h-1 w-full rounded-t-3xl bg-gradient-to-r ${plan.color}`}></div>
-                )}
-
-                {/* Content */}
-                <div className="p-8 flex flex-col h-full">
-
-                  {/* Icon and Header */}
+                <div className="p-8 sm:p-10 flex flex-col h-full">
+                  
+                  {/* Header */}
                   <div className="mb-8">
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center mb-4 shadow-lg`}>
-                      <plan.icon className="w-7 h-7 text-white" />
+                    <div className="flex justify-between items-start mb-6">
+                      <div className={`p-3 rounded-2xl ${plan.bgColor} ${plan.color.replace('from-', 'text-').split(' ')[0]}`}>
+                        <plan.icon className="w-6 h-6" />
+                      </div>
+                      {plan.popular && (
+                        <span className="bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide border border-primary-100 dark:border-primary-500/20">
+                          Most Popular
+                        </span>
+                      )}
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{plan.name}</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">{plan.users}</p>
+                    
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{plan.name}</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">{plan.users}</p>
                   </div>
 
                   {/* Price */}
-                  <div className="mb-8">
+                  <div className="mb-8 pb-8 border-b border-slate-100 dark:border-slate-800/50">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-extrabold text-slate-900 dark:text-white">${isAnnual ? Math.round(plan.yearlyPrice / 12) : plan.price}</span>
-                      <span className="text-slate-600 dark:text-slate-400 text-lg font-semibold">/mo</span>
+                      <span className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white tracking-tight">
+                        ${isAnnual ? Math.round(plan.yearlyPrice / 12) : plan.price}
+                      </span>
+                      <span className="text-slate-500 dark:text-slate-400 font-medium">/mo</span>
                     </div>
                     {isAnnual && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
-                        Billed <span className="font-semibold text-slate-900 dark:text-white">${plan.yearlyPrice}</span>/year
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 font-medium">
+                        Billed ${plan.yearlyPrice} yearly
                       </p>
                     )}
                   </div>
 
-                  {/* Description */}
-                  <p className="text-slate-600 dark:text-slate-400 text-sm mb-8 leading-relaxed">{plan.desc}</p>
-
                   {/* Features */}
-                  <div className="mb-8 flex-1">
-                    <div className="space-y-3.5">
+                  <div className="mb-10 flex-1">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white mb-4 uppercase tracking-wider text-xs opacity-80">Includes:</p>
+                    <ul className="space-y-4">
                       {plan.features.map((feature, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -10 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.1 + i * 0.05 }}
-                          className="flex items-start gap-3"
-                        >
-                          <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 ${
-                            plan.popular
-                              ? 'bg-gradient-to-br from-primary-500 to-orange-500'
-                              : 'bg-gradient-to-br from-slate-400 to-slate-500'
-                          }`}>
-                            <IconCheck className="w-3 h-3 text-white" />
-                          </div>
-                          <span className="text-slate-700 dark:text-slate-300 text-sm font-medium leading-snug">{feature}</span>
-                        </motion.div>
+                        <li key={i} className="flex items-start gap-3">
+                          <IconCheck className={`w-5 h-5 flex-shrink-0 ${
+                            plan.popular ? 'text-primary-500' : 'text-slate-400 dark:text-slate-500'
+                          }`} />
+                          <span className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                            {feature}
+                          </span>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   </div>
 
                   {/* CTA Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  <button
                     onClick={() => handleSelectPlan(plan.id)}
-                    className={`w-full py-4 px-6 rounded-2xl font-bold text-base transition-all duration-300 shadow-lg hover:shadow-xl ${
+                    className={`w-full py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-300 ${
                       plan.popular
-                        ? 'bg-gradient-to-r from-primary-600 to-orange-600 text-white hover:from-primary-500 hover:to-orange-500'
-                        : 'bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 text-slate-900 dark:text-white hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 border border-slate-200 dark:border-slate-600'
+                        ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transform hover:-translate-y-0.5'
+                        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white'
                     }`}
                   >
-                    Subscribe Now
-                  </motion.button>
+                    Get Started
+                  </button>
                 </div>
               </div>
             </motion.div>

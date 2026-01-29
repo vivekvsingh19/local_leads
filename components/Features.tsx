@@ -5,7 +5,7 @@ import { IconMapPin, IconGlobe, IconFileDown, IconPhone, IconZap, IconArrowRight
 
 const Features: React.FC = () => {
    return (
-      <section id="features" className="py-24 bg-white dark:bg-[#030712] relative overflow-hidden">
+      <section id="features" className="py-24 relative overflow-hidden">
          {/* Background Glows */}
          <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <div className="absolute top-[20%] right-0 w-[600px] h-[600px] bg-primary-500/5 rounded-full blur-[120px]"></div>
