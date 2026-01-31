@@ -366,16 +366,26 @@ const simulateSearchLeads = (params: SearchParams): Promise<Lead[]> => {
       // Helper to generate random phone
       const randPhone = () => `(${Math.floor(Math.random() * 800) + 200}) 555-${Math.floor(Math.random() * 8999) + 1000}`;
 
+      // Helper to generate random email
+      const randEmail = (businessName: string) => {
+        const domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'business.com', 'company.net'];
+        const cleanName = businessName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15);
+        return `${cleanName}@${domains[Math.floor(Math.random() * domains.length)]}`;
+      };
+
       for (let i = 0; i < count; i++) {
         const hasWebsite = Math.random() > 0.6; // 40% chance of no website
         const nameSuffix = ['Services', 'Co.', 'Solutions', 'Pros', 'Experts', 'Group', 'Inc', 'LLC'][Math.floor(Math.random() * 8)];
         const street = ['Main St', 'Oak Ave', 'Maple Dr', 'Washington Blvd', 'First St', 'Park Way'][Math.floor(Math.random() * 6)];
+        const businessName = `${keyword} ${nameSuffix} ${i + 1}`;
+        const hasEmail = Math.random() > 0.3; // 70% chance of having email
 
         results.push({
           id: `lead_${Math.random().toString(36).substr(2, 9)}`,
-          business_name: `${keyword} ${nameSuffix} ${i + 1}`,
+          business_name: businessName,
           address: `${Math.floor(Math.random() * 900) + 10} ${street}, ${city}`,
           phone: randPhone(),
+          email: hasEmail ? randEmail(businessName) : undefined,
           category: keyword,
           city: city,
           has_website: hasWebsite,
@@ -392,12 +402,13 @@ const simulateSearchLeads = (params: SearchParams): Promise<Lead[]> => {
 };
 
 export const exportToCSV = (leads: Lead[]) => {
-  const headers = ['Business Name', 'Phone', 'City', 'Address', 'Google Maps Link'];
+  const headers = ['Business Name', 'Phone', 'Email', 'City', 'Address', 'Google Maps Link'];
   const csvContent = [
     headers.join(','),
     ...leads.map(lead => [
       `"${lead.business_name}"`,
       `"${lead.phone}"`,
+      `"${lead.email || ''}"`,
       `"${lead.city}"`,
       `"${lead.address}"`,
       `"${lead.google_maps_url}"`

@@ -708,7 +708,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                              <td className="px-6 py-4 pl-8">
                                 <div className="flex flex-col gap-1">
                                    <span className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors text-base">{row.business_name}</span>
-                                   <div className="flex items-center gap-2">
+                                   <div className="flex items-center gap-2 flex-wrap">
                                      {subscriptionTier === 'free' || subscriptionTier === 'starter' ? (
                                         <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded cursor-help" title="Upgrade to view phone number">
                                           <IconLock className="w-3 h-3 text-slate-400" />
@@ -716,6 +716,16 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                         </div>
                                      ) : (
                                         <span className="text-xs text-slate-500 font-mono bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded">{row.phone}</span>
+                                     )}
+                                     {row.email && (
+                                       subscriptionTier === 'free' || subscriptionTier === 'starter' ? (
+                                          <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded cursor-help" title="Upgrade to view email">
+                                            <IconLock className="w-3 h-3 text-slate-400" />
+                                            <span className="text-xs text-slate-400 font-mono blur-[3px] select-none">email@hidden.com</span>
+                                          </div>
+                                       ) : (
+                                          <span className="text-xs text-slate-500 font-mono bg-blue-50 dark:bg-blue-500/10 px-1.5 py-0.5 rounded text-blue-600 dark:text-blue-400">{row.email}</span>
+                                       )
                                      )}
                                      <span className="text-xs text-slate-500 dark:text-slate-500">{row.category}</span>
                                    </div>
