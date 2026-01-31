@@ -5,6 +5,7 @@ export interface Lead {
   business_name: string;
   address: string;
   phone: string;
+  email?: string;
   category: string;
   city: string;
   has_website: boolean;
