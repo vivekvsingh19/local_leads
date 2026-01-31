@@ -61,7 +61,6 @@ const mockSavedLeads: SavedLead[] = [
     business_name: "Joe's Pizza",
     address: '123 Main St, Miami, FL',
     phone: '(555) 123-4567',
-    email: 'contact@joespizza.com',
     category: 'Restaurants',
     city: 'Miami',
     has_website: false,
@@ -78,7 +77,6 @@ const mockSavedLeads: SavedLead[] = [
     business_name: 'City Fitness Gym',
     address: '456 Oak Ave, Austin, TX',
     phone: '(555) 987-6543',
-    email: 'info@cityfitnessgym.com',
     category: 'Gyms',
     city: 'Austin',
     has_website: false,
@@ -95,7 +93,6 @@ const mockSavedLeads: SavedLead[] = [
     business_name: 'Bella Hair Studio',
     address: '789 Elm St, New York, NY',
     phone: '(555) 456-7890',
-    email: 'hello@bellahairstudio.com',
     category: 'Salons',
     city: 'New York',
     has_website: false,
@@ -379,11 +376,6 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
                             <p className="text-sm text-slate-500 dark:text-slate-400">
                               {hasAccessToContactInfo ? lead.phone : lead.phone.slice(0, -5) + '****'}
                             </p>
-                            {lead.email && (
-                              <p className="text-sm text-slate-500 dark:text-slate-400">
-                                {hasAccessToContactInfo ? lead.email : lead.email.replace(/(.{3}).*(@.*)/, '$1****$2')}
-                              </p>
-                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">{lead.category}</td>
