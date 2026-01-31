@@ -717,7 +717,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                      ) : (
                                         <span className="text-xs text-slate-500 font-mono bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded">{row.phone}</span>
                                      )}
-                                     {row.email ? (
+                                     {row.email && (
                                        subscriptionTier === 'free' || subscriptionTier === 'starter' ? (
                                           <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded cursor-help" title="Upgrade to view email">
                                             <IconLock className="w-3 h-3 text-slate-400" />
@@ -726,8 +726,6 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                        ) : (
                                           <span className="text-xs text-slate-500 font-mono bg-blue-50 dark:bg-blue-500/10 px-1.5 py-0.5 rounded text-blue-600 dark:text-blue-400">{row.email}</span>
                                        )
-                                     ) : (
-                                       <span className="text-xs text-slate-400 dark:text-slate-500 italic">No email</span>
                                      )}
                                      <span className="text-xs text-slate-500 dark:text-slate-500">{row.category}</span>
                                    </div>
