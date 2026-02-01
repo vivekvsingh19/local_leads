@@ -205,7 +205,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
         status: 'new',
         tags: []
       }, user.id);
-      
+
       setSavedLeadIds(prev => new Set([...prev, lead.id]));
       await logActivity(user.id, 'save_lead', `Saved lead: ${lead.business_name}`);
     } catch (error) {
@@ -218,7 +218,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
   // Handle CSV export with tracking
   const handleExportCSV = async () => {
     exportToCSV(filteredLeads);
-    
+
     if (user) {
       try {
         await incrementExportCount(user.id);
@@ -783,7 +783,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                      ) : (
                                         <span className="text-xs text-slate-500 font-mono bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded">{row.phone}</span>
                                      )}
-                                    
+
                                      <span className="text-xs text-slate-500 dark:text-slate-500">{row.category}</span>
                                    </div>
                                 </div>

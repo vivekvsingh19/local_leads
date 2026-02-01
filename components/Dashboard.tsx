@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Session } from '@supabase/supabase-js';
 import {
@@ -32,7 +32,11 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   const { user, profile, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'searches' | 'templates'>('overview');
   const [loading, setLoading] = useState(true);
-  
+  const [loadingLeads, setLoadingLeads] = useState(false);
+  const [loadingStats, setLoadingStats] = useState(false);
+  const [lastFetch, setLastFetch] = useState<number>(0);
+  const [dataCache, setDataCache] = useState<Record<string, any>>({});
+
   // Data state
   const [savedLeads, setSavedLeads] = useState<SavedLead[]>([]);
   const [recentSearches, setRecentSearches] = useState<SavedSearch[]>([]);
@@ -47,7 +51,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     searches_by_category: [] as { category: string; count: number }[],
     searches_by_city: [] as { city: string; count: number }[],
   });
-  
+
   // UI state
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [editingLead, setEditingLead] = useState<string | null>(null);
@@ -57,10 +61,42 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
 
   const currentPlan = PRICING_PLANS.find(p => p.id === profile?.subscription_tier) || PRICING_PLANS[0];
 
-  // Fetch all data
-  const fetchData = useCallback(async () => {
+  // Memoized calculations for better performance
+  const filteredLeads = useMemo(() => {
+    return statusFilter === 'all'
+      ? savedLeads
+      : savedLeads.filter(lead => lead.status === statusFilter);
+  }, [savedLeads, statusFilter]);
+
+  const statusCounts = useMemo(() => {
+    return savedLeads.reduce((acc, lead) => {
+      acc[lead.status] = (acc[lead.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }, [savedLeads]);
+
+  // Cache duration: 2 minutes
+  const CACHE_DURATION = 2 * 60 * 1000;
+
+  // Optimized fetch with caching
+  const fetchData = useCallback(async (force = false) => {
     if (!user?.id) return;
+
+    const now = Date.now();
+    const cacheKey = `dashboard_${user.id}`;
     
+    // Use cached data if available and not expired
+    if (!force && now - lastFetch < CACHE_DURATION && dataCache[cacheKey]) {
+      const cached = dataCache[cacheKey];
+      setSavedLeads(cached.leads || []);
+      setRecentSearches(cached.searches || []);
+      setEmailTemplates(cached.templates || []);
+      setStats(cached.stats || stats);
+      setRecentActivity(cached.activity || []);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const [leads, searches, templates, userStats, activity] = await Promise.all([
@@ -70,59 +106,105 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
         getUserStats(user.id),
         getRecentActivity(user.id, 10),
       ]);
-      
+
+      const cacheData = {
+        leads,
+        searches,
+        templates,
+        stats: userStats,
+        activity,
+      };
+
       setSavedLeads(leads);
       setRecentSearches(searches);
       setEmailTemplates(templates);
       setStats(userStats);
       setRecentActivity(activity);
+      setLastFetch(now);
+      setDataCache(prev => ({ ...prev, [cacheKey]: cacheData }));
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, lastFetch, dataCache, stats]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    // Only fetch if user changed or no recent data
+    const shouldFetch = !user?.id || Date.now() - lastFetch > CACHE_DURATION || savedLeads.length === 0;
+    if (shouldFetch) {
+      fetchData();
+    }
+  }, [user?.id]); // Removed fetchData dependency to prevent infinite loops
 
-  // Lead status management
+  // Lead status management - optimized
   const handleStatusChange = async (leadId: string, newStatus: SavedLead['status']) => {
     if (!user?.id) return;
-    
+
+    setLoadingLeads(true);
     const updated = await updateLead(leadId, { status: newStatus }, user.id);
     if (updated) {
       setSavedLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l));
       await logActivity(user.id, 'status_change', `Updated lead status to ${newStatus}`);
       setEditingLead(null);
-      // Refresh stats
-      const newStats = await getUserStats(user.id);
-      setStats(newStats);
+      
+      // Update stats locally instead of refetching
+      setStats(prev => {
+        const newLeadsByStatus = { ...prev.leads_by_status };
+        const oldLead = savedLeads.find(l => l.id === leadId);
+        
+        if (oldLead?.status) {
+          newLeadsByStatus[oldLead.status] = (newLeadsByStatus[oldLead.status] || 1) - 1;
+        }
+        newLeadsByStatus[newStatus] = (newLeadsByStatus[newStatus] || 0) + 1;
+        
+        return {
+          ...prev,
+          leads_by_status: newLeadsByStatus,
+          leads_contacted: newStatus === 'contacted' ? prev.leads_contacted + 1 : prev.leads_contacted,
+          leads_converted: newStatus === 'converted' ? prev.leads_converted + 1 : prev.leads_converted,
+        };
+      });
     }
+    setLoadingLeads(false);
   };
 
-  // Delete lead
+  // Delete lead - optimized
   const handleDeleteLead = async (leadId: string) => {
     if (!user?.id || !confirm('Are you sure you want to delete this lead?')) return;
-    
+
+    setLoadingLeads(true);
     const deleted = await deleteLead(leadId, user.id);
     if (deleted) {
+      const deletedLead = savedLeads.find(l => l.id === leadId);
       setSavedLeads(prev => prev.filter(l => l.id !== leadId));
-      const newStats = await getUserStats(user.id);
-      setStats(newStats);
+      
+      // Update stats locally
+      if (deletedLead) {
+        setStats(prev => {
+          const newLeadsByStatus = { ...prev.leads_by_status };
+          if (deletedLead.status) {
+            newLeadsByStatus[deletedLead.status] = Math.max(0, (newLeadsByStatus[deletedLead.status] || 1) - 1);
+          }
+          
+          return {
+            ...prev,
+            total_leads_saved: Math.max(0, prev.total_leads_saved - 1),
+            leads_by_status: newLeadsByStatus,
+            leads_contacted: deletedLead.status === 'contacted' ? Math.max(0, prev.leads_contacted - 1) : prev.leads_contacted,
+            leads_converted: deletedLead.status === 'converted' ? Math.max(0, prev.leads_converted - 1) : prev.leads_converted,
+          };
+        });
+      }
     }
+    setLoadingLeads(false);
   };
 
-  // Export leads to CSV
+  // Export leads to CSV - optimized
   const handleExportLeads = async () => {
     if (!user?.id) return;
-    
-    const leadsToExport = statusFilter === 'all' 
-      ? savedLeads 
-      : savedLeads.filter(l => l.status === statusFilter);
-    
-    if (leadsToExport.length === 0) {
+
+    if (filteredLeads.length === 0) {
       alert('No leads to export');
       return;
     }
@@ -131,7 +213,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     const headers = ['Business Name', 'Address', 'Phone', 'Category', 'City', 'Has Website', 'Website', 'Rating', 'Reviews', 'Status', 'Saved At', 'Notes'];
     const csvContent = [
       headers.join(','),
-      ...leadsToExport.map(lead => [
+      ...filteredLeads.map(lead => [
         `"${lead.business_name}"`,
         `"${lead.address || ''}"`,
         `"${lead.phone || ''}"`,
@@ -158,14 +240,14 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
 
     // Track export
     await incrementExportCount(user.id);
-    await logActivity(user.id, 'export', `Exported ${leadsToExport.length} leads to CSV`);
+    await logActivity(user.id, 'export', `Exported ${filteredLeads.length} leads to CSV`);
     await refreshProfile();
   };
 
   // Delete search
   const handleDeleteSearch = async (searchId: string) => {
     if (!user?.id || !confirm('Delete this search from history?')) return;
-    
+
     const deleted = await deleteSearch(searchId, user.id);
     if (deleted) {
       setRecentSearches(prev => prev.filter(s => s.id !== searchId));
@@ -214,7 +296,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
 
   const handleDeleteTemplate = async (templateId: string) => {
     if (!user?.id || !confirm('Delete this template?')) return;
-    
+
     const deleted = await deleteEmailTemplate(templateId, user.id);
     if (deleted) {
       setEmailTemplates(prev => prev.filter(t => t.id !== templateId));
@@ -244,14 +326,10 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     }
   };
 
-  const filteredLeads = statusFilter === 'all' 
-    ? savedLeads 
-    : savedLeads.filter(l => l.status === statusFilter);
-
   // Not logged in state
   if (!session || !user) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#030712] pt-20 pb-12 transition-colors">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#030712] pt-32 pb-12 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center py-20">
             <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
@@ -274,7 +352,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#030712] pt-20 pb-12 transition-colors">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#030712] pt-32 pb-12 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center py-20">
             <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
@@ -284,12 +362,12 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     );
   }
 
-  const conversionRate = stats.leads_contacted > 0 
-    ? Math.round((stats.leads_converted / stats.leads_contacted) * 100) 
+  const conversionRate = stats.leads_contacted > 0
+    ? Math.round((stats.leads_converted / stats.leads_contacted) * 100)
     : 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#030712] pt-20 pb-12 transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#030712] pt-32 pb-12 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -307,6 +385,15 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => fetchData(true)}
+                disabled={loading}
+                className="px-3 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
+                title={`Refresh data (last updated: ${lastFetch ? new Date(lastFetch).toLocaleTimeString() : 'never'})`}
+              >
+                <IconActivity className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
               <div className="text-right">
                 <p className="text-sm text-slate-500 dark:text-slate-400">Current Plan</p>
                 <p className="font-semibold text-slate-900 dark:text-white">{currentPlan.name}</p>
@@ -512,7 +599,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
                   Saved Leads ({filteredLeads.length})
                 </h3>
                 <div className="flex items-center gap-2">
-                  <select 
+                  <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                     className="text-sm border border-slate-200 dark:border-slate-600 rounded-lg px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300"
@@ -524,7 +611,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
                     <option value="converted">Converted</option>
                     <option value="not_interested">Not Interested</option>
                   </select>
-                  <button 
+                  <button
                     onClick={handleExportLeads}
                     disabled={filteredLeads.length === 0}
                     className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:pointer-events-none"
@@ -534,7 +621,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
                   </button>
                 </div>
               </div>
-              
+
               {filteredLeads.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -638,7 +725,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50">
                 <h3 className="font-semibold text-slate-900 dark:text-white">Search History ({recentSearches.length})</h3>
               </div>
-              
+
               {recentSearches.length > 0 ? (
                 <div className="divide-y divide-slate-100 dark:divide-slate-700/50">
                   {recentSearches.map((search) => (
@@ -844,4 +931,4 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   );
 };
 
-export default Dashboard;
+export default React.memo(Dashboard);
