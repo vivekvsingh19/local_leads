@@ -84,7 +84,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
 
     const now = Date.now();
     const cacheKey = `dashboard_${user.id}`;
-    
+
     // Use cached data if available and not expired
     if (!force && now - lastFetch < CACHE_DURATION && dataCache[cacheKey]) {
       const cached = dataCache[cacheKey];
@@ -147,17 +147,17 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       setSavedLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l));
       await logActivity(user.id, 'status_change', `Updated lead status to ${newStatus}`);
       setEditingLead(null);
-      
+
       // Update stats locally instead of refetching
       setStats(prev => {
         const newLeadsByStatus = { ...prev.leads_by_status };
         const oldLead = savedLeads.find(l => l.id === leadId);
-        
+
         if (oldLead?.status) {
           newLeadsByStatus[oldLead.status] = (newLeadsByStatus[oldLead.status] || 1) - 1;
         }
         newLeadsByStatus[newStatus] = (newLeadsByStatus[newStatus] || 0) + 1;
-        
+
         return {
           ...prev,
           leads_by_status: newLeadsByStatus,
@@ -178,7 +178,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     if (deleted) {
       const deletedLead = savedLeads.find(l => l.id === leadId);
       setSavedLeads(prev => prev.filter(l => l.id !== leadId));
-      
+
       // Update stats locally
       if (deletedLead) {
         setStats(prev => {
@@ -186,7 +186,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
           if (deletedLead.status) {
             newLeadsByStatus[deletedLead.status] = Math.max(0, (newLeadsByStatus[deletedLead.status] || 1) - 1);
           }
-          
+
           return {
             ...prev,
             total_leads_saved: Math.max(0, prev.total_leads_saved - 1),
