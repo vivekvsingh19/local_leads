@@ -10,13 +10,12 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import PricingPage from './components/PricingPage';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
-import { supabase, isSupabaseConfigured } from './lib/supabase';
-import { Session } from '@supabase/supabase-js';
+import { AuthProvider, useAuth } from './lib/auth';
 import { SubscriptionTier } from './lib/types';
 
 type Page = 'home' | 'dashboard' | 'pricing';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -24,41 +23,19 @@ const App: React.FC = () => {
     restDelta: 0.001
   });
 
-  const [session, setSession] = useState<Session | null>(null);
+  const { session, profile, loading } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<Page>('home');
-  // Track user subscription tier (default: free, can be upgraded to starter/pro/business)
-  // For testing: change this to 'pro' to test comprehensive search
-  const [subscriptionTier, setSubscriptionTier] = useState<SubscriptionTier>('pro');
 
+  // Get subscription tier from profile, default to 'starter' for logged in users
+  const subscriptionTier: SubscriptionTier = profile?.subscription_tier || (session ? 'starter' : 'starter');
+
+  // Close login modal when user logs in
   useEffect(() => {
-    // Only check session if Supabase is configured
-    if (!isSupabaseConfigured || !supabase) {
-      console.log('🔓 Running without authentication (Supabase not configured)');
-      return;
+    if (session) {
+      setIsLoginOpen(false);
     }
-
-    // Check initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      // TODO: Fetch user's subscription tier from database
-      // For now, logged in users could be given starter tier
-      // if (session) setSubscriptionTier('starter');
-    });
-
-    // Listen for changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) {
-        setIsLoginOpen(false);
-        // TODO: Fetch user's subscription tier from database
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  }, [session]);
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page as Page);
@@ -67,16 +44,30 @@ const App: React.FC = () => {
 
   const handleSelectPlan = (planId: string) => {
     console.log('Selected plan:', planId);
-    // Update subscription tier (in real app, this would happen after payment)
-    setSubscriptionTier(planId as SubscriptionTier);
+
+    // If user is not logged in, prompt login first
+    if (!session) {
+      setIsLoginOpen(true);
+      return;
+    }
 
     // TODO: Integrate with Stripe for payment
-    if (planId === 'free') {
-      setIsLoginOpen(true);
+    if (planId === 'starter') {
+      // Free tier, already available
+      alert('You are on the Starter plan!');
     } else {
       alert(`Plan selected: ${planId}. Stripe integration coming soon!`);
     }
   };
+
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#030712] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#030712] bg-grid-black dark:bg-grid-white text-slate-900 dark:text-slate-200 overflow-x-hidden transition-colors duration-300 relative">
@@ -151,6 +142,14 @@ const App: React.FC = () => {
 
       <Footer />
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 
