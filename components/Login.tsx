@@ -13,12 +13,12 @@ type AuthMode = 'login' | 'signup' | 'forgot';
 
 const Login: React.FC<LoginProps> = ({ isOpen, onClose }) => {
   const { signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, isConfigured } = useAuth();
-  
+
   const [mode, setMode] = useState<AuthMode>('login');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  
+
   // Form fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -57,7 +57,7 @@ const Login: React.FC<LoginProps> = ({ isOpen, onClose }) => {
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isConfigured) {
       setError("Login is disabled - Supabase not configured.");
       return;
@@ -84,7 +84,7 @@ const Login: React.FC<LoginProps> = ({ isOpen, onClose }) => {
 
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isConfigured) {
       setError("Signup is disabled - Supabase not configured.");
       return;
@@ -117,7 +117,7 @@ const Login: React.FC<LoginProps> = ({ isOpen, onClose }) => {
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isConfigured) {
       setError("Password reset is disabled - Supabase not configured.");
       return;
