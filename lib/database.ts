@@ -387,6 +387,53 @@ export const deleteEmailTemplate = async (templateId: string, userId: string): P
   }
 };
 
+// ==================== ACTIVITY LOGGING ====================
+
+/**
+ * Log user activity
+ */
+export const logActivity = async (
+  userId: string,
+  type: 'search' | 'save_lead' | 'contact' | 'export' | 'status_change',
+  description: string,
+  metadata?: Record<string, any>
+): Promise<void> => {
+  if (!supabase || !isSupabaseConfigured) return;
+
+  try {
+    await supabase.from('activity_log').insert({
+      user_id: userId,
+      type,
+      description,
+      metadata,
+    });
+  } catch (err) {
+    console.error('Error logging activity:', err);
+  }
+};
+
+/**
+ * Get recent activity for a user
+ */
+export const getRecentActivity = async (userId: string, limit: number = 10) => {
+  if (!supabase || !isSupabaseConfigured) return [];
+
+  try {
+    const { data, error } = await supabase
+      .from('activity_log')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.error('Error fetching activity:', err);
+    return [];
+  }
+};
+
 // ==================== ANALYTICS ====================
 
 /**
@@ -396,7 +443,19 @@ export const incrementSearchCount = async (userId: string): Promise<void> => {
   if (!supabase || !isSupabaseConfigured) return;
 
   try {
-    await supabase.rpc('increment_search_count', { user_id: userId });
+    // Update profile directly instead of using RPC
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('searches_this_month')
+      .eq('id', userId)
+      .single();
+
+    if (profile) {
+      await supabase
+        .from('profiles')
+        .update({ searches_this_month: (profile.searches_this_month || 0) + 1 })
+        .eq('id', userId);
+    }
   } catch (err) {
     console.error('Error incrementing search count:', err);
   }
@@ -409,22 +468,36 @@ export const incrementExportCount = async (userId: string): Promise<void> => {
   if (!supabase || !isSupabaseConfigured) return;
 
   try {
-    await supabase.rpc('increment_export_count', { user_id: userId });
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('exports_this_month')
+      .eq('id', userId)
+      .single();
+
+    if (profile) {
+      await supabase
+        .from('profiles')
+        .update({ exports_this_month: (profile.exports_this_month || 0) + 1 })
+        .eq('id', userId);
+    }
   } catch (err) {
     console.error('Error incrementing export count:', err);
   }
 };
 
 /**
- * Get user analytics/stats
+ * Get comprehensive user analytics/stats
  */
 export const getUserStats = async (userId: string) => {
   if (!supabase || !isSupabaseConfigured) {
     return {
       total_searches: 0,
       total_leads_saved: 0,
-      total_exports: 0,
-      leads_by_status: {},
+      leads_contacted: 0,
+      leads_converted: 0,
+      leads_by_status: {} as Record<string, number>,
+      searches_by_category: [] as { category: string; count: number }[],
+      searches_by_city: [] as { city: string; count: number }[],
     };
   }
 
@@ -444,7 +517,7 @@ export const getUserStats = async (userId: string) => {
     // Get leads by status
     const { data: leadsData } = await supabase
       .from('saved_leads')
-      .select('status')
+      .select('status, category, city')
       .eq('user_id', userId);
 
     const leadsByStatus = (leadsData || []).reduce((acc, lead) => {
@@ -452,17 +525,51 @@ export const getUserStats = async (userId: string) => {
       return acc;
     }, {} as Record<string, number>);
 
+    // Get searches by category
+    const { data: searchesData } = await supabase
+      .from('saved_searches')
+      .select('keyword, city')
+      .eq('user_id', userId);
+
+    const searchesByCategory = Object.entries(
+      (searchesData || []).reduce((acc, s) => {
+        acc[s.keyword] = (acc[s.keyword] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>)
+    )
+      .map(([category, count]) => ({ category, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    const searchesByCity = Object.entries(
+      (searchesData || []).reduce((acc, s) => {
+        acc[s.city] = (acc[s.city] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>)
+    )
+      .map(([city, count]) => ({ city, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
     return {
       total_searches: totalSearches || 0,
       total_leads_saved: totalLeads || 0,
+      leads_contacted: leadsByStatus['contacted'] || 0,
+      leads_converted: leadsByStatus['converted'] || 0,
       leads_by_status: leadsByStatus,
+      searches_by_category: searchesByCategory,
+      searches_by_city: searchesByCity,
     };
   } catch (err) {
     console.error('Error fetching user stats:', err);
     return {
       total_searches: 0,
       total_leads_saved: 0,
-      leads_by_status: {},
+      leads_contacted: 0,
+      leads_converted: 0,
+      leads_by_status: {} as Record<string, number>,
+      searches_by_category: [] as { category: string; count: number }[],
+      searches_by_city: [] as { city: string; count: number }[],
     };
   }
 };

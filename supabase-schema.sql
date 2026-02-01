@@ -141,6 +141,29 @@ CREATE POLICY "Users can delete own email templates" ON public.email_templates
     FOR DELETE USING (auth.uid() = user_id);
 
 -- =====================================================
+-- ACTIVITY_LOG TABLE
+-- Stores user activity history
+-- =====================================================
+CREATE TABLE IF NOT EXISTS public.activity_log (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('search', 'save_lead', 'contact', 'export', 'status_change')),
+    description TEXT NOT NULL,
+    metadata JSONB DEFAULT '{}',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.activity_log ENABLE ROW LEVEL SECURITY;
+
+-- Activity log policies
+CREATE POLICY "Users can view own activity" ON public.activity_log
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own activity" ON public.activity_log
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- =====================================================
 -- FUNCTIONS
 -- =====================================================
 
@@ -229,6 +252,8 @@ CREATE INDEX IF NOT EXISTS idx_saved_leads_category ON public.saved_leads(catego
 CREATE INDEX IF NOT EXISTS idx_saved_leads_city ON public.saved_leads(city);
 CREATE INDEX IF NOT EXISTS idx_saved_searches_user_id ON public.saved_searches(user_id);
 CREATE INDEX IF NOT EXISTS idx_email_templates_user_id ON public.email_templates(user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_log_user_id ON public.activity_log(user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_log_created_at ON public.activity_log(created_at DESC);
 
 -- =====================================================
 -- GRANT PERMISSIONS

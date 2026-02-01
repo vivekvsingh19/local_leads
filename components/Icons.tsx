@@ -26,7 +26,17 @@ import {
   HelpCircle,
   ChevronDown,
   Crown,
-  Lock
+  Lock,
+  Plus,
+  Trash2,
+  Edit,
+  Star,
+  RefreshCw,
+  Download,
+  Upload,
+  Copy,
+  ExternalLink,
+  MoreVertical
 } from 'lucide-react';
 
 // Re-export Lucide icons with the existing naming convention to maintain compatibility
@@ -58,3 +68,13 @@ export const IconHelpCircle = HelpCircle;
 export const IconChevronDown = ChevronDown;
 export const IconCrown = Crown;
 export const IconLock = Lock;
+export const IconPlus = Plus;
+export const IconTrash = Trash2;
+export const IconEdit = Edit;
+export const IconStar = Star;
+export const IconRefresh = RefreshCw;
+export const IconDownload = Download;
+export const IconUpload = Upload;
+export const IconCopy = Copy;
+export const IconExternalLink = ExternalLink;
+export const IconMoreVertical = MoreVertical;

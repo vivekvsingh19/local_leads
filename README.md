@@ -1,6 +1,6 @@
-# LocalLeads - Simple Lead Finder
+# ClientMine - Find clients who actually need you
 
-Find local businesses without websites using Google Maps API.
+Discover local businesses without digital presence - perfect prospects for your services!
 
 ## 🚀 Features
 

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { IconArrowRight, IconSearch, IconFileDown, IconMapPin, IconActivity, IconZap, IconShield, IconGlobe, IconChevronDown, IconCrown, IconLock } from './Icons';
+import { IconArrowRight, IconSearch, IconFileDown, IconMapPin, IconActivity, IconZap, IconShield, IconGlobe, IconChevronDown, IconCrown, IconLock, IconCheck, IconPlus } from './Icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { searchLeads, exportToCSV, autocompleteCities, CitySuggestion } from '../lib/api';
 import { Lead, SubscriptionTier } from '../lib/types';
 import { Session } from '@supabase/supabase-js';
 import Background3D from './Background3D';
+import { useAuth } from '../lib/auth';
+import { saveSearch, saveLead, incrementSearchCount, incrementExportCount, logActivity } from '../lib/database';
 
 // Debounce helper function
 function debounce<T extends (...args: any[]) => any>(
@@ -25,6 +27,7 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = 'free' }) => {
+  const { user } = useAuth();
   const [keyword, setKeyword] = useState('');
   const [city, setCity] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,6 +36,8 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
   const [focusedField, setFocusedField] = useState<'keyword' | 'city' | null>(null);
   const [citySuggestions, setCitySuggestions] = useState<CitySuggestion[]>([]);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
+  const [savedLeadIds, setSavedLeadIds] = useState<Set<string>>(new Set());
+  const [savingLeadId, setSavingLeadId] = useState<string | null>(null);
 
   const inputRefKeyword = useRef<HTMLInputElement>(null);
   const inputRefCity = useRef<HTMLInputElement>(null);
@@ -134,6 +139,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
     setLoading(true);
     setHasSearched(true);
     setLeads([]);
+    setSavedLeadIds(new Set());
 
     // Pro/Business users get comprehensive search (more results, more API calls)
     // Free/Starter users get basic search (fewer results, lower cost)
@@ -142,6 +148,18 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
     try {
       const results = await searchLeads({ keyword, city, isPro });
       setLeads(results);
+
+      // Save search to database if user is logged in
+      if (user) {
+        const leadsWithoutWebsite = results.filter(l => !l.has_website).length;
+        try {
+          await saveSearch(keyword, city, results.length, leadsWithoutWebsite, user.id);
+          await incrementSearchCount(user.id);
+          await logActivity(user.id, 'search', `Searched for "${keyword}" in "${city}"`);
+        } catch (dbError) {
+          console.error('Failed to save search to database:', dbError);
+        }
+      }
     } catch (error) {
       console.error("Search failed", error);
     } finally {
@@ -162,6 +180,53 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
     setCity(value);
     setFocusedField(null);
     setCitySuggestions([]);
+  };
+
+  // Save a lead to the database
+  const handleSaveLead = async (lead: Lead) => {
+    if (!user) {
+      onLoginClick();
+      return;
+    }
+
+    if (savedLeadIds.has(lead.id)) return; // Already saved
+
+    setSavingLeadId(lead.id);
+    try {
+      await saveLead({
+        business_name: lead.business_name,
+        phone: lead.phone,
+        address: lead.address,
+        category: lead.category,
+        city: lead.city || city, // Use lead's city or current search city
+        has_website: lead.has_website,
+        website_url: lead.website_url,
+        google_maps_url: lead.google_maps_url,
+        status: 'new',
+        tags: []
+      }, user.id);
+      
+      setSavedLeadIds(prev => new Set([...prev, lead.id]));
+      await logActivity(user.id, 'save_lead', `Saved lead: ${lead.business_name}`);
+    } catch (error) {
+      console.error('Failed to save lead:', error);
+    } finally {
+      setSavingLeadId(null);
+    }
+  };
+
+  // Handle CSV export with tracking
+  const handleExportCSV = async () => {
+    exportToCSV(filteredLeads);
+    
+    if (user) {
+      try {
+        await incrementExportCount(user.id);
+        await logActivity(user.id, 'export', `Exported ${filteredLeads.length} leads to CSV`);
+      } catch (error) {
+        console.error('Failed to track export:', error);
+      }
+    }
   };
 
   // Filter state - show all or only without website
@@ -309,7 +374,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
           transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto mb-24 leading-relaxed font-light"
         >
-          Stop cold calling businesses that already have great websites. We identify local companies with <strong>zero digital footprint</strong> so you can offer immediate value.
+          Stop cold calling businesses that already have great websites. ClientMine identifies local companies with <strong>zero digital footprint</strong> so you can offer immediate value.
         </motion.p>
 
         {/* Search Bar / Login Gate */}
@@ -586,7 +651,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                     </div>
 
                     <button
-                      onClick={() => exportToCSV(filteredLeads)}
+                      onClick={handleExportCSV}
                       className="flex items-center gap-2 bg-primary-50 dark:bg-primary-500/10 text-primary-700 dark:text-primary-300 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-primary-100 dark:hover:bg-primary-500/20 hover:text-primary-800 dark:hover:text-primary-200 transition-all border border-primary-200 dark:border-primary-500/20 shadow-sm"
                     >
                       <IconFileDown className="w-3.5 h-3.5" />
@@ -693,6 +758,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                            <th className="px-6 py-4 font-medium pl-8">Business Info</th>
                            <th className="px-6 py-4 font-medium">Location</th>
                            <th className="px-6 py-4 font-medium">Web Status</th>
+                           <th className="px-6 py-4 font-medium">Actions</th>
                            <th className="px-6 py-4 font-medium text-right pr-8">Link</th>
                          </tr>
                        </thead>
@@ -717,16 +783,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                      ) : (
                                         <span className="text-xs text-slate-500 font-mono bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded">{row.phone}</span>
                                      )}
-                                     {row.email && (
-                                       subscriptionTier === 'free' || subscriptionTier === 'starter' ? (
-                                          <div className="flex items-center gap-1 bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded cursor-help" title="Upgrade to view email">
-                                            <IconLock className="w-3 h-3 text-slate-400" />
-                                            <span className="text-xs text-slate-400 font-mono blur-[3px] select-none">email@hidden.com</span>
-                                          </div>
-                                       ) : (
-                                          <span className="text-xs text-slate-500 font-mono bg-blue-50 dark:bg-blue-500/10 px-1.5 py-0.5 rounded text-blue-600 dark:text-blue-400">{row.email}</span>
-                                       )
-                                     )}
+                                    
                                      <span className="text-xs text-slate-500 dark:text-slate-500">{row.category}</span>
                                    </div>
                                 </div>
@@ -746,6 +803,27 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
                                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
                                  No Website
                                </span>
+                             </td>
+                             <td className="px-6 py-4">
+                               {savedLeadIds.has(row.id) ? (
+                                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
+                                   <IconCheck className="w-3 h-3" />
+                                   Saved
+                                 </span>
+                               ) : (
+                                 <button
+                                   onClick={() => handleSaveLead(row)}
+                                   disabled={savingLeadId === row.id}
+                                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-primary-50 dark:bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-500/20 hover:bg-primary-100 dark:hover:bg-primary-500/20 transition-colors disabled:opacity-50"
+                                 >
+                                   {savingLeadId === row.id ? (
+                                     <div className="w-3 h-3 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin" />
+                                   ) : (
+                                     <IconPlus className="w-3 h-3" />
+                                   )}
+                                   Save Lead
+                                 </button>
+                               )}
                              </td>
                              <td className="px-6 py-4 text-right pr-8">
                                 {subscriptionTier === 'free' || subscriptionTier === 'starter' ? (
