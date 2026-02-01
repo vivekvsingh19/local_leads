@@ -385,7 +385,6 @@ const simulateSearchLeads = (params: SearchParams): Promise<Lead[]> => {
           business_name: businessName,
           address: `${Math.floor(Math.random() * 900) + 10} ${street}, ${city}`,
           phone: randPhone(),
-          email: hasEmail ? randEmail(businessName) : undefined,
           category: keyword,
           city: city,
           has_website: hasWebsite,
@@ -408,7 +407,6 @@ export const exportToCSV = (leads: Lead[]) => {
     ...leads.map(lead => [
       `"${lead.business_name}"`,
       `"${lead.phone}"`,
-      `"${lead.email || ''}"`,
       `"${lead.city}"`,
       `"${lead.address}"`,
       `"${lead.google_maps_url}"`

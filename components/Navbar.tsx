@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { IconMenu, IconX, IconZap, IconSun, IconMoon } from './Icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { useAuth } from '../lib/auth';
 
 interface NavbarProps {
   session: Session | null;
@@ -13,6 +13,7 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick, currentPage = 'home', onNavigate }) => {
+  const { signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDark, setIsDark] = useState(true);
@@ -46,9 +47,7 @@ const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick, currentPage = 'h
   // };
 
   const handleSignOut = async () => {
-    if (supabase) {
-      await supabase.auth.signOut();
-    }
+    await signOut();
     onNavigate?.('home');
   };
 

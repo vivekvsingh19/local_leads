@@ -120,13 +120,13 @@ import { useAuth } from '../lib/auth';
 
 const MyComponent = () => {
   const { user, profile, signOut, loading } = useAuth();
-  
+
   if (loading) return <div>Loading...</div>;
-  
+
   if (!user) {
     return <button onClick={() => /* open login */}>Sign In</button>;
   }
-  
+
   return (
     <div>
       <p>Welcome, {profile?.full_name || user.email}!</p>
@@ -145,10 +145,10 @@ import { useAuth } from '../lib/auth';
 
 const SaveLeadButton = ({ lead }) => {
   const { user } = useAuth();
-  
+
   const handleSave = async () => {
     if (!user) return;
-    
+
     const saved = await saveLead({
       business_name: lead.name,
       address: lead.address,
@@ -158,12 +158,12 @@ const SaveLeadButton = ({ lead }) => {
       has_website: false,
       google_maps_url: lead.url,
     }, user.id);
-    
+
     if (saved) {
       console.log('Lead saved!', saved.id);
     }
   };
-  
+
   return <button onClick={handleSave}>Save Lead</button>;
 };
 ```
