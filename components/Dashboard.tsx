@@ -7,6 +7,7 @@ import {
 } from './Icons';
 import { SavedLead, SavedSearch, EmailTemplate, PRICING_PLANS } from '../lib/types';
 import { useAuth } from '../lib/auth';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import {
   getSavedLeads,
   getSearchHistory,
@@ -36,6 +37,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   const [loadingStats, setLoadingStats] = useState(false);
   const [lastFetch, setLastFetch] = useState<number>(0);
   const [dataCache, setDataCache] = useState<Record<string, any>>({});
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   // Data state
   const [savedLeads, setSavedLeads] = useState<SavedLead[]>([]);
@@ -82,6 +84,13 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   const fetchData = useCallback(async (force = false) => {
     if (!user?.id) return;
 
+    // Check if Supabase is configured
+    if (!isSupabaseConfigured) {
+      setConnectionError('Database not configured. Please set up Supabase environment variables.');
+      setLoading(false);
+      return;
+    }
+
     const now = Date.now();
     const cacheKey = `dashboard_${user.id}`;
 
@@ -98,6 +107,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     }
 
     setLoading(true);
+    setConnectionError(null);
     try {
       const [leads, searches, templates, userStats, activity] = await Promise.all([
         getSavedLeads(user.id),
@@ -122,8 +132,10 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       setRecentActivity(activity);
       setLastFetch(now);
       setDataCache(prev => ({ ...prev, [cacheKey]: cacheData }));
+      setConnectionError(null);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
+      setConnectionError('Failed to load dashboard data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -136,6 +148,54 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       fetchData();
     }
   }, [user?.id]); // Removed fetchData dependency to prevent infinite loops
+
+  // Real-time subscription for live updates
+  useEffect(() => {
+    if (!user?.id || !supabase || !isSupabaseConfigured) return;
+
+    // Subscribe to changes in saved_leads table
+    const leadsSubscription = supabase
+      .channel('saved_leads_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'saved_leads',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('Lead change detected:', payload.eventType);
+          // Refresh data on changes from other sources
+          fetchData(true);
+        }
+      )
+      .subscribe();
+
+    // Subscribe to changes in activity_log table
+    const activitySubscription = supabase
+      .channel('activity_log_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'activity_log',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('New activity detected');
+          // Add new activity to the list
+          setRecentActivity(prev => [payload.new as any, ...prev.slice(0, 9)]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      leadsSubscription.unsubscribe();
+      activitySubscription.unsubscribe();
+    };
+  }, [user?.id, fetchData]);
 
   // Lead status management - optimized
   const handleStatusChange = async (leadId: string, newStatus: SavedLead['status']) => {
