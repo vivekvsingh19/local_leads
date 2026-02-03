@@ -77,46 +77,58 @@ const Features: React.FC = () => {
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  className="order-1 lg:order-2 bg-gradient-to-br from-slate-100 to-slate-50 dark:from-[#0B1121] dark:to-[#020617] rounded-[2.5rem] border border-slate-200 dark:border-white/5 p-2"
+                  className="order-1 lg:order-2 flex justify-center py-12"
                >
-                  <div className="relative aspect-square w-full max-w-md mx-auto bg-white dark:bg-[#030712] rounded-[2rem] overflow-hidden shadow-2xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-white/5 flex items-center justify-center">
-                     {/* Modern Radar UI */}
-                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/5 via-transparent to-transparent"></div>
-                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
+                  <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center">
+                     {/* Ambient Glow */}
+                     <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-[60px] animate-pulse"></div>
 
-                     {/* Scale markings */}
-                     <div className="absolute w-[80%] h-[80%] border border-dashed border-slate-300 dark:border-white/10 rounded-full"></div>
-                     <div className="absolute w-[50%] h-[50%] border border-slate-200 dark:border-white/5 rounded-full"></div>
+                     {/* Main Radar Container */}
+                     <div className="relative w-full h-full bg-slate-50/50 dark:bg-[#030712]/80 backdrop-blur-xl rounded-full border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden z-10">
+                        {/* Grid & Circles */}
+                        <div className="absolute inset-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.1]"></div>
+                        {[33, 66, 95].map((size, i) => (
+                           <div
+                              key={i}
+                              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-slate-300 dark:border-white/5"
+                              style={{ width: `${size}%`, height: `${size}%` }}
+                           />
+                        ))}
 
-                     {/* Sweep Animation */}
-                     <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-0 w-full h-full"
-                     >
-                        <div className="absolute top-1/2 left-1/2 w-[45%] h-[2px] bg-gradient-to-r from-blue-500 to-transparent origin-left -translate-y-1/2"></div>
-                     </motion.div>
+                        {/* Axes */}
+                        <div className="absolute top-0 bottom-0 left-1/2 w-px bg-slate-200 dark:bg-white/5"></div>
+                        <div className="absolute left-0 right-0 top-1/2 h-px bg-slate-200 dark:bg-white/5"></div>
 
-                     {/* Center */}
-                     <div className="w-4 h-4 bg-blue-500 rounded-full shadow-lg shadow-blue-500/50 z-10 relative">
-                        <div className="absolute inset-0 animate-ping bg-blue-500 rounded-full opacity-75"></div>
-                     </div>
-
-                     {/* Blips */}
-                     {[
-                        { top: '30%', left: '60%', delay: 0, color: 'bg-orange-500' },
-                        { top: '70%', left: '40%', delay: 1, color: 'bg-emerald-500' },
-                        { top: '40%', left: '25%', delay: 2, color: 'bg-indigo-500' },
-                     ].map((blip, i) => (
+                        {/* Sweep Animation */}
                         <motion.div
-                           key={i}
-                           initial={{ opacity: 0, scale: 0 }}
-                           animate={{ opacity: [0, 1, 0] }}
-                           transition={{ duration: 3, delay: blip.delay, repeat: Infinity }}
-                           className={`absolute w-3 h-3 ${blip.color} rounded-full shadow-lg z-10`}
-                           style={{ top: blip.top, left: blip.left }}
-                        />
-                     ))}
+                           animate={{ rotate: 360 }}
+                           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                           className="absolute inset-0"
+                        >
+                           <div className="w-full h-full bg-[conic-gradient(transparent_270deg,rgba(59,130,246,0.3)_360deg)]" />
+                        </motion.div>
+
+                        {/* Center Pulse */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)] z-20">
+                           <div className="absolute inset-0 animate-ping bg-blue-500 rounded-full opacity-75"></div>
+                        </div>
+
+                        {/* Interactive Blips */}
+                        {[
+                           { top: '30%', left: '60%', delay: 0, color: 'bg-orange-500' },
+                           { top: '70%', left: '40%', delay: 1, color: 'bg-emerald-500' },
+                           { top: '40%', left: '25%', delay: 2, color: 'bg-indigo-500' },
+                        ].map((blip, i) => (
+                           <motion.div
+                              key={i}
+                              initial={{ opacity: 0, scale: 0 }}
+                              animate={{ opacity: [0, 1, 0], scale: [0.5, 1.5, 0.5] }}
+                              transition={{ duration: 2, delay: blip.delay, repeat: Infinity }}
+                              className={`absolute w-3 h-3 ${blip.color} rounded-full shadow-lg z-10 box-content border-2 border-white dark:border-[#030712]`}
+                              style={{ top: blip.top, left: blip.left }}
+                           />
+                        ))}
+                     </div>
                   </div>
                </motion.div>
             </div>
@@ -197,53 +209,108 @@ const Features: React.FC = () => {
             </div>
 
             {/* Feature 3: Action */}
-            <div className="bg-slate-50 dark:bg-[#0F1117] rounded-3xl p-8 md:p-12 border border-slate-100 dark:border-white/5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/5 rounded-full blur-[100px] pointer-events-none"></div>
-
-                <div className="grid md:grid-cols-2 gap-12 items-center relative z-10">
-                   <div>
-                      <div className="flex items-center gap-4 mb-6">
-                         <span className="flex items-center justify-center w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400">
-                            <div className="flex gap-1">
-                               <IconFileDown className="w-5 h-5" />
-                            </div>
-                         </span>
-                         <span className="text-5xl font-bold text-slate-200 dark:text-slate-800 select-none">03</span>
-                      </div>
-                      <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Export & Conquer</h3>
-                      <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
-                         Get your data out instantly. We provide clean, formatted CSVs compatible with every major CRM. Plus, we scrape direct phone numbers so you can bypass the front desk.
-                      </p>
-                      <button className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-semibold hover:gap-3 transition-all">
-                         View Integration Docs <IconArrowRight className="w-4 h-4" />
-                      </button>
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+                <motion.div
+                   initial={{ opacity: 0, x: -20 }}
+                   whileInView={{ opacity: 1, x: 0 }}
+                   viewport={{ once: true }}
+                >
+                   <div className="flex items-center gap-4 mb-6">
+                      <span className="flex items-center justify-center w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400">
+                         <div className="flex gap-1">
+                            <IconFileDown className="w-5 h-5" />
+                         </div>
+                      </span>
+                      <span className="text-5xl font-bold text-slate-200 dark:text-slate-800 select-none">03</span>
                    </div>
+                   <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Export & Conquer</h3>
+                   <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
+                      Get your data out instantly. We provide clean, formatted CSVs compatible with every major CRM. Plus, we scrape direct phone numbers so you can bypass the front desk.
+                   </p>
+                   <button className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-semibold hover:gap-3 transition-all">
+                      View Integration Docs <IconArrowRight className="w-4 h-4" />
+                   </button>
+                </motion.div>
 
-                   {/* Action Cards Grid */}
-                   <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white dark:bg-[#1A1F2E] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col items-center text-center gap-3 hover:-translate-y-1 transition-transform duration-300">
-                         <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-500/20 text-green-600 flex items-center justify-center">
-                            <span className="font-bold text-xs">CSV</span>
-                         </div>
-                         <span className="font-medium text-slate-900 dark:text-white">Excel Export</span>
-                      </div>
-                      <div className="bg-white dark:bg-[#1A1F2E] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col items-center text-center gap-3 hover:-translate-y-1 transition-transform duration-300">
-                         <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 flex items-center justify-center">
-                            <span className="font-bold text-xs">CRM</span>
-                         </div>
-                         <span className="font-medium text-slate-900 dark:text-white">CRM Sync</span>
-                      </div>
-                      <div className="bg-white dark:bg-[#1A1F2E] p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 flex flex-col items-center text-center gap-3 col-span-2 bg-gradient-to-r from-white to-orange-50 dark:from-[#1A1F2E] dark:to-[#2A1810]">
-                         <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/20 text-orange-600 flex items-center justify-center">
-                            <IconPhone className="w-6 h-6" />
-                         </div>
-                         <div>
-                            <span className="block font-bold text-slate-900 dark:text-white mb-1">Direct Dial</span>
-                            <span className="text-xs text-slate-500">Verified Numbers Only</span>
-                         </div>
-                      </div>
+                {/* Action Cards Grid */}
+                <motion.div
+                   initial={{ opacity: 0, scale: 0.95 }}
+                   whileInView={{ opacity: 1, scale: 1 }}
+                   viewport={{ once: true }}
+                   className="relative group"
+                >
+                   {/* Glow */}
+                   <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-purple-500/20 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500 opacity-50"></div>
+
+                   {/* Main Container */}
+                   <div className="relative bg-slate-50/80 dark:bg-[#1A1F2E]/80 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                       {/* Header Bar */}
+                       <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/50 dark:border-white/5 bg-white/50 dark:bg-white/5">
+                           <div className="flex items-center gap-2">
+                               <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                               <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                               <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                           </div>
+                           <div className="text-xs font-mono text-slate-400">export_config_v2.0</div>
+                       </div>
+
+                       {/* Content Body */}
+                       <div className="p-6 space-y-4">
+                           {/* Item 1: Phone Unlocked */}
+                           <motion.div
+                              whileHover={{ x: 5 }}
+                              className="flex items-center gap-4 p-4 bg-white dark:bg-[#0F1117] rounded-xl border border-slate-200/50 dark:border-white/5 shadow-sm group/item"
+                           >
+                                <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-500/20 text-green-600 flex items-center justify-center shrink-0">
+                                   <IconPhone className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1">
+                                   <div className="flex items-center justify-between mb-1">
+                                       <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Direct Line</div>
+                                       <span className="px-2 py-0.5 rounded text-[10px] bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-bold border border-green-200 dark:border-green-800">UNLOCKED</span>
+                                   </div>
+                                   <div className="font-mono text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                                       <span className="tracking-widest">+1 (555) 867-5309</span>
+                                   </div>
+                                </div>
+                           </motion.div>
+
+                           {/* Item 2: Map Integration */}
+                           <motion.div
+                              whileHover={{ x: 5 }}
+                              className="flex items-center gap-4 p-4 bg-white dark:bg-[#0F1117] rounded-xl border border-slate-200/50 dark:border-white/5 shadow-sm"
+                           >
+                                <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 flex items-center justify-center shrink-0">
+                                   <IconMapPin className="w-5 h-5" />
+                                </div>
+                                <div className="flex-1">
+                                   <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Google Maps</div>
+                                   <div className="text-slate-900 dark:text-white font-medium">One-Click Navigation</div>
+                                </div>
+                                <div className="hidden sm:block w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 relative overflow-hidden opacity-75">
+                                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full box-content border-2 border-white dark:border-[#0F1117]"></div>
+                                </div>
+                           </motion.div>
+
+                           {/* Item 3: CSV Export */}
+                           <motion.div
+                              whileHover={{ x: 5 }}
+                              className="flex items-center gap-4 p-4 bg-white dark:bg-[#0F1117] rounded-xl border border-slate-200/50 dark:border-white/5 shadow-sm"
+                           >
+                                <div className="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-500/20 text-orange-600 flex items-center justify-center shrink-0">
+                                   <div className="font-bold text-sm">CSV</div>
+                                </div>
+                                <div className="flex-1">
+                                   <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Data Export</div>
+                                   <div className="text-slate-900 dark:text-white font-medium">Excel Compatible</div>
+                                </div>
+                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                    <IconFileDown className="w-4 h-4 text-slate-400" />
+                                </div>
+                           </motion.div>
+                       </div>
                    </div>
-                </div>
+                </motion.div>
             </div>
          </div>
       </section>
