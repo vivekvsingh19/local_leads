@@ -487,6 +487,13 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              {/* Database connection status indicator */}
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className={`w-2 h-2 rounded-full ${isSupabaseConfigured ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                  {isSupabaseConfigured ? 'Connected' : 'Offline'}
+                </span>
+              </div>
               <button
                 onClick={() => fetchData(true)}
                 disabled={loading}
