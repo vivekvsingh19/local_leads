@@ -429,6 +429,48 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#030712] pt-32 pb-12 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Connection Status Banner */}
+        {connectionError && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
+              <IconActivity className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-amber-800 dark:text-amber-200">Connection Issue</p>
+              <p className="text-sm text-amber-700 dark:text-amber-300">{connectionError}</p>
+            </div>
+            <button
+              onClick={() => fetchData(true)}
+              className="px-3 py-1.5 text-sm font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-lg transition-colors"
+            >
+              Retry
+            </button>
+          </motion.div>
+        )}
+
+        {/* Supabase Connection Indicator */}
+        {!isSupabaseConfigured && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+              <IconGlobe className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-slate-700 dark:text-slate-300">Database Not Connected</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Set up Supabase environment variables to enable data persistence. See ENV_SETUP.md for instructions.
+              </p>
+            </div>
+          </motion.div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <motion.div
