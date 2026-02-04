@@ -114,12 +114,12 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     console.log('Dashboard: Fetching data from Supabase...');
     setLoading(true);
     setConnectionError(null);
-    
+
     // Add timeout to prevent infinite loading
-    const timeoutPromise = new Promise((_, reject) => 
+    const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error('Request timeout - please try again')), 15000)
     );
-    
+
     try {
       const fetchPromise = Promise.all([
         getSavedLeads(user.id),
@@ -128,7 +128,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
         getUserStats(user.id),
         getRecentActivity(user.id, 10),
       ]);
-      
+
       const [leads, searches, templates, userStats, activity] = await Promise.race([
         fetchPromise,
         timeoutPromise
