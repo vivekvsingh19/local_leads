@@ -83,13 +83,11 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   // Optimized fetch with caching
   const fetchData = useCallback(async (force = false) => {
     if (!user?.id) {
-      console.log('Dashboard: No user ID, skipping fetch');
       return;
     }
 
     // Check if Supabase is configured
     if (!isSupabaseConfigured) {
-      console.log('Dashboard: Supabase not configured');
       setConnectionError('Database not configured. Please set up Supabase environment variables.');
       setLoading(false);
       return;
@@ -100,7 +98,6 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
 
     // Use cached data if available and not expired
     if (!force && now - lastFetch < CACHE_DURATION && dataCache[cacheKey]) {
-      console.log('Dashboard: Using cached data');
       const cached = dataCache[cacheKey];
       setSavedLeads(cached.leads || []);
       setRecentSearches(cached.searches || []);
@@ -111,7 +108,6 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       return;
     }
 
-    console.log('Dashboard: Fetching data from Supabase...');
     setLoading(true);
     setConnectionError(null);
 
@@ -133,8 +129,6 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
         fetchPromise,
         timeoutPromise
       ]) as [any[], any[], any[], any, any[]];
-
-      console.log('Dashboard: Data fetched successfully', { leads: leads.length, searches: searches.length });
 
       const cacheData = {
         leads,

@@ -121,7 +121,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
-      console.log('🔓 Running without authentication (Supabase not configured)');
       setLoading(false);
       return;
     }
@@ -143,7 +142,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
       setSession(session);
       setUser(session?.user ?? null);
 

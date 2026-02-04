@@ -4,11 +4,6 @@ import { Lead, SearchParams } from './types';
 // Google Maps API Key from environment
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-// Debug logging (only in development) - Don't log actual key values
-if (import.meta.env.DEV) {
-  console.log('API Key loaded:', GOOGLE_MAPS_API_KEY ? 'Yes (configured)' : 'NOT FOUND');
-}
-
 export interface CitySuggestion {
   placeId: string;
   description: string;
