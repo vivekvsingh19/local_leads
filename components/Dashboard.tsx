@@ -30,9 +30,9 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'searches' | 'templates'>('overview');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [loadingLeads, setLoadingLeads] = useState(false);
   const [loadingStats, setLoadingStats] = useState(false);
   const [lastFetch, setLastFetch] = useState<number>(0);
@@ -82,10 +82,14 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
 
   // Optimized fetch with caching
   const fetchData = useCallback(async (force = false) => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.log('Dashboard: No user ID, skipping fetch');
+      return;
+    }
 
     // Check if Supabase is configured
     if (!isSupabaseConfigured) {
+      console.log('Dashboard: Supabase not configured');
       setConnectionError('Database not configured. Please set up Supabase environment variables.');
       setLoading(false);
       return;
@@ -96,6 +100,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
 
     // Use cached data if available and not expired
     if (!force && now - lastFetch < CACHE_DURATION && dataCache[cacheKey]) {
+      console.log('Dashboard: Using cached data');
       const cached = dataCache[cacheKey];
       setSavedLeads(cached.leads || []);
       setRecentSearches(cached.searches || []);
@@ -106,6 +111,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       return;
     }
 
+    console.log('Dashboard: Fetching data from Supabase...');
     setLoading(true);
     setConnectionError(null);
     try {
@@ -116,6 +122,8 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
         getUserStats(user.id),
         getRecentActivity(user.id, 10),
       ]);
+
+      console.log('Dashboard: Data fetched successfully', { leads: leads.length, searches: searches.length });
 
       const cacheData = {
         leads,
@@ -142,10 +150,15 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   }, [user?.id, lastFetch, dataCache, stats]);
 
   useEffect(() => {
-    // Only fetch if user changed or no recent data
-    const shouldFetch = !user?.id || Date.now() - lastFetch > CACHE_DURATION || savedLeads.length === 0;
-    if (shouldFetch) {
-      fetchData();
+    // Only fetch if user is logged in
+    if (user?.id) {
+      const shouldFetch = Date.now() - lastFetch > CACHE_DURATION || savedLeads.length === 0;
+      if (shouldFetch) {
+        fetchData();
+      }
+    } else {
+      // No user logged in - stop loading
+      setLoading(false);
     }
   }, [user?.id]); // Removed fetchData dependency to prevent infinite loops
 
@@ -385,6 +398,19 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       default: return <IconGlobe className="w-4 h-4" />;
     }
   };
+
+  // Auth still loading
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-[#030712] pt-32 pb-12 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Not logged in state
   if (!session || !user) {
