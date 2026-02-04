@@ -14,6 +14,22 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      }
+      },
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              // Split vendor chunks for better caching
+              'vendor-react': ['react', 'react-dom'],
+              'vendor-three': ['three', '@react-three/fiber'],
+              'vendor-motion': ['framer-motion'],
+              'vendor-supabase': ['@supabase/supabase-js'],
+              'vendor-icons': ['lucide-react'],
+            },
+          },
+        },
+        // Increase chunk size warning limit (still aim to optimize)
+        chunkSizeWarningLimit: 600,
+      },
     };
 });

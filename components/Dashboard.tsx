@@ -8,6 +8,7 @@ import {
 import { SavedLead, SavedSearch, EmailTemplate, PRICING_PLANS } from '../lib/types';
 import { useAuth } from '../lib/auth';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import logger from '../lib/logger';
 import {
   getSavedLeads,
   getSearchHistory,
@@ -30,9 +31,9 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
-  const { user, profile, refreshProfile, loading: authLoading } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'leads' | 'searches' | 'templates'>('overview');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadingLeads, setLoadingLeads] = useState(false);
   const [loadingStats, setLoadingStats] = useState(false);
   const [lastFetch, setLastFetch] = useState<number>(0);
@@ -83,6 +84,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   // Optimized fetch with caching
   const fetchData = useCallback(async (force = false) => {
     if (!user?.id) {
+      setLoading(false);
       return;
     }
 
@@ -110,25 +112,14 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
 
     setLoading(true);
     setConnectionError(null);
-
-    // Add timeout to prevent infinite loading
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Request timeout - please try again')), 15000)
-    );
-
     try {
-      const fetchPromise = Promise.all([
+      const [leads, searches, templates, userStats, activity] = await Promise.all([
         getSavedLeads(user.id),
         getSearchHistory(user.id, 20),
         getEmailTemplates(user.id),
         getUserStats(user.id),
         getRecentActivity(user.id, 10),
       ]);
-
-      const [leads, searches, templates, userStats, activity] = await Promise.race([
-        fetchPromise,
-        timeoutPromise
-      ]) as [any[], any[], any[], any, any[]];
 
       const cacheData = {
         leads,
@@ -147,7 +138,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       setDataCache(prev => ({ ...prev, [cacheKey]: cacheData }));
       setConnectionError(null);
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+      logger.error('Error fetching dashboard data:', err);
       setConnectionError('Failed to load dashboard data. Please check your connection and try again.');
     } finally {
       setLoading(false);
@@ -155,17 +146,9 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   }, [user?.id, lastFetch, dataCache, stats]);
 
   useEffect(() => {
-    // Only fetch if user is logged in
-    if (user?.id) {
-      const shouldFetch = Date.now() - lastFetch > CACHE_DURATION || savedLeads.length === 0;
-      if (shouldFetch) {
-        fetchData();
-      }
-    } else {
-      // No user logged in - stop loading
-      setLoading(false);
-    }
-  }, [user?.id]); // Removed fetchData dependency to prevent infinite loops
+    // Always call fetchData - it will handle the case when user is not available
+    fetchData();
+  }, [user?.id]); // Fetch when user changes
 
   // Real-time subscription for live updates
   useEffect(() => {
@@ -183,7 +166,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log('Lead change detected:', payload.eventType);
+          logger.debug('Lead change detected:', payload.eventType);
           // Refresh data on changes from other sources
           fetchData(true);
         }
@@ -202,7 +185,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
           filter: `user_id=eq.${user.id}`,
         },
         (payload) => {
-          console.log('New activity detected');
+          logger.debug('New activity detected');
           // Add new activity to the list
           setRecentActivity(prev => [payload.new as any, ...prev.slice(0, 9)]);
         }
@@ -403,19 +386,6 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       default: return <IconGlobe className="w-4 h-4" />;
     }
   };
-
-  // Auth still loading
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#030712] pt-32 pb-12 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Not logged in state
   if (!session || !user) {

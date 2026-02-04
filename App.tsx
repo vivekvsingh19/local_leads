@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import WhatItDoes from './components/WhatItDoes';
@@ -7,11 +7,21 @@ import Pricing from './components/Pricing';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import PricingPage from './components/PricingPage';
+import ErrorBoundary from './components/ErrorBoundary';
 import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './lib/auth';
 import { SubscriptionTier } from './lib/types';
+
+// Lazy load heavy components for better initial load performance
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const PricingPage = lazy(() => import('./components/PricingPage'));
+
+// Loading spinner component
+const LoadingSpinner = () => (
+  <div className="min-h-[60vh] flex items-center justify-center">
+    <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 type Page = 'home' | 'dashboard' | 'pricing';
 
@@ -43,8 +53,6 @@ const AppContent: React.FC = () => {
   };
 
   const handleSelectPlan = (planId: string) => {
-    console.log('Selected plan:', planId);
-
     // If user is not logged in, prompt login first
     if (!session) {
       setIsLoginOpen(true);
@@ -124,7 +132,11 @@ const AppContent: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <Dashboard session={session} onNavigate={handleNavigate} />
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingSpinner />}>
+                <Dashboard session={session} onNavigate={handleNavigate} />
+              </Suspense>
+            </ErrorBoundary>
           </motion.main>
         )}
 
@@ -135,7 +147,11 @@ const AppContent: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <PricingPage onSelectPlan={handleSelectPlan} currentPlan={subscriptionTier} />
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingSpinner />}>
+                <PricingPage onSelectPlan={handleSelectPlan} currentPlan={subscriptionTier} />
+              </Suspense>
+            </ErrorBoundary>
           </motion.main>
         )}
       </AnimatePresence>

@@ -1,5 +1,6 @@
 
 import { Lead, SearchParams } from './types';
+import logger from './logger';
 
 // Google Maps API Key from environment
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -50,12 +51,12 @@ export const autocompleteCities = async (input: string): Promise<CitySuggestion[
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Autocomplete API error:', response.status, errorText);
+      logger.error('Autocomplete API error:', response.status, errorText);
       return [];
     }
 
     const data = await response.json();
-    console.log('Autocomplete response:', data);
+    logger.debug('Autocomplete response:', data);
     const suggestions = data.suggestions || [];
 
     return suggestions.map((s: any) => ({
@@ -65,7 +66,7 @@ export const autocompleteCities = async (input: string): Promise<CitySuggestion[
       secondaryText: s.placePrediction?.structuredFormat?.secondaryText?.text || '',
     }));
   } catch (error) {
-    console.error('Autocomplete error:', error);
+    logger.error('Autocomplete error:', error);
     return [];
   }
 };
@@ -111,15 +112,15 @@ const transformPlaceToLead = (place: GooglePlace, keyword: string, city: string)
 export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
   const { keyword, city, isPro = false } = params;
 
-  console.log(`🔍 Starting search: "${keyword}" in "${city}" | Mode: ${isPro ? 'PRO (comprehensive)' : 'FREE (basic)'}`);
+  logger.log(`🔍 Starting search: "${keyword}" in "${city}" | Mode: ${isPro ? 'PRO (comprehensive)' : 'FREE (basic)'}`);
 
   // Check if API key is configured
   if (!GOOGLE_MAPS_API_KEY || GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
-    console.warn('Google Maps API key not configured. Using simulation mode.');
+    logger.warn('Google Maps API key not configured. Using simulation mode.');
     return simulateSearchLeads(params);
   }
 
-  console.log('API Key present:', GOOGLE_MAPS_API_KEY.substring(0, 10) + '...');
+  logger.debug('API Key present:', GOOGLE_MAPS_API_KEY.substring(0, 10) + '...');
 
   try {
     const searchUrl = `https://places.googleapis.com/v1/places:searchText`;
@@ -154,11 +155,11 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
               latitude: loc.lat,
               longitude: loc.lng
             };
-            console.log('PRO: Got location bias for city:', city, locationBias);
+            logger.debug('PRO: Got location bias for city:', city, locationBias);
           }
         }
       } catch (e) {
-        console.log('Could not geocode city, continuing without location bias');
+        logger.debug('Could not geocode city, continuing without location bias');
       }
     }
 
@@ -181,7 +182,7 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
           };
         }
 
-        console.log(`Searching: "${query}"`, requestBody);
+        logger.debug(`Searching: "${query}"`, requestBody);
 
         const response = await fetch(searchUrl, {
           method: 'POST',
@@ -197,7 +198,7 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
           const data = await response.json();
           const places: GooglePlace[] = data.places || [];
 
-          console.log(`Query "${query}" returned ${places.length} results`);
+          logger.debug(`Query "${query}" returned ${places.length} results`);
 
           // Add unique places only
           for (const place of places) {
@@ -208,10 +209,10 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
           }
         } else {
           const errorText = await response.text();
-          console.error(`API error for query "${query}":`, response.status, errorText);
+          logger.error(`API error for query "${query}":`, response.status, errorText);
         }
       } catch (queryError) {
-        console.error(`Error with query "${query}":`, queryError);
+        logger.error(`Error with query "${query}":`, queryError);
       }
 
       // Small delay between requests to avoid rate limiting (Pro only has multiple)
@@ -225,7 +226,7 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
       try {
         const nearbyUrl = `https://places.googleapis.com/v1/places:searchNearby`;
         const placeTypes = getPlaceTypesForKeyword(keyword);
-        console.log(`PRO: Running nearby search with types:`, placeTypes);
+        logger.debug(`PRO: Running nearby search with types:`, placeTypes);
 
         const nearbyBody = {
           includedTypes: placeTypes,
@@ -252,7 +253,7 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
           const nearbyData = await nearbyResponse.json();
           const nearbyPlaces: GooglePlace[] = nearbyData.places || [];
 
-          console.log(`Nearby search returned ${nearbyPlaces.length} results`);
+          logger.debug(`Nearby search returned ${nearbyPlaces.length} results`);
 
           for (const place of nearbyPlaces) {
             if (place.id && !seenIds.has(place.id)) {
@@ -262,19 +263,19 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
           }
         } else {
           const errorText = await nearbyResponse.text();
-          console.error('Nearby search API error:', nearbyResponse.status, errorText);
+          logger.error('Nearby search API error:', nearbyResponse.status, errorText);
         }
       } catch (nearbyError) {
-        console.error('Nearby search error:', nearbyError);
+        logger.error('Nearby search error:', nearbyError);
       }
     }
 
-    console.log(`Total unique places found: ${allPlaces.length}`);
+    logger.debug(`Total unique places found: ${allPlaces.length}`);
 
     // If no results from API, fall back to simulation
     if (allPlaces.length === 0) {
-      console.warn('No results from Google Places API. Falling back to simulation mode.');
-      console.warn('Make sure your API key has "Places API (New)" enabled in Google Cloud Console.');
+      logger.warn('No results from Google Places API. Falling back to simulation mode.');
+      logger.warn('Make sure your API key has "Places API (New)" enabled in Google Cloud Console.');
       return simulateSearchLeads(params);
     }
 
@@ -294,8 +295,8 @@ export const searchLeads = async (params: SearchParams): Promise<Lead[]> => {
     return leads;
 
   } catch (error) {
-    console.error('Error searching leads:', error);
-    console.warn('Falling back to simulation mode due to error');
+    logger.error('Error searching leads:', error);
+    logger.warn('Falling back to simulation mode due to error');
     return simulateSearchLeads(params);
   }
 };

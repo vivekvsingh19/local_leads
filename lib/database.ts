@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import { Lead, SavedLead, SavedSearch, EmailTemplate } from './types';
+import logger from './logger';
 
 // ==================== LEADS ====================
 
@@ -8,7 +9,7 @@ import { Lead, SavedLead, SavedSearch, EmailTemplate } from './types';
  */
 export const saveLead = async (lead: Omit<SavedLead, 'id' | 'saved_at' | 'user_id'>, userId: string): Promise<SavedLead | null> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot save lead');
+    logger.warn('Supabase not configured - cannot save lead');
     return null;
   }
 
@@ -26,13 +27,13 @@ export const saveLead = async (lead: Omit<SavedLead, 'id' | 'saved_at' | 'user_i
       .single();
 
     if (error) {
-      console.error('Error saving lead:', error);
+      logger.error('Error saving lead:', error);
       throw error;
     }
 
     return data;
   } catch (err) {
-    console.error('Error in saveLead:', err);
+    logger.error('Error in saveLead:', err);
     return null;
   }
 };
@@ -42,7 +43,7 @@ export const saveLead = async (lead: Omit<SavedLead, 'id' | 'saved_at' | 'user_i
  */
 export const getSavedLeads = async (userId: string): Promise<SavedLead[]> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot fetch leads');
+    logger.warn('Supabase not configured - cannot fetch leads');
     return [];
   }
 
@@ -54,13 +55,13 @@ export const getSavedLeads = async (userId: string): Promise<SavedLead[]> => {
       .order('saved_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching leads:', error);
+      logger.error('Error fetching leads:', error);
       throw error;
     }
 
     return data || [];
   } catch (err) {
-    console.error('Error in getSavedLeads:', err);
+    logger.error('Error in getSavedLeads:', err);
     return [];
   }
 };
@@ -70,7 +71,7 @@ export const getSavedLeads = async (userId: string): Promise<SavedLead[]> => {
  */
 export const updateLead = async (leadId: string, updates: Partial<SavedLead>, userId: string): Promise<SavedLead | null> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot update lead');
+    logger.warn('Supabase not configured - cannot update lead');
     return null;
   }
 
@@ -84,13 +85,13 @@ export const updateLead = async (leadId: string, updates: Partial<SavedLead>, us
       .single();
 
     if (error) {
-      console.error('Error updating lead:', error);
+      logger.error('Error updating lead:', error);
       throw error;
     }
 
     return data;
   } catch (err) {
-    console.error('Error in updateLead:', err);
+    logger.error('Error in updateLead:', err);
     return null;
   }
 };
@@ -100,7 +101,7 @@ export const updateLead = async (leadId: string, updates: Partial<SavedLead>, us
  */
 export const deleteLead = async (leadId: string, userId: string): Promise<boolean> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot delete lead');
+    logger.warn('Supabase not configured - cannot delete lead');
     return false;
   }
 
@@ -112,13 +113,13 @@ export const deleteLead = async (leadId: string, userId: string): Promise<boolea
       .eq('user_id', userId);
 
     if (error) {
-      console.error('Error deleting lead:', error);
+      logger.error('Error deleting lead:', error);
       throw error;
     }
 
     return true;
   } catch (err) {
-    console.error('Error in deleteLead:', err);
+    logger.error('Error in deleteLead:', err);
     return false;
   }
 };
@@ -128,7 +129,7 @@ export const deleteLead = async (leadId: string, userId: string): Promise<boolea
  */
 export const bulkSaveLeads = async (leads: Lead[], userId: string, searchId?: string): Promise<SavedLead[]> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot save leads');
+    logger.warn('Supabase not configured - cannot save leads');
     return [];
   }
 
@@ -148,13 +149,13 @@ export const bulkSaveLeads = async (leads: Lead[], userId: string, searchId?: st
       .select();
 
     if (error) {
-      console.error('Error bulk saving leads:', error);
+      logger.error('Error bulk saving leads:', error);
       throw error;
     }
 
     return data || [];
   } catch (err) {
-    console.error('Error in bulkSaveLeads:', err);
+    logger.error('Error in bulkSaveLeads:', err);
     return [];
   }
 };
@@ -172,7 +173,7 @@ export const saveSearch = async (
   userId: string
 ): Promise<SavedSearch | null> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot save search');
+    logger.warn('Supabase not configured - cannot save search');
     return null;
   }
 
@@ -190,13 +191,13 @@ export const saveSearch = async (
       .single();
 
     if (error) {
-      console.error('Error saving search:', error);
+      logger.error('Error saving search:', error);
       throw error;
     }
 
     return data;
   } catch (err) {
-    console.error('Error in saveSearch:', err);
+    logger.error('Error in saveSearch:', err);
     return null;
   }
 };
@@ -206,7 +207,7 @@ export const saveSearch = async (
  */
 export const getSearchHistory = async (userId: string, limit: number = 20): Promise<SavedSearch[]> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot fetch searches');
+    logger.warn('Supabase not configured - cannot fetch searches');
     return [];
   }
 
@@ -219,13 +220,13 @@ export const getSearchHistory = async (userId: string, limit: number = 20): Prom
       .limit(limit);
 
     if (error) {
-      console.error('Error fetching searches:', error);
+      logger.error('Error fetching searches:', error);
       throw error;
     }
 
     return data || [];
   } catch (err) {
-    console.error('Error in getSearchHistory:', err);
+    logger.error('Error in getSearchHistory:', err);
     return [];
   }
 };
@@ -235,7 +236,7 @@ export const getSearchHistory = async (userId: string, limit: number = 20): Prom
  */
 export const deleteSearch = async (searchId: string, userId: string): Promise<boolean> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot delete search');
+    logger.warn('Supabase not configured - cannot delete search');
     return false;
   }
 
@@ -247,13 +248,13 @@ export const deleteSearch = async (searchId: string, userId: string): Promise<bo
       .eq('user_id', userId);
 
     if (error) {
-      console.error('Error deleting search:', error);
+      logger.error('Error deleting search:', error);
       throw error;
     }
 
     return true;
   } catch (err) {
-    console.error('Error in deleteSearch:', err);
+    logger.error('Error in deleteSearch:', err);
     return false;
   }
 };
@@ -268,7 +269,7 @@ export const createEmailTemplate = async (
   userId: string
 ): Promise<EmailTemplate | null> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot create template');
+    logger.warn('Supabase not configured - cannot create template');
     return null;
   }
 
@@ -283,13 +284,13 @@ export const createEmailTemplate = async (
       .single();
 
     if (error) {
-      console.error('Error creating template:', error);
+      logger.error('Error creating template:', error);
       throw error;
     }
 
     return data;
   } catch (err) {
-    console.error('Error in createEmailTemplate:', err);
+    logger.error('Error in createEmailTemplate:', err);
     return null;
   }
 };
@@ -299,7 +300,7 @@ export const createEmailTemplate = async (
  */
 export const getEmailTemplates = async (userId: string): Promise<EmailTemplate[]> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot fetch templates');
+    logger.warn('Supabase not configured - cannot fetch templates');
     return [];
   }
 
@@ -311,13 +312,13 @@ export const getEmailTemplates = async (userId: string): Promise<EmailTemplate[]
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching templates:', error);
+      logger.error('Error fetching templates:', error);
       throw error;
     }
 
     return data || [];
   } catch (err) {
-    console.error('Error in getEmailTemplates:', err);
+    logger.error('Error in getEmailTemplates:', err);
     return [];
   }
 };
@@ -331,7 +332,7 @@ export const updateEmailTemplate = async (
   userId: string
 ): Promise<EmailTemplate | null> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot update template');
+    logger.warn('Supabase not configured - cannot update template');
     return null;
   }
 
@@ -348,13 +349,13 @@ export const updateEmailTemplate = async (
       .single();
 
     if (error) {
-      console.error('Error updating template:', error);
+      logger.error('Error updating template:', error);
       throw error;
     }
 
     return data;
   } catch (err) {
-    console.error('Error in updateEmailTemplate:', err);
+    logger.error('Error in updateEmailTemplate:', err);
     return null;
   }
 };
@@ -364,7 +365,7 @@ export const updateEmailTemplate = async (
  */
 export const deleteEmailTemplate = async (templateId: string, userId: string): Promise<boolean> => {
   if (!supabase || !isSupabaseConfigured) {
-    console.warn('Supabase not configured - cannot delete template');
+    logger.warn('Supabase not configured - cannot delete template');
     return false;
   }
 
@@ -376,13 +377,13 @@ export const deleteEmailTemplate = async (templateId: string, userId: string): P
       .eq('user_id', userId);
 
     if (error) {
-      console.error('Error deleting template:', error);
+      logger.error('Error deleting template:', error);
       throw error;
     }
 
     return true;
   } catch (err) {
-    console.error('Error in deleteEmailTemplate:', err);
+    logger.error('Error in deleteEmailTemplate:', err);
     return false;
   }
 };
@@ -408,7 +409,7 @@ export const logActivity = async (
       metadata,
     });
   } catch (err) {
-    console.error('Error logging activity:', err);
+    logger.error('Error logging activity:', err);
   }
 };
 
@@ -429,7 +430,7 @@ export const getRecentActivity = async (userId: string, limit: number = 10) => {
     if (error) throw error;
     return data || [];
   } catch (err) {
-    console.error('Error fetching activity:', err);
+    logger.error('Error fetching activity:', err);
     return [];
   }
 };
@@ -457,7 +458,7 @@ export const incrementSearchCount = async (userId: string): Promise<void> => {
         .eq('id', userId);
     }
   } catch (err) {
-    console.error('Error incrementing search count:', err);
+    logger.error('Error incrementing search count:', err);
   }
 };
 
@@ -481,7 +482,7 @@ export const incrementExportCount = async (userId: string): Promise<void> => {
         .eq('id', userId);
     }
   } catch (err) {
-    console.error('Error incrementing export count:', err);
+    logger.error('Error incrementing export count:', err);
   }
 };
 
@@ -561,7 +562,7 @@ export const getUserStats = async (userId: string) => {
       searches_by_city: searchesByCity,
     };
   } catch (err) {
-    console.error('Error fetching user stats:', err);
+    logger.error('Error fetching user stats:', err);
     return {
       total_searches: 0,
       total_leads_saved: 0,

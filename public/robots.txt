@@ -1,0 +1,13 @@
+# robots.txt for ClientMine
+# https://clientmine.space
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://clientmine.space/sitemap.xml
+
+# Disallow admin/private paths (if any)
+Disallow: /api/
+Disallow: /_next/
+Disallow: /dashboard

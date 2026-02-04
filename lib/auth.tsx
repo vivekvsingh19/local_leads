@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { Session, User, AuthError } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from './supabase';
 import { SubscriptionTier } from './types';
+import logger from './logger';
 
 interface UserProfile {
   id: string;
@@ -73,7 +74,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       return data as UserProfile;
     } catch (err) {
-      console.error('Error in fetchProfile:', err);
+      logger.error('Error in fetchProfile:', err);
       return null;
     }
   };
@@ -101,13 +102,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .single();
 
       if (error) {
-        console.error('Error creating profile:', error);
+        logger.error('Error creating profile:', error);
         return null;
       }
 
       return data as UserProfile;
     } catch (err) {
-      console.error('Error in createProfile:', err);
+      logger.error('Error in createProfile:', err);
       return null;
     }
   };
@@ -121,27 +122,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase) {
+      logger.info('🔓 Running without authentication (Supabase not configured)');
       setLoading(false);
       return;
     }
 
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        const fetchedProfile = await fetchProfile(session.user.id);
-        setProfile(fetchedProfile);
-      }
-
+    // Safety timeout - if auth takes more than 5 seconds, stop loading
+    const timeout = setTimeout(() => {
+      logger.warn('Auth check timed out - continuing without session');
       setLoading(false);
-    });
+    }, 5000);
+
+    // Get initial session
+    supabase.auth.getSession()
+      .then(async ({ data: { session } }) => {
+        clearTimeout(timeout);
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          const fetchedProfile = await fetchProfile(session.user.id);
+          setProfile(fetchedProfile);
+        }
+
+        setLoading(false);
+      })
+      .catch((error) => {
+        clearTimeout(timeout);
+        logger.error('Error getting session:', error);
+        setLoading(false);
+      });
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      logger.debug('Auth state changed:', event);
       setSession(session);
       setUser(session?.user ?? null);
 
@@ -155,7 +171,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = async () => {
