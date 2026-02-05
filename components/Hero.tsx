@@ -7,6 +7,7 @@ import { Session } from '@supabase/supabase-js';
 import Background3D from './Background3D';
 import { useAuth } from '../lib/auth';
 import { saveSearch, saveLead, incrementSearchCount, incrementExportCount, logActivity } from '../lib/database';
+import logger from '../lib/logger';
 
 // Debounce helper function
 function debounce<T extends (...args: any[]) => any>(
@@ -38,6 +39,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
   const [isLoadingCities, setIsLoadingCities] = useState(false);
   const [savedLeadIds, setSavedLeadIds] = useState<Set<string>>(new Set());
   const [savingLeadId, setSavingLeadId] = useState<string | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const inputRefKeyword = useRef<HTMLInputElement>(null);
   const inputRefCity = useRef<HTMLInputElement>(null);
@@ -80,7 +82,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
         const suggestions = await autocompleteCities(input);
         setCitySuggestions(suggestions);
       } catch (error) {
-        console.error('City autocomplete error:', error);
+        logger.error('City autocomplete error:', error);
       } finally {
         setIsLoadingCities(false);
       }
@@ -140,6 +142,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
     setHasSearched(true);
     setLeads([]);
     setSavedLeadIds(new Set());
+    setSearchError(null);
 
     // Pro/Business users get comprehensive search (more results, more API calls)
     // Free/Starter users get basic search (fewer results, lower cost)
@@ -147,6 +150,11 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
 
     try {
       const results = await searchLeads({ keyword, city, isPro });
+
+      if (results.length === 0) {
+        setSearchError('No businesses found. Try a different search term or location.');
+      }
+
       setLeads(results);
 
       // Save search to database if user is logged in
@@ -157,11 +165,12 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
           await incrementSearchCount(user.id);
           await logActivity(user.id, 'search', `Searched for "${keyword}" in "${city}"`);
         } catch (dbError) {
-          console.error('Failed to save search to database:', dbError);
+          logger.error('Failed to save search to database:', dbError);
         }
       }
     } catch (error) {
-      console.error("Search failed", error);
+      logger.error("Search failed", error);
+      setSearchError('Search failed. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -209,7 +218,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
       setSavedLeadIds(prev => new Set([...prev, lead.id]));
       await logActivity(user.id, 'save_lead', `Saved lead: ${lead.business_name}`);
     } catch (error) {
-      console.error('Failed to save lead:', error);
+      logger.error('Failed to save lead:', error);
     } finally {
       setSavingLeadId(null);
     }
@@ -224,7 +233,7 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
         await incrementExportCount(user.id);
         await logActivity(user.id, 'export', `Exported ${filteredLeads.length} leads to CSV`);
       } catch (error) {
-        console.error('Failed to track export:', error);
+        logger.error('Failed to track export:', error);
       }
     }
   };
@@ -723,11 +732,15 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
 
                  {!loading && filteredLeads.length === 0 && leads.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-full p-12 text-center">
-                       <div className="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-3xl flex items-center justify-center mb-6 ring-1 ring-slate-200 dark:ring-white/10 shadow-lg">
-                         <IconSearch className="w-10 h-10 text-slate-400 dark:text-slate-500" />
+                       <div className={`w-20 h-20 ${searchError ? 'bg-red-100 dark:bg-red-500/10' : 'bg-slate-100 dark:bg-white/5'} rounded-3xl flex items-center justify-center mb-6 ring-1 ${searchError ? 'ring-red-200 dark:ring-red-500/20' : 'ring-slate-200 dark:ring-white/10'} shadow-lg`}>
+                         <IconSearch className={`w-10 h-10 ${searchError ? 'text-red-500 dark:text-red-400' : 'text-slate-400 dark:text-slate-500'}`} />
                        </div>
-                       <h3 className="text-slate-900 dark:text-white text-xl font-bold mb-2">No results found</h3>
-                       <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm">We couldn't find any businesses matching "{keyword}" in "{city}". Try a different category or location.</p>
+                       <h3 className="text-slate-900 dark:text-white text-xl font-bold mb-2">
+                         {searchError ? 'Search Error' : 'No results found'}
+                       </h3>
+                       <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm">
+                         {searchError || `We couldn't find any businesses matching "${keyword}" in "${city}". Try a different category or location.`}
+                       </p>
                     </div>
                  )}
 

@@ -1,6 +1,6 @@
 /**
  * Production-safe logger utility
- * Only logs in development mode, silent in production
+ * Logs are shown in development, errors always shown
  */
 
 const isDevelopment = import.meta.env.DEV;
@@ -12,19 +12,12 @@ export const logger = {
     }
   },
   warn: (...args: any[]) => {
-    if (isDevelopment) {
-      console.warn(...args);
-    }
+    // Show warnings in both dev and prod for debugging API issues
+    console.warn(...args);
   },
   error: (...args: any[]) => {
-    // Always log errors, but in production you could send to error tracking service
-    if (isDevelopment) {
-      console.error(...args);
-    } else {
-      // In production, you could send to Sentry or similar
-      // For now, still log errors but could be enhanced
-      console.error(...args);
-    }
+    // Always log errors
+    console.error(...args);
   },
   info: (...args: any[]) => {
     if (isDevelopment) {
