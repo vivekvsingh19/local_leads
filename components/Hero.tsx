@@ -28,7 +28,7 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = 'free' }) => {
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const [keyword, setKeyword] = useState('');
   const [city, setCity] = useState('');
   const [loading, setLoading] = useState(false);
@@ -164,8 +164,21 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
           await saveSearch(keyword, city, results.length, leadsWithoutWebsite, user.id);
           await incrementSearchCount(user.id);
           await logActivity(user.id, 'search', `Searched for "${keyword}" in "${city}"`);
+          // Refresh profile to update search count in UI
+          await refreshProfile();
         } catch (dbError) {
           logger.error('Failed to save search to database:', dbError);
+        }
+        
+        // Auto-toggle filter if all results have websites
+        if (leadsWithoutWebsite === 0 && results.length > 0) {
+          setShowOnlyNoWebsite(false);
+        }
+      } else {
+        // For non-logged in users, also auto-toggle
+        const leadsWithoutWebsite = results.filter(l => !l.has_website).length;
+        if (leadsWithoutWebsite === 0 && results.length > 0) {
+          setShowOnlyNoWebsite(false);
         }
       }
     } catch (error) {

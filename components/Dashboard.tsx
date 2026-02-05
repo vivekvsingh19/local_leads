@@ -544,6 +544,9 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
                 />
               </div>
             )}
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+              {stats.total_searches} total searches
+            </p>
           </div>
 
           <div className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 shadow-sm">
