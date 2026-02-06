@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Session } from '@supabase/supabase-js';
 import {
@@ -78,8 +78,8 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     }, {} as Record<string, number>);
   }, [savedLeads]);
 
-  // Cache duration: 2 minutes
-  const CACHE_DURATION = 2 * 60 * 1000;
+  // Cache duration: 30 seconds for faster sync
+  const CACHE_DURATION = 30 * 1000;
 
   // Optimized fetch with caching
   const fetchData = useCallback(async (force = false) => {
@@ -98,20 +98,27 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     const now = Date.now();
     const cacheKey = `dashboard_${user.id}`;
 
-    // Use cached data if available and not expired
-    if (!force && now - lastFetch < CACHE_DURATION && dataCache[cacheKey]) {
-      const cached = dataCache[cacheKey];
-      setSavedLeads(cached.leads || []);
-      setRecentSearches(cached.searches || []);
-      setEmailTemplates(cached.templates || []);
-      setStats(cached.stats || stats);
-      setRecentActivity(cached.activity || []);
-      setLoading(false);
-      return;
+    // Check cache only if not forcing refresh
+    if (!force) {
+      const timeSinceLastFetch = now - lastFetch;
+      if (timeSinceLastFetch < CACHE_DURATION && dataCache[cacheKey]) {
+        logger.debug('Using cached dashboard data');
+        const cached = dataCache[cacheKey];
+        setSavedLeads(cached.leads || []);
+        setRecentSearches(cached.searches || []);
+        setEmailTemplates(cached.templates || []);
+        setStats(cached.stats || stats);
+        setRecentActivity(cached.activity || []);
+        setLoading(false);
+        return;
+      }
+    } else {
+      logger.info('Force refreshing dashboard data');
     }
 
     setLoading(true);
     setConnectionError(null);
+    
     try {
       const [leads, searches, templates, userStats, activity] = await Promise.all([
         getSavedLeads(user.id),
@@ -137,18 +144,50 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       setLastFetch(now);
       setDataCache(prev => ({ ...prev, [cacheKey]: cacheData }));
       setConnectionError(null);
+      
+      logger.info('Dashboard data refreshed:', { 
+        leads: leads.length, 
+        searches: searches.length,
+        totalSearches: userStats.total_searches 
+      });
     } catch (err) {
       logger.error('Error fetching dashboard data:', err);
       setConnectionError('Failed to load dashboard data. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
-  }, [user?.id, lastFetch, dataCache, stats]);
+  }, [user?.id]); // Only depend on user.id
 
   useEffect(() => {
     // Always call fetchData - it will handle the case when user is not available
     fetchData();
-  }, [user?.id]); // Fetch when user changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]); // Only fetch when user changes, not when fetchData reference changes
+
+  // Watch for profile changes to log them and trigger refresh if counts changed
+  const prevSearchCount = useRef<number | undefined>();
+  const prevExportCount = useRef<number | undefined>();
+  
+  useEffect(() => {
+    if (profile) {
+      const searchesChanged = prevSearchCount.current !== undefined && 
+                             prevSearchCount.current !== profile.searches_this_month;
+      const exportsChanged = prevExportCount.current !== undefined && 
+                            prevExportCount.current !== profile.exports_this_month;
+      
+      if (searchesChanged || exportsChanged) {
+        logger.debug('Dashboard detected profile count change:', { 
+          searches: profile.searches_this_month, 
+          exports: profile.exports_this_month 
+        });
+        // If searches or exports changed, refresh the stats
+        fetchData(true);
+      }
+      
+      prevSearchCount.current = profile.searches_this_month;
+      prevExportCount.current = profile.exports_this_month;
+    }
+  }, [profile?.searches_this_month, profile?.exports_this_month]); // Remove fetchData dependency
 
   // Real-time subscription for live updates
   useEffect(() => {
@@ -173,6 +212,25 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       )
       .subscribe();
 
+    // Subscribe to changes in saved_searches table
+    const searchesSubscription = supabase
+      .channel('saved_searches_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'saved_searches',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          logger.debug('Search change detected:', payload.eventType);
+          // Refresh data on changes
+          fetchData(true);
+        }
+      )
+      .subscribe();
+
     // Subscribe to changes in activity_log table
     const activitySubscription = supabase
       .channel('activity_log_changes')
@@ -192,9 +250,18 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       )
       .subscribe();
 
+    // Listen for custom dashboard refresh events (from Hero, etc.)
+    const handleDashboardRefresh = () => {
+      logger.info('🔄 Dashboard refresh event received, forcing data refresh');
+      fetchData(true);
+    };
+    window.addEventListener('dashboard-refresh', handleDashboardRefresh);
+
     return () => {
       leadsSubscription.unsubscribe();
+      searchesSubscription.unsubscribe();
       activitySubscription.unsubscribe();
+      window.removeEventListener('dashboard-refresh', handleDashboardRefresh);
     };
   }, [user?.id, fetchData]);
 
@@ -708,9 +775,17 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
               className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm overflow-hidden"
             >
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h3 className="font-semibold text-slate-900 dark:text-white">
-                  Saved Leads ({filteredLeads.length})
-                </h3>
+                <div>
+                  <h3 className="font-semibold text-slate-900 dark:text-white">
+                    Saved Leads ({filteredLeads.length})
+                  </h3>
+                  {loading && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1.5">
+                      <div className="w-3 h-3 border-2 border-slate-300 border-t-primary-500 rounded-full animate-spin" />
+                      Syncing...
+                    </p>
+                  )}
+                </div>
                 <div className="flex items-center gap-2">
                   <select
                     value={statusFilter}
@@ -835,8 +910,19 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
               exit={{ opacity: 0, y: -20 }}
               className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm overflow-hidden"
             >
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50">
-                <h3 className="font-semibold text-slate-900 dark:text-white">Search History ({recentSearches.length})</h3>
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-slate-900 dark:text-white">Search History ({recentSearches.length})</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {stats.total_searches} total searches performed
+                  </p>
+                </div>
+                {loading && (
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <div className="w-3 h-3 border-2 border-slate-300 border-t-primary-500 rounded-full animate-spin" />
+                    Syncing...
+                  </div>
+                )}
               </div>
 
               {recentSearches.length > 0 ? (
