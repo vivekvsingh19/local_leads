@@ -118,7 +118,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
 
     setLoading(true);
     setConnectionError(null);
-    
+
     try {
       const [leads, searches, templates, userStats, activity] = await Promise.all([
         getSavedLeads(user.id),
@@ -144,11 +144,11 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       setLastFetch(now);
       setDataCache(prev => ({ ...prev, [cacheKey]: cacheData }));
       setConnectionError(null);
-      
-      logger.info('Dashboard data refreshed:', { 
-        leads: leads.length, 
+
+      logger.info('Dashboard data refreshed:', {
+        leads: leads.length,
         searches: searches.length,
-        totalSearches: userStats.total_searches 
+        totalSearches: userStats.total_searches
       });
     } catch (err) {
       logger.error('Error fetching dashboard data:', err);
@@ -167,23 +167,23 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   // Watch for profile changes to log them and trigger refresh if counts changed
   const prevSearchCount = useRef<number | undefined>();
   const prevExportCount = useRef<number | undefined>();
-  
+
   useEffect(() => {
     if (profile) {
-      const searchesChanged = prevSearchCount.current !== undefined && 
+      const searchesChanged = prevSearchCount.current !== undefined &&
                              prevSearchCount.current !== profile.searches_this_month;
-      const exportsChanged = prevExportCount.current !== undefined && 
+      const exportsChanged = prevExportCount.current !== undefined &&
                             prevExportCount.current !== profile.exports_this_month;
-      
+
       if (searchesChanged || exportsChanged) {
-        logger.debug('Dashboard detected profile count change:', { 
-          searches: profile.searches_this_month, 
-          exports: profile.exports_this_month 
+        logger.debug('Dashboard detected profile count change:', {
+          searches: profile.searches_this_month,
+          exports: profile.exports_this_month
         });
         // If searches or exports changed, refresh the stats
         fetchData(true);
       }
-      
+
       prevSearchCount.current = profile.searches_this_month;
       prevExportCount.current = profile.exports_this_month;
     }
