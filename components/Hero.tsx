@@ -166,10 +166,13 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
           await logActivity(user.id, 'search', `Searched for "${keyword}" in "${city}"`);
           // Refresh profile to update search count in UI
           await refreshProfile();
+          // Dispatch event to sync dashboard
+          logger.info('Dispatching dashboard-refresh event after search');
+          window.dispatchEvent(new CustomEvent('dashboard-refresh'));
         } catch (dbError) {
           logger.error('Failed to save search to database:', dbError);
         }
-        
+
         // Auto-toggle filter if all results have websites
         if (leadsWithoutWebsite === 0 && results.length > 0) {
           setShowOnlyNoWebsite(false);
@@ -230,6 +233,9 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
 
       setSavedLeadIds(prev => new Set([...prev, lead.id]));
       await logActivity(user.id, 'save_lead', `Saved lead: ${lead.business_name}`);
+      // Dispatch event to sync dashboard
+      logger.info('Dispatching dashboard-refresh event after saving lead');
+      window.dispatchEvent(new CustomEvent('dashboard-refresh'));
     } catch (error) {
       logger.error('Failed to save lead:', error);
     } finally {
@@ -245,6 +251,11 @@ const Hero: React.FC<HeroProps> = ({ session, onLoginClick, subscriptionTier = '
       try {
         await incrementExportCount(user.id);
         await logActivity(user.id, 'export', `Exported ${filteredLeads.length} leads to CSV`);
+        // Refresh profile to update export count
+        await refreshProfile();
+        // Dispatch event to sync dashboard
+        logger.info('Dispatching dashboard-refresh event after export');
+        window.dispatchEvent(new CustomEvent('dashboard-refresh'));
       } catch (error) {
         logger.error('Failed to track export:', error);
       }

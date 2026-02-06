@@ -115,8 +115,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const refreshProfile = async () => {
     if (user?.id) {
+      logger.info('Refreshing user profile...');
       const fetchedProfile = await fetchProfile(user.id);
       setProfile(fetchedProfile);
+      logger.info('Profile refreshed:', { searches: fetchedProfile?.searches_this_month, exports: fetchedProfile?.exports_this_month });
     }
   };
 
