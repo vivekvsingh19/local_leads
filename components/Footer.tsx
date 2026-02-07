@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
             </div>
             <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">ClientMine</span>
           </a>
-          
+
           <p className="text-slate-600 dark:text-slate-500 text-sm max-w-md">
             The simplest tool for web designers and agencies to find local clients who actually need their help.
           </p>
@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
             <p className="text-sm text-slate-500 dark:text-slate-600">
               Crafted by <span className="font-semibold text-slate-700 dark:text-slate-400">7xstacc</span>
             </p>
-            
+
             <div className="flex items-center justify-center gap-3">
               <span className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider">Contact Developer:</span>
               <a
