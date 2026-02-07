@@ -184,7 +184,7 @@ const Login: React.FC<LoginProps> = ({ isOpen, onClose }) => {
               </h2>
               <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm">
                 {mode === 'login' && 'Sign in to access unlimited lead searches and export your data instantly.'}
-                {mode === 'signup' && 'Join LocalLeads to find and manage your business leads.'}
+                {mode === 'signup' && 'Join ClientMine to find and manage your business leads.'}
                 {mode === 'forgot' && 'Enter your email and we\'ll send you reset instructions.'}
               </p>
 
