@@ -1,4 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import WhatItDoes from './components/WhatItDoes';
@@ -157,6 +158,7 @@ const AppContent: React.FC = () => {
       </AnimatePresence>
 
       <Footer />
+      <Analytics />
     </div>
   );
 };
