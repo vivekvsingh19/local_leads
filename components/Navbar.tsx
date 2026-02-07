@@ -19,13 +19,10 @@ const Navbar: React.FC<NavbarProps> = ({ session, onLoginClick, currentPage = 'h
   const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
-    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setIsDark(false);
-      document.documentElement.classList.remove('dark');
-    }
+    // Force light mode
+    setIsDark(false);
+    document.documentElement.classList.remove('dark');
+    localStorage.theme = 'light';
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);

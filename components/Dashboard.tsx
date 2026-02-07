@@ -132,7 +132,10 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     }
 
     isFetchingRef.current = true;
-    setLoading(true);
+    // Only show loading spinner on first load, not when refreshing cached data
+    if (!dataCacheRef.current[cacheKey]) {
+      setLoading(true);
+    }
     setConnectionError(null);
 
     try {
@@ -611,30 +614,6 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
         >
           <div className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <IconSearch className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">This Month</span>
-            </div>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">{profile?.searches_this_month || 0}</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              of {currentPlan.limits.searches_per_month === -1 ? '∞' : currentPlan.limits.searches_per_month} searches
-            </p>
-            {currentPlan.limits.searches_per_month > 0 && (
-              <div className="mt-3 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-blue-500 rounded-full transition-all"
-                  style={{ width: `${Math.min(((profile?.searches_this_month || 0) / currentPlan.limits.searches_per_month) * 100, 100)}%` }}
-                />
-              </div>
-            )}
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
-              {stats.total_searches} total searches
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                 <IconShield className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               </div>
@@ -644,29 +623,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
             <p className="text-sm text-slate-500 dark:text-slate-400">leads saved</p>
           </div>
 
-          <div className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <IconZap className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Contacted</span>
-            </div>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.leads_contacted}</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">businesses reached</p>
-          </div>
 
-          <div className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                <IconActivity className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <span className="text-xs font-medium text-emerald-500 dark:text-emerald-400">
-                {conversionRate > 0 ? `${conversionRate}%` : '-'}
-              </span>
-            </div>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">{stats.leads_converted}</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">converted to clients</p>
-          </div>
         </motion.div>
 
         {/* Tabs */}

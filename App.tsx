@@ -45,6 +45,13 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     if (session) {
       setIsLoginOpen(false);
+      // Clean up URL hash after successful login
+      if (window.location.hash.includes('access_token')) {
+        // Use replaceState to clean the URL without reload
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Navigate to dashboard
+        setCurrentPage('dashboard');
+      }
     }
   }, [session]);
 
@@ -126,21 +133,6 @@ const AppContent: React.FC = () => {
           </motion.main>
         )}
 
-        {currentPage === 'dashboard' && (
-          <motion.main
-            key="dashboard"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <ErrorBoundary>
-              <Suspense fallback={<LoadingSpinner />}>
-                <Dashboard session={session} onNavigate={handleNavigate} />
-              </Suspense>
-            </ErrorBoundary>
-          </motion.main>
-        )}
-
         {currentPage === 'pricing' && (
           <motion.main
             key="pricing"
@@ -156,6 +148,17 @@ const AppContent: React.FC = () => {
           </motion.main>
         )}
       </AnimatePresence>
+
+      {/* Dashboard stays mounted but hidden to prevent remount/loading loops */}
+      {session && (
+        <div style={{ display: currentPage === 'dashboard' ? 'block' : 'none' }}>
+          <ErrorBoundary>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Dashboard session={session} onNavigate={handleNavigate} />
+            </Suspense>
+          </ErrorBoundary>
+        </div>
+      )}
 
       <Footer />
       <Analytics />
