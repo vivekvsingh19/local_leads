@@ -37,7 +37,6 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   const [loadingLeads, setLoadingLeads] = useState(false);
   const [loadingStats, setLoadingStats] = useState(false);
   const [lastFetch, setLastFetch] = useState<number>(0);
-  const [dataCache, setDataCache] = useState<Record<string, any>>({});
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
   // Data state
@@ -81,10 +80,21 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
   // Cache duration: 30 seconds for faster sync
   const CACHE_DURATION = 30 * 1000;
 
-  // Optimized fetch with caching
+  // Use refs to avoid stale closures and prevent re-render loops
+  const lastFetchRef = useRef<number>(0);
+  const dataCacheRef = useRef<Record<string, any>>({});
+  const isFetchingRef = useRef(false);
+
+  // Stable fetch function using refs to avoid dependency loops
   const fetchData = useCallback(async (force = false) => {
     if (!user?.id) {
       setLoading(false);
+      return;
+    }
+
+    // Prevent concurrent fetches
+    if (isFetchingRef.current) {
+      logger.debug('Fetch already in progress, skipping');
       return;
     }
 
@@ -100,10 +110,10 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
 
     // Check cache only if not forcing refresh
     if (!force) {
-      const timeSinceLastFetch = now - lastFetch;
-      if (timeSinceLastFetch < CACHE_DURATION && dataCache[cacheKey]) {
+      const timeSinceLastFetch = now - lastFetchRef.current;
+      if (timeSinceLastFetch < CACHE_DURATION && dataCacheRef.current[cacheKey]) {
         logger.debug('Using cached dashboard data');
-        const cached = dataCache[cacheKey];
+        const cached = dataCacheRef.current[cacheKey];
         setSavedLeads(cached.leads || []);
         setRecentSearches(cached.searches || []);
         setEmailTemplates(cached.templates || []);
@@ -113,9 +123,15 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
         return;
       }
     } else {
+      // Debounce forced refreshes — skip if last fetch was < 2 seconds ago
+      if (now - lastFetchRef.current < 2000) {
+        logger.debug('Skipping force refresh, too soon since last fetch');
+        return;
+      }
       logger.info('Force refreshing dashboard data');
     }
 
+    isFetchingRef.current = true;
     setLoading(true);
     setConnectionError(null);
 
@@ -141,8 +157,9 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       setEmailTemplates(templates);
       setStats(userStats);
       setRecentActivity(activity);
-      setLastFetch(now);
-      setDataCache(prev => ({ ...prev, [cacheKey]: cacheData }));
+      lastFetchRef.current = Date.now();
+      dataCacheRef.current = { ...dataCacheRef.current, [cacheKey]: cacheData };
+      setLastFetch(Date.now());
       setConnectionError(null);
 
       logger.info('Dashboard data refreshed:', {
@@ -155,14 +172,18 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       setConnectionError('Failed to load dashboard data. Please check your connection and try again.');
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   }, [user?.id]); // Only depend on user.id
 
+  // Store fetchData in a ref so subscriptions always call the latest version
+  const fetchDataRef = useRef(fetchData);
+  fetchDataRef.current = fetchData;
+
   useEffect(() => {
-    // Always call fetchData - it will handle the case when user is not available
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]); // Only fetch when user changes, not when fetchData reference changes
+  }, [user?.id]); // Only fetch when user changes
 
   // Watch for profile changes to log them and trigger refresh if counts changed
   const prevSearchCount = useRef<number | undefined>();
@@ -180,16 +201,15 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
           searches: profile.searches_this_month,
           exports: profile.exports_this_month
         });
-        // If searches or exports changed, refresh the stats
-        fetchData(true);
+        fetchDataRef.current(true);
       }
 
       prevSearchCount.current = profile.searches_this_month;
       prevExportCount.current = profile.exports_this_month;
     }
-  }, [profile?.searches_this_month, profile?.exports_this_month]); // Remove fetchData dependency
+  }, [profile?.searches_this_month, profile?.exports_this_month]);
 
-  // Real-time subscription for live updates
+  // Real-time subscription for live updates — stable, only depends on user.id
   useEffect(() => {
     if (!user?.id || !supabase || !isSupabaseConfigured) return;
 
@@ -204,10 +224,9 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
           table: 'saved_leads',
           filter: `user_id=eq.${user.id}`,
         },
-        (payload) => {
-          logger.debug('Lead change detected:', payload.eventType);
-          // Refresh data on changes from other sources
-          fetchData(true);
+        () => {
+          logger.debug('Lead change detected');
+          fetchDataRef.current(true);
         }
       )
       .subscribe();
@@ -223,10 +242,9 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
           table: 'saved_searches',
           filter: `user_id=eq.${user.id}`,
         },
-        (payload) => {
-          logger.debug('Search change detected:', payload.eventType);
-          // Refresh data on changes
-          fetchData(true);
+        () => {
+          logger.debug('Search change detected');
+          fetchDataRef.current(true);
         }
       )
       .subscribe();
@@ -244,7 +262,6 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
         },
         (payload) => {
           logger.debug('New activity detected');
-          // Add new activity to the list
           setRecentActivity(prev => [payload.new as any, ...prev.slice(0, 9)]);
         }
       )
@@ -253,7 +270,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
     // Listen for custom dashboard refresh events (from Hero, etc.)
     const handleDashboardRefresh = () => {
       logger.info('🔄 Dashboard refresh event received, forcing data refresh');
-      fetchData(true);
+      fetchDataRef.current(true);
     };
     window.addEventListener('dashboard-refresh', handleDashboardRefresh);
 
@@ -263,7 +280,7 @@ const Dashboard: React.FC<DashboardProps> = ({ session, onNavigate }) => {
       activitySubscription.unsubscribe();
       window.removeEventListener('dashboard-refresh', handleDashboardRefresh);
     };
-  }, [user?.id, fetchData]);
+  }, [user?.id]); // Stable — no fetchData dependency
 
   // Lead status management - optimized
   const handleStatusChange = async (leadId: string, newStatus: SavedLead['status']) => {
