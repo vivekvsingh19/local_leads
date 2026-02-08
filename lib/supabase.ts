@@ -18,7 +18,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 // Create a dummy client if not configured (allows app to run without Supabase)
 export const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        detectSessionInUrl: true,
+        flowType: 'implicit',
+        autoRefreshToken: true,
+        persistSession: true,
+      },
+    })
   : null;
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);

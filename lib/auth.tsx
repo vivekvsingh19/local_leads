@@ -135,7 +135,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoading(false);
     }, 5000);
 
-    // Get initial session
+    // Listen for auth changes FIRST (before getSession)
+    // This ensures we catch the SIGNED_IN event from URL hash detection
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      logger.debug('Auth state changed:', event);
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        const fetchedProfile = await fetchProfile(session.user.id);
+        setProfile(fetchedProfile);
+      } else {
+        setProfile(null);
+      }
+
+      setLoading(false);
+    });
+
+    // Then get initial session (this also triggers hash detection)
     supabase.auth.getSession()
       .then(async ({ data: { session } }) => {
         clearTimeout(timeout);
@@ -154,24 +173,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logger.error('Error getting session:', error);
         setLoading(false);
       });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      logger.debug('Auth state changed:', event);
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        const fetchedProfile = await fetchProfile(session.user.id);
-        setProfile(fetchedProfile);
-      } else {
-        setProfile(null);
-      }
-
-      setLoading(false);
-    });
 
     return () => {
       clearTimeout(timeout);
